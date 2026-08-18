@@ -196,6 +196,12 @@ const SUPA_URL = "https://ojfnqfjbeknsiustzjpx.supabase.co";
 const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qZm5xZmpiZWtuc2l1c3R6anB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDczMjgsImV4cCI6MjEwMjYyMzMyOH0.hZ-AzI_n-v9nnGqjI57zrHTVqa_m3W-NRxKRXaW5fGU";
 const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
 
+/* ====== انتهاء صلاحية الدعوة ====== */
+// حط تاريخ الانتهاء وبعده تختفي الدعوة تماماً (صفحة فاضية).
+// الصيغة: "2026-08-31T23:59:00"  (نظام 24 ساعة)
+// اتركه فاضي  ""  لتبقى الدعوة شغّالة دائماً.
+const EXPIRY = "";
+
 /* القيم الافتراضية (تُستبدل بما يُحفظ من لوحة التصميم) */
 const DEFAULTS = {
   couple:{ groomAr:"العريس", brideAr:"العروس", groomEn:"Groom", brideEn:"Bride" },
@@ -346,7 +352,7 @@ async function submitRsvp(){
   if(attending===null){errBox.textContent=L.errAtt;return;}
   const guests_count=attending?Math.max(1,parseInt(document.getElementById("rsvpCount").value||"1",10)):0;
   btn.disabled=true;btn.textContent=L.sending;
-  const {error}=await sb.from("rsvp").insert({name,phone,attending,guests_count,message});
+  const {error}=await sb.from("rsvp").insert({invitation_id:INVITATION_ID,name,phone,attending,guests_count,message});
   btn.disabled=false;btn.textContent=L.send;
   if(error){errBox.textContent=L.errSend;console.error(error);return;}
   document.getElementById("rsvpForm").style.display="none";
@@ -406,14 +412,31 @@ function init(){
   tick(); timer=setInterval(tick,1000);
 }
 
+let INVITATION_ID=null;
+
 async function boot(){
+  // اسم الرابط (slug) من المسار:  site.com/ahmad-lina
+  const slug=decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g,"").split("/").pop()||"");
+  if(!slug || slug.endsWith(".html")){ showExpired(); return; } // لا يوجد عرس بالرابط
   try{
-    const {data}=await sb.from("settings").select("data").eq("id",1).single();
-    if(data && data.data) mergeInto(CONFIG,data.data);
-  }catch(e){ console.warn("settings load failed, using defaults",e); }
+    const {data,error}=await sb.from("invitations").select("id,data").eq("slug",slug).single();
+    if(error || !data){ showExpired(); return; } // رابط غير موجود
+    INVITATION_ID=data.id;
+    if(data.data) mergeInto(CONFIG,data.data);
+  }catch(e){ console.warn("load failed",e); showExpired(); return; }
   init();
 }
-boot();
+function showExpired(){
+  document.body.className="";
+  document.body.innerHTML="";
+  document.body.style.background="#fff";
+  document.documentElement.style.background="#fff";
+}
+if(EXPIRY && Date.now() > new Date(EXPIRY).getTime()){
+  showExpired();
+}else{
+  boot();
+}
 </script>
 </body>
 </html>

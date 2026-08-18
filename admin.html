@@ -27,6 +27,7 @@ input[type=color]{padding:4px;height:46px;cursor:pointer}
 .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
 .btn.wide{width:100%}
 .err{color:#9C4A3C;font-size:.9rem;min-height:1em;text-align:center;margin-top:8px}
+.ok{color:var(--green);font-size:.92rem;min-height:1em;text-align:center;margin-top:8px;font-weight:700}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 @media(max-width:560px){.row2,.row3{grid-template-columns:1fr}}
@@ -52,13 +53,19 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
 .saved{color:var(--green);text-align:center;font-weight:700;min-height:1.2em;margin-top:10px}
 .preview{width:100%;height:520px;border:1px solid var(--line);border-radius:14px;margin-top:14px;background:#fff}
 .hint{color:var(--muted);font-size:.88rem;line-height:1.7;margin:2px 2px 0}
+.slug-line{display:flex;align-items:center;gap:4px}
+.slug-line .pre{color:var(--muted);font-size:.9rem;white-space:nowrap}
+.center-card{max-width:420px;margin:50px auto}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;background:transparent;border:1px solid var(--line);border-radius:50px;padding:10px;color:var(--muted);cursor:pointer;font-family:inherit}
+.tab.active{background:var(--green);color:#F3EAD9;border-color:var(--green)}
 </style>
 </head>
 <body>
 <div class="wrap">
 
   <!-- تسجيل الدخول -->
-  <div id="login" class="card" style="max-width:420px;margin:60px auto">
+  <div id="login" class="card center-card">
     <h1>لوحة الدعوة</h1>
     <label>الإيميل</label>
     <input id="email" type="email" autocomplete="username">
@@ -66,6 +73,22 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     <input id="pass" type="password" autocomplete="current-password">
     <div class="err" id="loginErr"></div>
     <button class="btn wide" id="loginBtn" style="margin-top:14px">دخول</button>
+    <p class="hint" style="text-align:center;margin-top:14px">للحصول على حساب، تواصل مع مزوّد الخدمة.</p>
+  </div>
+
+  <!-- اختيار رابط الدعوة (أول مرة) -->
+  <div id="setup" class="card center-card hidden">
+    <h1>اختر رابط دعوتك</h1>
+    <p class="hint" style="text-align:center">هذا الاسم يظهر برابط دعوتك ولا يمكن تغييره لاحقاً بسهولة.</p>
+    <label>اسم الرابط</label>
+    <div class="slug-line">
+      <span class="pre" id="setupPre"></span>
+      <input id="setupSlug" placeholder="ahmad-lina">
+    </div>
+    <p class="hint">أحرف إنجليزية صغيرة وأرقام وشرطات فقط (مثال: ahmad-lina).</p>
+    <div class="err" id="setupErr"></div>
+    <button class="btn gold wide" id="setupBtn" style="margin-top:14px">إنشاء دعوتي</button>
+    <button class="btn ghost wide" id="setupLogout" style="margin-top:10px">خروج</button>
   </div>
 
   <!-- الرئيسية -->
@@ -75,7 +98,7 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
       <button class="btn ghost" id="logout">خروج</button>
     </div>
     <div class="card">
-      <label>رابط الدعوة (انسخه وابعته للضيوف)</label>
+      <label>رابط دعوتك (انسخه وابعته للضيوف)</label>
       <div class="link-box">
         <input id="inviteLink" readonly>
         <button class="btn gold" id="copyLink">نسخ</button>
@@ -85,6 +108,9 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
       <div class="big-btn" id="goResponses"><div class="ic">📋</div><div class="t">الردود</div></div>
       <div class="big-btn" id="goDesign"><div class="ic">🎨</div><div class="t">تصميم كرت الدعوة</div></div>
     </div>
+    <div class="home-btns" style="margin-top:14px">
+      <div class="big-btn" id="goPass"><div class="ic">🔒</div><div class="t">تغيير كلمة المرور</div></div>
+    </div>
   </div>
 
   <!-- الردود -->
@@ -92,6 +118,20 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     <div class="topbar"><button class="btn ghost" id="backFromResp">‹ رجوع</button><h2 style="margin:0">الردود</h2></div>
     <div class="summary" id="summary">...</div>
     <div class="tbl-wrap"><table id="tbl"></table></div>
+  </div>
+
+  <!-- تغيير كلمة المرور -->
+  <div id="passView" class="hidden">
+    <div class="topbar"><button class="btn ghost" id="backFromPass">‹ رجوع</button><h2 style="margin:0">تغيير كلمة المرور</h2></div>
+    <div class="card center-card">
+      <label>كلمة المرور الجديدة</label>
+      <input id="newPass" type="password">
+      <label>تأكيد كلمة المرور</label>
+      <input id="newPass2" type="password">
+      <div class="err" id="passErr"></div>
+      <div class="ok" id="passOk"></div>
+      <button class="btn gold wide" id="savePass" style="margin-top:14px">حفظ</button>
+    </div>
   </div>
 
   <!-- التصميم -->
@@ -203,7 +243,7 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     <div class="saved" id="savedMsg"></div>
 
     <h2>معاينة مباشرة</h2>
-    <iframe class="preview" id="preview" src="index.html"></iframe>
+    <iframe class="preview" id="preview"></iframe>
   </div>
 
 </div>
@@ -213,39 +253,80 @@ const SUPA_URL="https://ojfnqfjbeknsiustzjpx.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qZm5xZmpiZWtuc2l1c3R6anB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDczMjgsImV4cCI6MjEwMjYyMzMyOH0.hZ-AzI_n-v9nnGqjI57zrHTVqa_m3W-NRxKRXaW5fGU";
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
 const $=id=>document.getElementById(id);
-const show=id=>{["login","home","responses","design"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");};
+const show=id=>{["login","setup","home","responses","design","passView"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");};
+const SITE_ROOT=location.href.replace(/admin\.html.*$/,"");
 
-/* رابط الدعوة = رابط هذه الصفحة بدون admin.html */
-$("inviteLink").value = location.href.replace(/admin\.html.*$/,"");
+let INV=null; // دعوة المستخدم الحالية
 
-/* دخول */
-async function checkSession(){const {data}=await sb.auth.getSession();if(data&&data.session){enterHome();}}
+/* ===== الدخول ===== */
+async function checkSession(){
+  const {data}=await sb.auth.getSession();
+  if(data && data.session){ afterLogin(); } else { show("login"); }
+}
 $("loginBtn").addEventListener("click",async()=>{
   $("loginErr").textContent="";
   const {error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("pass").value});
   if(error){$("loginErr").textContent="بيانات الدخول غير صحيحة";return;}
-  enterHome();
+  afterLogin();
 });
-$("logout").addEventListener("click",async()=>{await sb.auth.signOut();show("login");});
-function enterHome(){show("home");}
-checkSession();
+$("logout").addEventListener("click",logout);
+$("setupLogout").addEventListener("click",logout);
+async function logout(){await sb.auth.signOut();INV=null;show("login");}
 
-/* تنقّل */
+/* بعد الدخول: هل عنده دعوة؟ */
+async function afterLogin(){
+  const {data,error}=await sb.from("invitations").select("*").limit(1);
+  if(error){console.error(error);}
+  if(data && data.length){ INV=data[0]; enterHome(); }
+  else { $("setupPre").textContent=SITE_ROOT; show("setup"); }
+}
+
+/* ===== اختيار الرابط (أول مرة) ===== */
+$("setupBtn").addEventListener("click",async()=>{
+  $("setupErr").textContent="";
+  let slug=$("setupSlug").value.trim().toLowerCase();
+  if(!/^[a-z0-9-]{3,40}$/.test(slug)){$("setupErr").textContent="اسم غير صالح — أحرف إنجليزية صغيرة وأرقام وشرطات فقط (3 أحرف على الأقل)";return;}
+  // موجود مسبقاً؟
+  const {data:exists}=await sb.from("invitations").select("id").eq("slug",slug).limit(1);
+  if(exists && exists.length){$("setupErr").textContent="هذا الاسم مأخوذ، جرّب اسماً آخر";return;}
+  const {data,error}=await sb.from("invitations").insert({slug,data:{}}).select().single();
+  if(error){$("setupErr").textContent="صار خطأ، حاول مرة ثانية";console.error(error);return;}
+  INV=data; enterHome();
+});
+
+/* ===== الرئيسية ===== */
+function enterHome(){
+  $("inviteLink").value=SITE_ROOT+INV.slug;
+  $("preview").src=SITE_ROOT+INV.slug;
+  show("home");
+}
 $("goResponses").addEventListener("click",()=>{show("responses");loadResponses();});
 $("goDesign").addEventListener("click",()=>{show("design");loadSettings();});
+$("goPass").addEventListener("click",()=>{$("passErr").textContent="";$("passOk").textContent="";$("newPass").value="";$("newPass2").value="";show("passView");});
 $("backFromResp").addEventListener("click",()=>show("home"));
 $("backFromDesign").addEventListener("click",()=>show("home"));
+$("backFromPass").addEventListener("click",()=>show("home"));
 
-/* نسخ الرابط */
 $("copyLink").addEventListener("click",()=>{
   const inp=$("inviteLink");inp.select();
   navigator.clipboard.writeText(inp.value).then(()=>{$("copyLink").textContent="✓ تم";setTimeout(()=>$("copyLink").textContent="نسخ",1500);});
 });
 
-/* الردود */
+/* ===== تغيير كلمة المرور ===== */
+$("savePass").addEventListener("click",async()=>{
+  $("passErr").textContent="";$("passOk").textContent="";
+  const p1=$("newPass").value,p2=$("newPass2").value;
+  if(p1.length<6){$("passErr").textContent="كلمة المرور 6 أحرف على الأقل";return;}
+  if(p1!==p2){$("passErr").textContent="كلمتا المرور غير متطابقتين";return;}
+  const {error}=await sb.auth.updateUser({password:p1});
+  if(error){$("passErr").textContent="صار خطأ، حاول مرة ثانية";console.error(error);return;}
+  $("passOk").textContent="✓ تم تغيير كلمة المرور";
+});
+
+/* ===== الردود ===== */
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 async function loadResponses(){
-  const {data,error}=await sb.from("rsvp").select("*").order("created_at",{ascending:false});
+  const {data,error}=await sb.from("rsvp").select("*").eq("invitation_id",INV.id).order("created_at",{ascending:false});
   if(error){$("summary").textContent="تعذّر تحميل الردود";console.error(error);return;}
   const coming=data.filter(r=>r.attending);
   const guests=coming.reduce((s,r)=>s+(r.guests_count||0),0);
@@ -258,13 +339,10 @@ async function loadResponses(){
   $("tbl").innerHTML=rows;
 }
 
-/* التصميم: تحميل/حفظ الإعدادات */
+/* ===== التصميم ===== */
 const DEF_COLORS={bg:"#EFE4D6",card:"#F7F0E5",gold:"#B8924E",green:"#2E4A3A",ink:"#3E3025",muted:"#8A785F"};
-let current={};
-async function loadSettings(){
-  const {data}=await sb.from("settings").select("data").eq("id",1).single();
-  current=(data&&data.data)?data.data:{};
-  const c=current, ar=c.ar||{}, en=c.en||{}, m=c.media||{}, cp=c.couple||{}, col=c.colors||{};
+function loadSettings(){
+  const c=INV.data||{}, ar=c.ar||{}, en=c.en||{}, m=c.media||{}, cp=c.couple||{}, col=c.colors||{};
   $("f_groomAr").value=cp.groomAr||""; $("f_brideAr").value=cp.brideAr||"";
   $("f_groomEn").value=cp.groomEn||""; $("f_brideEn").value=cp.brideEn||"";
   $("f_datetime").value=(c.datetime||"2026-08-24T19:00:00").slice(0,16);
@@ -287,20 +365,19 @@ $("saveBtn").addEventListener("click",async()=>{
     couple:{groomAr:$("f_groomAr").value,brideAr:$("f_brideAr").value,groomEn:$("f_groomEn").value,brideEn:$("f_brideEn").value},
     datetime:($("f_datetime").value||"2026-08-24T19:00")+":00",
     ar,en,
-    media:{
-      mapUrl:$("f_mapUrl").value, mapEmbed:$("f_mapEmbed").value,
-      couplePhoto:$("f_couplePhoto").value, music:$("f_music").value,
-      gallery:$("f_gallery").value.split("\n").map(s=>s.trim()).filter(Boolean)
-    },
+    media:{mapUrl:$("f_mapUrl").value,mapEmbed:$("f_mapEmbed").value,couplePhoto:$("f_couplePhoto").value,music:$("f_music").value,gallery:$("f_gallery").value.split("\n").map(s=>s.trim()).filter(Boolean)},
     colors:{bg:$("c_bg").value,card:$("c_card").value,gold:$("c_gold").value,green:$("c_green").value,ink:$("c_ink").value,muted:$("c_muted").value}
   };
   $("savedMsg").textContent="جارٍ الحفظ...";
-  const {error}=await sb.from("settings").update({data,updated_at:new Date().toISOString()}).eq("id",1);
+  const {error}=await sb.from("invitations").update({data,updated_at:new Date().toISOString()}).eq("id",INV.id);
   if(error){$("savedMsg").textContent="صار خطأ بالحفظ";console.error(error);return;}
+  INV.data=data;
   $("savedMsg").textContent="✓ تم الحفظ";
   setTimeout(()=>$("savedMsg").textContent="",2500);
   $("preview").contentWindow.location.reload();
 });
+
+checkSession();
 </script>
 </body>
 </html>
