@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>لوحة الدعوة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#EFE4D6;--card:#F7F0E5;--gold:#B8924E;--green:#2E4A3A;--ink:#3E3025;--muted:#8A785F;--line:rgba(184,146,78,.35)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Tajawal",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;background-image:radial-gradient(120% 70% at 50% -5%,rgba(184,146,78,.16),transparent 55%)}
+.wrap{max-width:820px;margin:0 auto;padding:28px 18px 60px}
+h1{font-family:"Aref Ruqaa",serif;color:var(--green);text-align:center;font-size:1.9rem;margin:10px 0 22px}
+h2{font-family:"Aref Ruqaa",serif;color:var(--green);font-size:1.35rem;margin:26px 0 6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:16px}
+label{display:block;color:var(--green);font-weight:700;font-size:.92rem;margin:14px 2px 6px}
+input,textarea,select{width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-family:inherit;font-size:1rem;color:var(--ink);outline:none}
+input:focus,textarea:focus{border-color:var(--gold)}
+textarea{resize:vertical}
+input[type=color]{padding:4px;height:46px;cursor:pointer}
+.btn{background:var(--green);color:#F3EAD9;border:0;border-radius:50px;padding:13px 22px;font-family:inherit;font-weight:700;font-size:1rem;cursor:pointer;transition:.2s}
+.btn:hover{transform:translateY(-1px)}
+.btn.gold{background:var(--gold);color:#3A2817}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.btn.wide{width:100%}
+.err{color:#9C4A3C;font-size:.9rem;min-height:1em;text-align:center;margin-top:8px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:560px){.row2,.row3{grid-template-columns:1fr}}
+.hidden{display:none}
+.home-btns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:560px){.home-btns{grid-template-columns:1fr}}
+.big-btn{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 18px;text-align:center;cursor:pointer;transition:.2s}
+.big-btn:hover{border-color:var(--gold);transform:translateY(-2px)}
+.big-btn .ic{font-size:1.8rem}
+.big-btn .t{font-family:"Aref Ruqaa",serif;color:var(--green);font-size:1.3rem;margin-top:8px}
+.topbar{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:6px}
+.link-box{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
+.link-box input{border:0;padding:6px;flex:1;background:transparent}
+.summary{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px;text-align:center;line-height:1.9}
+.summary b{color:var(--green);font-size:1.2rem}
+.tbl-wrap{overflow:auto;max-height:60vh;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{padding:10px 12px;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:#EFE4D6;color:var(--green);position:sticky;top:0}
+td.msg{white-space:normal;min-width:180px;color:var(--muted)}
+.badge{display:inline-block;padding:2px 10px;border-radius:50px;font-size:.82rem}
+.badge.y{background:#DDEAE1;color:#2E4A3A}.badge.n{background:#F0DAD5;color:#9C4A3C}
+.saved{color:var(--green);text-align:center;font-weight:700;min-height:1.2em;margin-top:10px}
+.preview{width:100%;height:520px;border:1px solid var(--line);border-radius:14px;margin-top:14px;background:#fff}
+.hint{color:var(--muted);font-size:.88rem;line-height:1.7;margin:2px 2px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- تسجيل الدخول -->
+  <div id="login" class="card" style="max-width:420px;margin:60px auto">
+    <h1>لوحة الدعوة</h1>
+    <label>الإيميل</label>
+    <input id="email" type="email" autocomplete="username">
+    <label>كلمة المرور</label>
+    <input id="pass" type="password" autocomplete="current-password">
+    <div class="err" id="loginErr"></div>
+    <button class="btn wide" id="loginBtn" style="margin-top:14px">دخول</button>
+  </div>
+
+  <!-- الرئيسية -->
+  <div id="home" class="hidden">
+    <div class="topbar">
+      <h1 style="margin:0">لوحة الدعوة</h1>
+      <button class="btn ghost" id="logout">خروج</button>
+    </div>
+    <div class="card">
+      <label>رابط الدعوة (انسخه وابعته للضيوف)</label>
+      <div class="link-box">
+        <input id="inviteLink" readonly>
+        <button class="btn gold" id="copyLink">نسخ</button>
+      </div>
+    </div>
+    <div class="home-btns">
+      <div class="big-btn" id="goResponses"><div class="ic">📋</div><div class="t">الردود</div></div>
+      <div class="big-btn" id="goDesign"><div class="ic">🎨</div><div class="t">تصميم كرت الدعوة</div></div>
+    </div>
+  </div>
+
+  <!-- الردود -->
+  <div id="responses" class="hidden">
+    <div class="topbar"><button class="btn ghost" id="backFromResp">‹ رجوع</button><h2 style="margin:0">الردود</h2></div>
+    <div class="summary" id="summary">...</div>
+    <div class="tbl-wrap"><table id="tbl"></table></div>
+  </div>
+
+  <!-- التصميم -->
+  <div id="design" class="hidden">
+    <div class="topbar"><button class="btn ghost" id="backFromDesign">‹ رجوع</button><h2 style="margin:0">تصميم كرت الدعوة</h2></div>
+
+    <div class="card">
+      <h2>الأسماء</h2>
+      <div class="row2">
+        <div><label>اسم العريس (عربي)</label><input id="f_groomAr"></div>
+        <div><label>اسم العروس (عربي)</label><input id="f_brideAr"></div>
+      </div>
+      <div class="row2">
+        <div><label>Groom name (English)</label><input id="f_groomEn"></div>
+        <div><label>Bride name (English)</label><input id="f_brideEn"></div>
+      </div>
+      <p class="hint">حرف الختم يتولّد تلقائياً من أول حرف بالاسم الإنجليزي.</p>
+    </div>
+
+    <div class="card">
+      <h2>الموعد</h2>
+      <label>تاريخ ووقت العرس</label>
+      <input id="f_datetime" type="datetime-local">
+      <p class="hint">منه يتولّد العدّاد والتاريخ بالعربي والإنجليزي تلقائياً.</p>
+    </div>
+
+    <div class="card">
+      <h2>نصوص الكرت</h2>
+      <div class="row2">
+        <div><label>اسم العائلة (عربي)</label><input id="f_ar_family"></div>
+        <div><label>Family (English)</label><input id="f_en_family"></div>
+      </div>
+      <div class="row2">
+        <div><label>الأهل (عربي)</label><input id="f_ar_parents"></div>
+        <div><label>Parents (English)</label><input id="f_en_parents"></div>
+      </div>
+      <div class="row2">
+        <div><label>جملة الدعوة (عربي)</label><textarea id="f_ar_blessing" rows="2"></textarea></div>
+        <div><label>Invitation line (English)</label><textarea id="f_en_blessing" rows="2"></textarea></div>
+      </div>
+      <div class="row2">
+        <div><label>البسملة (عربي)</label><input id="f_ar_bismillah"></div>
+        <div><label>Bismillah (English)</label><input id="f_en_bismillah"></div>
+      </div>
+      <div class="row2">
+        <div><label>الآية (عربي)</label><textarea id="f_ar_verse" rows="2"></textarea></div>
+        <div><label>Verse (English)</label><textarea id="f_en_verse" rows="2"></textarea></div>
+      </div>
+      <div class="row2">
+        <div><label>الفوتر (عربي)</label><input id="f_ar_footer"></div>
+        <div><label>Footer (English)</label><input id="f_en_footer"></div>
+      </div>
+      <p class="hint">استخدم ❤ داخل الفوتر لإظهار قلب ملوّن.</p>
+    </div>
+
+    <div class="card">
+      <h2>المكان</h2>
+      <div class="row2">
+        <div><label>اسم الصالة (عربي)</label><input id="f_ar_venueName"></div>
+        <div><label>Venue name (English)</label><input id="f_en_venueName"></div>
+      </div>
+      <div class="row2">
+        <div><label>تفاصيل المكان (عربي)</label><textarea id="f_ar_venueSub" rows="2"></textarea></div>
+        <div><label>Venue details (English)</label><textarea id="f_en_venueSub" rows="2"></textarea></div>
+      </div>
+      <label>رابط الموقع على خرائط جوجل</label>
+      <input id="f_mapUrl">
+      <label>رابط الخريطة المضمّنة (Embed) — اختياري</label>
+      <input id="f_mapEmbed">
+    </div>
+
+    <div class="card">
+      <h2>الملاحظات</h2>
+      <div class="row2">
+        <div><label>ملاحظة التصوير (عربي)</label><input id="f_ar_notePhoto"></div>
+        <div><label>Photo note (English)</label><input id="f_en_notePhoto"></div>
+      </div>
+      <div class="row2">
+        <div><label>ملاحظة الأطفال (عربي)</label><input id="f_ar_noteKids"></div>
+        <div><label>Kids note (English)</label><input id="f_en_noteKids"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>الصور والموسيقى</h2>
+      <label>صورة العروسين (رابط) — اتركها فارغة لإخفائها</label>
+      <input id="f_couplePhoto">
+      <label>معرض الصور (رابط لكل سطر) — اتركه فارغاً لإخفائه</label>
+      <textarea id="f_gallery" rows="3"></textarea>
+      <label>ملف موسيقى (رابط) — اختياري</label>
+      <input id="f_music">
+    </div>
+
+    <div class="card">
+      <h2>الألوان</h2>
+      <div class="row3">
+        <div><label>الخلفية</label><input id="c_bg" type="color"></div>
+        <div><label>الكرت</label><input id="c_card" type="color"></div>
+        <div><label>الذهبي</label><input id="c_gold" type="color"></div>
+      </div>
+      <div class="row3">
+        <div><label>الأخضر (العناوين)</label><input id="c_green" type="color"></div>
+        <div><label>النص</label><input id="c_ink" type="color"></div>
+        <div><label>النص الخفيف</label><input id="c_muted" type="color"></div>
+      </div>
+    </div>
+
+    <button class="btn gold wide" id="saveBtn" style="margin-top:6px">حفظ التغييرات</button>
+    <div class="saved" id="savedMsg"></div>
+
+    <h2>معاينة مباشرة</h2>
+    <iframe class="preview" id="preview" src="index.html"></iframe>
+  </div>
+
+</div>
+
+<script>
+const SUPA_URL="https://ojfnqfjbeknsiustzjpx.supabase.co";
+const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qZm5xZmpiZWtuc2l1c3R6anB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDczMjgsImV4cCI6MjEwMjYyMzMyOH0.hZ-AzI_n-v9nnGqjI57zrHTVqa_m3W-NRxKRXaW5fGU";
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+const $=id=>document.getElementById(id);
+const show=id=>{["login","home","responses","design"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");};
+
+/* رابط الدعوة = رابط هذه الصفحة بدون admin.html */
+$("inviteLink").value = location.href.replace(/admin\.html.*$/,"");
+
+/* دخول */
+async function checkSession(){const {data}=await sb.auth.getSession();if(data&&data.session){enterHome();}}
+$("loginBtn").addEventListener("click",async()=>{
+  $("loginErr").textContent="";
+  const {error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("pass").value});
+  if(error){$("loginErr").textContent="بيانات الدخول غير صحيحة";return;}
+  enterHome();
+});
+$("logout").addEventListener("click",async()=>{await sb.auth.signOut();show("login");});
+function enterHome(){show("home");}
+checkSession();
+
+/* تنقّل */
+$("goResponses").addEventListener("click",()=>{show("responses");loadResponses();});
+$("goDesign").addEventListener("click",()=>{show("design");loadSettings();});
+$("backFromResp").addEventListener("click",()=>show("home"));
+$("backFromDesign").addEventListener("click",()=>show("home"));
+
+/* نسخ الرابط */
+$("copyLink").addEventListener("click",()=>{
+  const inp=$("inviteLink");inp.select();
+  navigator.clipboard.writeText(inp.value).then(()=>{$("copyLink").textContent="✓ تم";setTimeout(()=>$("copyLink").textContent="نسخ",1500);});
+});
+
+/* الردود */
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+async function loadResponses(){
+  const {data,error}=await sb.from("rsvp").select("*").order("created_at",{ascending:false});
+  if(error){$("summary").textContent="تعذّر تحميل الردود";console.error(error);return;}
+  const coming=data.filter(r=>r.attending);
+  const guests=coming.reduce((s,r)=>s+(r.guests_count||0),0);
+  $("summary").innerHTML=`عدد الردود: <b>${data.length}</b> &nbsp;•&nbsp; حاضرون: <b>${coming.length}</b> &nbsp;•&nbsp; إجمالي الأشخاص: <b>${guests}</b>`;
+  let rows=`<tr><th>الاسم</th><th>الهاتف</th><th>الحضور</th><th>العدد</th><th>الرسالة</th></tr>`;
+  data.forEach(r=>{
+    const badge=r.attending?`<span class="badge y">حاضر</span>`:`<span class="badge n">معتذر</span>`;
+    rows+=`<tr><td>${esc(r.name)}</td><td>${esc(r.phone)}</td><td>${badge}</td><td>${r.attending?(r.guests_count||1):"—"}</td><td class="msg">${esc(r.message||"")}</td></tr>`;
+  });
+  $("tbl").innerHTML=rows;
+}
+
+/* التصميم: تحميل/حفظ الإعدادات */
+const DEF_COLORS={bg:"#EFE4D6",card:"#F7F0E5",gold:"#B8924E",green:"#2E4A3A",ink:"#3E3025",muted:"#8A785F"};
+let current={};
+async function loadSettings(){
+  const {data}=await sb.from("settings").select("data").eq("id",1).single();
+  current=(data&&data.data)?data.data:{};
+  const c=current, ar=c.ar||{}, en=c.en||{}, m=c.media||{}, cp=c.couple||{}, col=c.colors||{};
+  $("f_groomAr").value=cp.groomAr||""; $("f_brideAr").value=cp.brideAr||"";
+  $("f_groomEn").value=cp.groomEn||""; $("f_brideEn").value=cp.brideEn||"";
+  $("f_datetime").value=(c.datetime||"2026-08-24T19:00:00").slice(0,16);
+  const setPair=(k)=>{$("f_ar_"+k).value=ar[k]||"";$("f_en_"+k).value=en[k]||"";};
+  ["family","parents","blessing","bismillah","verse","footer","venueName","venueSub","notePhoto","noteKids"].forEach(setPair);
+  $("f_mapUrl").value=m.mapUrl||""; $("f_mapEmbed").value=m.mapEmbed||"";
+  $("f_couplePhoto").value=m.couplePhoto||"";
+  $("f_gallery").value=(m.gallery||[]).join("\n");
+  $("f_music").value=m.music||"";
+  $("c_bg").value=col.bg||DEF_COLORS.bg; $("c_card").value=col.card||DEF_COLORS.card;
+  $("c_gold").value=col.gold||DEF_COLORS.gold; $("c_green").value=col.green||DEF_COLORS.green;
+  $("c_ink").value=col.ink||DEF_COLORS.ink; $("c_muted").value=col.muted||DEF_COLORS.muted;
+}
+$("saveBtn").addEventListener("click",async()=>{
+  const getPair=(k)=>({ar:$("f_ar_"+k).value,en:$("f_en_"+k).value});
+  const keys=["family","parents","blessing","bismillah","verse","footer","venueName","venueSub","notePhoto","noteKids"];
+  const ar={},en={};
+  keys.forEach(k=>{const p=getPair(k);ar[k]=p.ar;en[k]=p.en;});
+  const data={
+    couple:{groomAr:$("f_groomAr").value,brideAr:$("f_brideAr").value,groomEn:$("f_groomEn").value,brideEn:$("f_brideEn").value},
+    datetime:($("f_datetime").value||"2026-08-24T19:00")+":00",
+    ar,en,
+    media:{
+      mapUrl:$("f_mapUrl").value, mapEmbed:$("f_mapEmbed").value,
+      couplePhoto:$("f_couplePhoto").value, music:$("f_music").value,
+      gallery:$("f_gallery").value.split("\n").map(s=>s.trim()).filter(Boolean)
+    },
+    colors:{bg:$("c_bg").value,card:$("c_card").value,gold:$("c_gold").value,green:$("c_green").value,ink:$("c_ink").value,muted:$("c_muted").value}
+  };
+  $("savedMsg").textContent="جارٍ الحفظ...";
+  const {error}=await sb.from("settings").update({data,updated_at:new Date().toISOString()}).eq("id",1);
+  if(error){$("savedMsg").textContent="صار خطأ بالحفظ";console.error(error);return;}
+  $("savedMsg").textContent="✓ تم الحفظ";
+  setTimeout(()=>$("savedMsg").textContent="",2500);
+  $("preview").contentWindow.location.reload();
+});
+</script>
+</body>
+</html>
