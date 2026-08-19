@@ -256,7 +256,7 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
 <script>
 const SUPA_URL="https://ojfnqfjbeknsiustzjpx.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qZm5xZmpiZWtuc2l1c3R6anB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDczMjgsImV4cCI6MjEwMjYyMzMyOH0.hZ-AzI_n-v9nnGqjI57zrHTVqa_m3W-NRxKRXaW5fGU";
-const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const $=id=>document.getElementById(id);
 const show=id=>{["login","home","responses","design","passView"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");};
 const SITE_ROOT=location.href.replace(/admin\.html.*$/,"");
