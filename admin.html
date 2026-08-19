@@ -64,31 +64,36 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
 <body>
 <div class="wrap">
 
-  <!-- تسجيل الدخول -->
+  <!-- تسجيل الدخول / إنشاء حساب -->
   <div id="login" class="card center-card">
     <h1>لوحة الدعوة</h1>
-    <label>الإيميل</label>
-    <input id="email" type="email" autocomplete="username">
-    <label>كلمة المرور</label>
-    <input id="pass" type="password" autocomplete="current-password">
-    <div class="err" id="loginErr"></div>
-    <button class="btn wide" id="loginBtn" style="margin-top:14px">دخول</button>
-    <p class="hint" style="text-align:center;margin-top:14px">للحصول على حساب، تواصل مع مزوّد الخدمة.</p>
-  </div>
-
-  <!-- اختيار رابط الدعوة (أول مرة) -->
-  <div id="setup" class="card center-card hidden">
-    <h1>اختر رابط دعوتك</h1>
-    <p class="hint" style="text-align:center">هذا الاسم يظهر برابط دعوتك ولا يمكن تغييره لاحقاً بسهولة.</p>
-    <label>اسم الرابط</label>
-    <div class="slug-line">
-      <span class="pre" id="setupPre"></span>
-      <input id="setupSlug" placeholder="ahmad-lina">
+    <div class="tabs">
+      <button class="tab active" id="tabLogin">دخول</button>
+      <button class="tab" id="tabSignup">إنشاء حساب</button>
     </div>
-    <p class="hint">أحرف إنجليزية صغيرة وأرقام وشرطات فقط (مثال: ahmad-lina).</p>
-    <div class="err" id="setupErr"></div>
-    <button class="btn gold wide" id="setupBtn" style="margin-top:14px">إنشاء دعوتي</button>
-    <button class="btn ghost wide" id="setupLogout" style="margin-top:10px">خروج</button>
+
+    <!-- دخول -->
+    <div id="loginForm">
+      <label>اسم المستخدم</label>
+      <input id="loginUser" autocomplete="username">
+      <label>كلمة المرور</label>
+      <input id="loginPass" type="password" autocomplete="current-password">
+      <div class="err" id="loginErr"></div>
+      <button class="btn wide" id="loginBtn" style="margin-top:14px">دخول</button>
+    </div>
+
+    <!-- إنشاء حساب -->
+    <div id="signupForm" class="hidden">
+      <label>كود التسجيل</label>
+      <input id="suCode" placeholder="الكود الذي حصلت عليه">
+      <label>اسم المستخدم</label>
+      <input id="suUser" placeholder="ahmad" autocomplete="username">
+      <label>كلمة المرور</label>
+      <input id="suPass" type="password" autocomplete="new-password">
+      <div class="err" id="signupErr"></div>
+      <button class="btn gold wide" id="signupBtn" style="margin-top:14px">إنشاء الحساب</button>
+      <p class="hint" style="text-align:center;margin-top:12px">تحتاج كود التسجيل من مزوّد الخدمة.</p>
+    </div>
   </div>
 
   <!-- الرئيسية -->
@@ -253,7 +258,7 @@ const SUPA_URL="https://ojfnqfjbeknsiustzjpx.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qZm5xZmpiZWtuc2l1c3R6anB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDczMjgsImV4cCI6MjEwMjYyMzMyOH0.hZ-AzI_n-v9nnGqjI57zrHTVqa_m3W-NRxKRXaW5fGU";
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
 const $=id=>document.getElementById(id);
-const show=id=>{["login","setup","home","responses","design","passView"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");};
+const show=id=>{["login","home","responses","design","passView"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");};
 const SITE_ROOT=location.href.replace(/admin\.html.*$/,"");
 
 let INV=null; // دعوة المستخدم الحالية
@@ -263,41 +268,94 @@ async function checkSession(){
   const {data}=await sb.auth.getSession();
   if(data && data.session){ afterLogin(); } else { show("login"); }
 }
+// اليوزرنيم يُخزّن داخلياً كإيميل شكلي
+const USER_DOMAIN="@users.wedding.app";
+const toEmail=u=>u.toLowerCase().trim()+USER_DOMAIN;
+
+// تبديل تبويبات دخول/تسجيل
+$("tabLogin").addEventListener("click",()=>{
+  $("tabLogin").classList.add("active");$("tabSignup").classList.remove("active");
+  $("loginForm").classList.remove("hidden");$("signupForm").classList.add("hidden");
+});
+$("tabSignup").addEventListener("click",()=>{
+  $("tabSignup").classList.add("active");$("tabLogin").classList.remove("active");
+  $("signupForm").classList.remove("hidden");$("loginForm").classList.add("hidden");
+});
+
+// دخول
 $("loginBtn").addEventListener("click",async()=>{
   $("loginErr").textContent="";
-  const {error}=await sb.auth.signInWithPassword({email:$("email").value.trim(),password:$("pass").value});
-  if(error){$("loginErr").textContent="بيانات الدخول غير صحيحة";return;}
+  const u=$("loginUser").value.trim();
+  if(!u){$("loginErr").textContent="اكتب اسم المستخدم";return;}
+  const {error}=await sb.auth.signInWithPassword({email:toEmail(u),password:$("loginPass").value});
+  if(error){$("loginErr").textContent="اسم المستخدم أو كلمة المرور غير صحيحة";return;}
   afterLogin();
 });
+
+// إنشاء حساب (بكود سري)
+$("signupBtn").addEventListener("click",async()=>{
+  $("signupErr").textContent="";
+  const code=$("suCode").value.trim();
+  const u=$("suUser").value.trim().toLowerCase();
+  const p=$("suPass").value;
+  if(!/^[a-z0-9_]{3,20}$/.test(u)){$("signupErr").textContent="اسم المستخدم: أحرف إنجليزية صغيرة وأرقام وشرطة سفلية (3-20)";return;}
+  if(p.length<6){$("signupErr").textContent="كلمة المرور 6 أحرف على الأقل";return;}
+  // فحص الكود
+  const {data:ok,error:cErr}=await sb.rpc("check_invite_code",{p_code:code});
+  if(cErr||!ok){$("signupErr").textContent="كود التسجيل غير صحيح";return;}
+  // إنشاء الحساب
+  const {error}=await sb.auth.signUp({email:toEmail(u),password:p});
+  if(error){
+    $("signupErr").textContent=(error.message||"").includes("already")?"اسم المستخدم مأخوذ":"صار خطأ، حاول مرة ثانية";
+    return;
+  }
+  // دخول مباشر (في حال لم تُفتح جلسة تلقائياً)
+  await sb.auth.signInWithPassword({email:toEmail(u),password:p});
+  // إنشاء دعوة فارغة له
+  const {data:inv}=await sb.from("invitations").insert({data:{}}).select().single();
+  INV=inv||null;
+  afterLogin();
+});
+
 $("logout").addEventListener("click",logout);
-$("setupLogout").addEventListener("click",logout);
 async function logout(){await sb.auth.signOut();INV=null;show("login");}
 
-/* بعد الدخول: هل عنده دعوة؟ */
+/* بعد الدخول: هات دعوته (أو أنشئ واحدة إن لم توجد) */
 async function afterLogin(){
-  const {data,error}=await sb.from("invitations").select("*").limit(1);
-  if(error){console.error(error);}
+  let {data}=await sb.from("invitations").select("*").limit(1);
+  if(!data || !data.length){
+    const {data:inv}=await sb.from("invitations").insert({data:{}}).select().single();
+    data=inv?[inv]:[];
+  }
   if(data && data.length){ INV=data[0]; enterHome(); }
-  else { $("setupPre").textContent=SITE_ROOT; show("setup"); }
+  else { $("loginErr").textContent="صار خطأ بتحميل الدعوة"; show("login"); }
 }
 
-/* ===== اختيار الرابط (أول مرة) ===== */
-$("setupBtn").addEventListener("click",async()=>{
-  $("setupErr").textContent="";
-  let slug=$("setupSlug").value.trim().toLowerCase();
-  if(!/^[a-z0-9-]{3,40}$/.test(slug)){$("setupErr").textContent="اسم غير صالح — أحرف إنجليزية صغيرة وأرقام وشرطات فقط (3 أحرف على الأقل)";return;}
-  // موجود مسبقاً؟
-  const {data:exists}=await sb.from("invitations").select("id").eq("slug",slug).limit(1);
-  if(exists && exists.length){$("setupErr").textContent="هذا الاسم مأخوذ، جرّب اسماً آخر";return;}
-  const {data,error}=await sb.from("invitations").insert({slug,data:{}}).select().single();
-  if(error){$("setupErr").textContent="صار خطأ، حاول مرة ثانية";console.error(error);return;}
-  INV=data; enterHome();
-});
+/* توليد رابط (slug) من أسماء العروسين الإنجليزية */
+function slugify(s){return String(s||"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
+async function ensureSlug(){
+  if(INV.slug) return INV.slug;
+  let base=(slugify($("f_groomEn").value)+"-"+slugify($("f_brideEn").value)).replace(/^-+|-+$/g,"");
+  if(!base||base==="-") base="invitation";
+  let slug=base, n=1;
+  while(true){
+    const {data}=await sb.from("invitations").select("id").eq("slug",slug).neq("id",INV.id).limit(1);
+    if(!data||!data.length) break;
+    n++; slug=base+"-"+n;
+  }
+  await sb.from("invitations").update({slug}).eq("id",INV.id);
+  INV.slug=slug;
+  return slug;
+}
 
 /* ===== الرئيسية ===== */
 function enterHome(){
-  $("inviteLink").value=SITE_ROOT+INV.slug;
-  $("preview").src=SITE_ROOT+INV.slug;
+  if(INV.slug){
+    $("inviteLink").value=SITE_ROOT+INV.slug;
+    $("preview").src=SITE_ROOT+INV.slug;
+  }else{
+    $("inviteLink").value="سيظهر الرابط بعد إدخال أسماء العروسين (بالإنجليزي) والحفظ";
+  }
   show("home");
 }
 $("goResponses").addEventListener("click",()=>{show("responses");loadResponses();});
@@ -372,9 +430,12 @@ $("saveBtn").addEventListener("click",async()=>{
   const {error}=await sb.from("invitations").update({data,updated_at:new Date().toISOString()}).eq("id",INV.id);
   if(error){$("savedMsg").textContent="صار خطأ بالحفظ";console.error(error);return;}
   INV.data=data;
-  $("savedMsg").textContent="✓ تم الحفظ";
-  setTimeout(()=>$("savedMsg").textContent="",2500);
-  $("preview").contentWindow.location.reload();
+  // ولّد الرابط من الأسماء (أول مرة فقط)
+  await ensureSlug();
+  $("inviteLink").value=SITE_ROOT+INV.slug;
+  $("preview").src=SITE_ROOT+INV.slug;
+  $("savedMsg").textContent="✓ تم الحفظ — رابط دعوتك: "+SITE_ROOT+INV.slug;
+  setTimeout(()=>$("savedMsg").textContent="",4000);
 });
 
 checkSession();
