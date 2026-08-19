@@ -447,10 +447,11 @@ async function boot(){
   const slug=decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g,"").split("/").pop()||"");
   if(!slug || slug.endsWith(".html")){ showExpired(); return; } // لا يوجد عرس بالرابط
   try{
-    const {data,error}=await sb.from("invitations").select("id,data").eq("slug",slug).single();
-    if(error || !data){ showExpired(); return; } // رابط غير موجود
-    INVITATION_ID=data.id;
-    if(data.data) mergeInto(CONFIG,data.data);
+    const {data,error}=await sb.from("invitations").select("id,data").eq("slug",slug).limit(1);
+    if(error){ console.warn("query error",error); showExpired(); return; }
+    if(!data || !data.length){ showExpired(); return; } // رابط غير موجود
+    INVITATION_ID=data[0].id;
+    if(data[0].data) mergeInto(CONFIG,data[0].data);
   }catch(e){ console.warn("load failed",e); showExpired(); return; }
   init();
 }
