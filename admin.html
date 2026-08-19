@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>لوحة الدعوة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#EFE4D6;--card:#F7F0E5;--gold:#B8924E;--green:#2E4A3A;--ink:#3E3025;--muted:#8A785F;--line:rgba(184,146,78,.35)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Tajawal",sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;background-image:radial-gradient(120% 70% at 50% -5%,rgba(184,146,78,.16),transparent 55%)}
+.wrap{max-width:820px;margin:0 auto;padding:28px 18px 60px}
+h1{font-family:"Aref Ruqaa",serif;color:var(--green);text-align:center;font-size:1.9rem;margin:10px 0 22px}
+h2{font-family:"Aref Ruqaa",serif;color:var(--green);font-size:1.35rem;margin:26px 0 6px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:16px}
+label{display:block;color:var(--green);font-weight:700;font-size:.92rem;margin:14px 2px 6px}
+input,textarea,select{width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-family:inherit;font-size:1rem;color:var(--ink);outline:none}
+input:focus,textarea:focus{border-color:var(--gold)}
+textarea{resize:vertical}
+input[type=color]{padding:4px;height:46px;cursor:pointer}
+.btn{background:var(--green);color:#F3EAD9;border:0;border-radius:50px;padding:13px 22px;font-family:inherit;font-weight:700;font-size:1rem;cursor:pointer;transition:.2s}
+.btn:hover{transform:translateY(-1px)}
+.btn.gold{background:var(--gold);color:#3A2817}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.btn.wide{width:100%}
+.err{color:#9C4A3C;font-size:.9rem;min-height:1em;text-align:center;margin-top:8px}
+.ok{color:var(--green);font-size:.92rem;min-height:1em;text-align:center;margin-top:8px;font-weight:700}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:560px){.row2,.row3{grid-template-columns:1fr}}
+.hidden{display:none}
+.home-btns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:560px){.home-btns{grid-template-columns:1fr}}
+.big-btn{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 18px;text-align:center;cursor:pointer;transition:.2s}
+.big-btn:hover{border-color:var(--gold);transform:translateY(-2px)}
+.big-btn .ic{font-size:1.8rem}
+.big-btn .t{font-family:"Aref Ruqaa",serif;color:var(--green);font-size:1.3rem;margin-top:8px}
+.topbar{display:flex;align-items:center;gap:10px;justify-content:space-between;flex-wrap:wrap;margin-bottom:6px}
+.link-box{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:8px}
+.link-box input{border:0;padding:6px;flex:1;background:transparent}
+.summary{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px;text-align:center;line-height:1.9}
+.summary b{color:var(--green);font-size:1.2rem}
+.tbl-wrap{overflow:auto;max-height:60vh;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{padding:10px 12px;text-align:start;border-bottom:1px solid var(--line);white-space:nowrap}
+th{background:#EFE4D6;color:var(--green);position:sticky;top:0}
+td.msg{white-space:normal;min-width:180px;color:var(--muted)}
+.badge{display:inline-block;padding:2px 10px;border-radius:50px;font-size:.82rem}
+.badge.y{background:#DDEAE1;color:#2E4A3A}.badge.n{background:#F0DAD5;color:#9C4A3C}
+.saved{color:var(--green);text-align:center;font-weight:700;min-height:1.2em;margin-top:10px}
+.preview{width:100%;height:520px;border:1px solid var(--line);border-radius:14px;margin-top:14px;background:#fff}
+.hint{color:var(--muted);font-size:.88rem;line-height:1.7;margin:2px 2px 0}
+.slug-line{display:flex;align-items:center;gap:4px}
+.slug-line .pre{color:var(--muted);font-size:.9rem;white-space:nowrap}
+.center-card{max-width:420px;margin:50px auto}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;background:transparent;border:1px solid var(--line);border-radius:50px;padding:10px;color:var(--muted);cursor:pointer;font-family:inherit}
+.tab.active{background:var(--green);color:#F3EAD9;border-color:var(--green)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- تسجيل الدخول / إنشاء حساب -->
+  <div id="login" class="card center-card">
+    <h1>لوحة الدعوة</h1>
+    <div class="tabs">
+      <button class="tab active" id="tabLogin">دخول</button>
+      <button class="tab" id="tabSignup">إنشاء حساب</button>
+    </div>
+
+    <!-- دخول -->
+    <div id="loginForm">
+      <label>اسم المستخدم</label>
+      <input id="loginUser" autocomplete="username">
+      <label>كلمة المرور</label>
+      <input id="loginPass" type="password" autocomplete="current-password">
+      <div class="err" id="loginErr"></div>
+      <button class="btn wide" id="loginBtn" style="margin-top:14px">دخول</button>
+    </div>
+
+    <!-- إنشاء حساب -->
+    <div id="signupForm" class="hidden">
+      <label>كود التسجيل</label>
+      <input id="suCode" placeholder="الكود الذي حصلت عليه">
+      <label>اسم المستخدم</label>
+      <input id="suUser" placeholder="ahmad" autocomplete="username">
+      <label>كلمة المرور</label>
+      <input id="suPass" type="password" autocomplete="new-password">
+      <div class="err" id="signupErr"></div>
+      <button class="btn gold wide" id="signupBtn" style="margin-top:14px">إنشاء الحساب</button>
+      <p class="hint" style="text-align:center;margin-top:12px">تحتاج كود التسجيل من مزوّد الخدمة.</p>
+    </div>
+  </div>
+
+  <!-- الرئيسية -->
+  <div id="home" class="hidden">
+    <div class="topbar">
+      <h1 style="margin:0">لوحة الدعوة</h1>
+      <button class="btn ghost" id="logout">خروج</button>
+    </div>
+    <div class="card">
+      <label>رابط دعوتك (انسخه وابعته للضيوف)</label>
+      <div class="link-box">
+        <input id="inviteLink" readonly>
+        <button class="btn gold" id="copyLink">نسخ</button>
+      </div>
+    </div>
+    <div class="home-btns">
+      <div class="big-btn" id="goResponses"><div class="ic">📋</div><div class="t">الردود</div></div>
+      <div class="big-btn" id="goDesign"><div class="ic">🎨</div><div class="t">تصميم كرت الدعوة</div></div>
+    </div>
+    <div class="home-btns" style="margin-top:14px">
+      <div class="big-btn" id="goPass"><div class="ic">🔒</div><div class="t">تغيير كلمة المرور</div></div>
+      <div class="big-btn" id="dlCard"><div class="ic">🖼️</div><div class="t">تحميل صورة الكرت</div></div>
+    </div>
+  </div>
+
+  <!-- الردود -->
+  <div id="responses" class="hidden">
+    <div class="topbar">
+      <button class="btn ghost" id="backFromResp">‹ رجوع</button>
+      <button class="btn gold" id="dlResp">⬇ تحميل الردود PDF</button>
+    </div>
+    <div class="summary" id="summary">...</div>
+    <div class="tbl-wrap"><table id="tbl"></table></div>
+  </div>
+
+  <!-- تغيير كلمة المرور -->
+  <div id="passView" class="hidden">
+    <div class="topbar"><button class="btn ghost" id="backFromPass">‹ رجوع</button><h2 style="margin:0">تغيير كلمة المرور</h2></div>
+    <div class="card center-card">
+      <label>كلمة المرور الجديدة</label>
+      <input id="newPass" type="password">
+      <label>تأكيد كلمة المرور</label>
+      <input id="newPass2" type="password">
+      <div class="err" id="passErr"></div>
+      <div class="ok" id="passOk"></div>
+      <button class="btn gold wide" id="savePass" style="margin-top:14px">حفظ</button>
+    </div>
+  </div>
+
+  <!-- التصميم -->
+  <div id="design" class="hidden">
+    <div class="topbar"><button class="btn ghost" id="backFromDesign">‹ رجوع</button><h2 style="margin:0">تصميم كرت الدعوة</h2></div>
+
+    <div class="card">
+      <h2>الأسماء</h2>
+      <div class="row2">
+        <div><label>اسم العريس (عربي)</label><input id="f_groomAr"></div>
+        <div><label>اسم العروس (عربي)</label><input id="f_brideAr"></div>
+      </div>
+      <div class="row2">
+        <div><label>Groom name (English)</label><input id="f_groomEn"></div>
+        <div><label>Bride name (English)</label><input id="f_brideEn"></div>
+      </div>
+      <p class="hint">حرف الختم يتولّد تلقائياً من أول حرف بالاسم الإنجليزي.</p>
+    </div>
+
+    <div class="card">
+      <h2>الموعد</h2>
+      <label>تاريخ ووقت العرس</label>
+      <input id="f_datetime" type="datetime-local">
+      <p class="hint">منه يتولّد العدّاد والتاريخ بالعربي والإنجليزي تلقائياً.</p>
+    </div>
+
+    <div class="card">
+      <h2>نصوص الكرت</h2>
+      <div class="row2">
+        <div><label>اسم العائلة (عربي)</label><input id="f_ar_family"></div>
+        <div><label>Family (English)</label><input id="f_en_family"></div>
+      </div>
+      <div class="row2">
+        <div><label>الأهل (عربي)</label><input id="f_ar_parents"></div>
+        <div><label>Parents (English)</label><input id="f_en_parents"></div>
+      </div>
+      <div class="row2">
+        <div><label>جملة الدعوة (عربي)</label><textarea id="f_ar_blessing" rows="2"></textarea></div>
+        <div><label>Invitation line (English)</label><textarea id="f_en_blessing" rows="2"></textarea></div>
+      </div>
+      <div class="row2">
+        <div><label>البسملة (عربي)</label><input id="f_ar_bismillah"></div>
+        <div><label>Bismillah (English)</label><input id="f_en_bismillah"></div>
+      </div>
+      <div class="row2">
+        <div><label>الآية (عربي)</label><textarea id="f_ar_verse" rows="2"></textarea></div>
+        <div><label>Verse (English)</label><textarea id="f_en_verse" rows="2"></textarea></div>
+      </div>
+      <div class="row2">
+        <div><label>الفوتر (عربي)</label><input id="f_ar_footer"></div>
+        <div><label>Footer (English)</label><input id="f_en_footer"></div>
+      </div>
+      <p class="hint">استخدم ❤ داخل الفوتر لإظهار قلب ملوّن.</p>
+    </div>
+
+    <div class="card">
+      <h2>المكان</h2>
+      <div class="row2">
+        <div><label>اسم الصالة (عربي)</label><input id="f_ar_venueName"></div>
+        <div><label>Venue name (English)</label><input id="f_en_venueName"></div>
+      </div>
+      <div class="row2">
+        <div><label>تفاصيل المكان (عربي)</label><textarea id="f_ar_venueSub" rows="2"></textarea></div>
+        <div><label>Venue details (English)</label><textarea id="f_en_venueSub" rows="2"></textarea></div>
+      </div>
+      <label>رابط الموقع على خرائط جوجل</label>
+      <input id="f_mapUrl">
+      <label>رابط الخريطة المضمّنة (Embed) — اختياري</label>
+      <input id="f_mapEmbed">
+    </div>
+
+    <div class="card">
+      <h2>الملاحظات</h2>
+      <div class="row2">
+        <div><label>ملاحظة التصوير (عربي)</label><input id="f_ar_notePhoto"></div>
+        <div><label>Photo note (English)</label><input id="f_en_notePhoto"></div>
+      </div>
+      <div class="row2">
+        <div><label>ملاحظة الأطفال (عربي)</label><input id="f_ar_noteKids"></div>
+        <div><label>Kids note (English)</label><input id="f_en_noteKids"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>الصور والموسيقى</h2>
+      <label>صورة العروسين (رابط) — اتركها فارغة لإخفائها</label>
+      <input id="f_couplePhoto">
+      <label>معرض الصور (رابط لكل سطر) — اتركه فارغاً لإخفائه</label>
+      <textarea id="f_gallery" rows="3"></textarea>
+      <label>ملف موسيقى (رابط) — اختياري</label>
+      <input id="f_music">
+    </div>
+
+    <div class="card">
+      <h2>الألوان</h2>
+      <div class="row3">
+        <div><label>الخلفية</label><input id="c_bg" type="color"></div>
+        <div><label>الكرت</label><input id="c_card" type="color"></div>
+        <div><label>الذهبي</label><input id="c_gold" type="color"></div>
+      </div>
+      <div class="row3">
+        <div><label>الأخضر (العناوين)</label><input id="c_green" type="color"></div>
+        <div><label>النص</label><input id="c_ink" type="color"></div>
+        <div><label>النص الخفيف</label><input id="c_muted" type="color"></div>
+      </div>
+    </div>
+
+    <button class="btn gold wide" id="saveBtn" style="margin-top:6px">حفظ التغييرات</button>
+    <div class="saved" id="savedMsg"></div>
+
+    <div id="designLinkBox" class="card" style="display:none">
+      <label>رابط دعوتك — انسخه وابعته للضيوف</label>
+      <div class="link-box">
+        <input id="designLink" readonly>
+        <button class="btn gold" id="copyDesignLink">نسخ</button>
+      </div>
+    </div>
+
+    <h2>معاينة مباشرة</h2>
+    <iframe class="preview" id="preview"></iframe>
+  </div>
+
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
