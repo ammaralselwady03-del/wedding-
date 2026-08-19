@@ -3,7 +3,7 @@ const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const $=id=>document.getElementById(id);
 const show=id=>{["login","home","responses","design","passView"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");};
-const SITE_ROOT=location.href.replace(/[^/]*\.html.*$/,"");
+const SITE_ROOT=location.origin+location.pathname.replace(/[^/]*$/,"");
 
 let INV=null; // دعوة المستخدم الحالية
 
@@ -109,10 +109,21 @@ $("backFromResp").addEventListener("click",()=>show("home"));
 $("backFromDesign").addEventListener("click",()=>show("home"));
 $("backFromPass").addEventListener("click",()=>show("home"));
 
-$("copyLink").addEventListener("click",()=>{
-  const inp=$("inviteLink");inp.select();
-  navigator.clipboard.writeText(inp.value).then(()=>{$("copyLink").textContent="✓ تم";setTimeout(()=>$("copyLink").textContent="نسخ",1500);});
-});
+function copyText(text, btn){
+  const done=()=>{const t=btn.textContent;btn.textContent="✓ تم";setTimeout(()=>btn.textContent="نسخ",1500);};
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done).catch(()=>fallback());
+  }else{ fallback(); }
+  function fallback(){
+    const ta=document.createElement("textarea");
+    ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    try{ document.execCommand("copy"); done(); }catch(e){ alert("انسخ الرابط يدوياً:\n"+text); }
+    document.body.removeChild(ta);
+  }
+}
+$("copyLink").addEventListener("click",()=>copyText($("inviteLink").value,$("copyLink")));
+$("copyDesignLink").addEventListener("click",()=>copyText($("designLink").value,$("copyDesignLink")));
 
 /* تحميل الردود PDF (نافذة طباعة → حفظ كـ PDF) */
 $("dlResp").addEventListener("click",()=>{
@@ -203,6 +214,15 @@ async function loadResponses(){
 /* ===== التصميم ===== */
 const DEF_COLORS={bg:"#EFE4D6",card:"#F7F0E5",gold:"#B8924E",green:"#2E4A3A",ink:"#3E3025",muted:"#8A785F"};
 function loadSettings(){
+  if(INV.slug){
+    const link=SITE_ROOT+INV.slug;
+    $("designLink").value=link;
+    $("designLinkBox").style.display="block";
+    $("preview").src=link;
+  }else{
+    $("designLinkBox").style.display="none";
+    $("preview").removeAttribute("src");
+  }
   const c=INV.data||{}, ar=c.ar||{}, en=c.en||{}, m=c.media||{}, cp=c.couple||{}, col=c.colors||{};
   $("f_groomAr").value=cp.groomAr||""; $("f_brideAr").value=cp.brideAr||"";
   $("f_groomEn").value=cp.groomEn||""; $("f_brideEn").value=cp.brideEn||"";
@@ -235,10 +255,13 @@ $("saveBtn").addEventListener("click",async()=>{
   INV.data=data;
   // ولّد الرابط من الأسماء (أول مرة فقط)
   await ensureSlug();
-  $("inviteLink").value=SITE_ROOT+INV.slug;
-  $("preview").src=SITE_ROOT+INV.slug;
-  $("savedMsg").textContent="✓ تم الحفظ — رابط دعوتك: "+SITE_ROOT+INV.slug;
-  setTimeout(()=>$("savedMsg").textContent="",4000);
+  const link=SITE_ROOT+INV.slug;
+  $("inviteLink").value=link;
+  $("designLink").value=link;
+  $("designLinkBox").style.display="block";
+  $("preview").src=link;
+  $("savedMsg").textContent="✓ تم الحفظ";
+  setTimeout(()=>$("savedMsg").textContent="",2500);
 });
 
 checkSession();
