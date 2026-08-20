@@ -63,6 +63,8 @@ body.lang-en .verse{font-family:"Cormorant Garamond",serif;font-style:italic}
 .blessing{color:var(--muted);font-size:1rem;line-height:1.9;max-width:440px;margin:0 auto 26px}
 .couple{display:flex;align-items:center;justify-content:center;gap:18px;margin:14px 0 18px}
 .couple .name-txt{font-family:"Aref Ruqaa",serif;color:var(--ink);font-size:clamp(2.2rem,10vw,3.2rem);line-height:1.2}
+.couple .person{display:flex;flex-direction:column;align-items:center;gap:4px}
+.couple .father{color:var(--muted);font-size:.9rem;font-weight:500}
 .rings{width:44px;height:26px;flex:0 0 auto}
 .rings circle{fill:none;stroke:var(--gold);stroke-width:2}
 .willing{font-family:"Amiri",serif;color:var(--muted);font-size:1rem;margin-bottom:6px}
@@ -138,15 +140,19 @@ textarea.rsvp-in{resize:vertical}
 <div class="wrap">
   <div class="couple-photo reveal d1" id="couplePhoto" style="display:none"></div>
   <div class="invite-card reveal d1">
-    <div class="bismillah" id="bismillah"></div>
-    <div class="verse" id="verse"></div>
-    <div class="family display" id="family"></div>
-    <div class="parents" id="parents"></div>
+    <div class="bismillah" id="bismillah" dir="rtl" style="display:none"></div>
+    <div class="verse" id="verse" dir="rtl" style="display:none"></div>
     <div class="blessing" id="blessing"></div>
     <div class="couple">
-      <span class="name-txt display" id="groom"></span>
+      <div class="person">
+        <span class="name-txt display" id="groom"></span>
+        <span class="father" id="groomFather"></span>
+      </div>
       <svg class="rings" viewBox="0 0 44 26"><circle cx="16" cy="13" r="10"/><circle cx="28" cy="13" r="10"/></svg>
-      <span class="name-txt display" id="bride"></span>
+      <div class="person">
+        <span class="name-txt display" id="bride"></span>
+        <span class="father" id="brideFather"></span>
+      </div>
     </div>
     <div class="willing" id="willing"></div>
     <div class="rule"><span class="l"></span><span class="d"></span><span class="l r"></span></div>
@@ -204,21 +210,21 @@ const EXPIRY = "";
 
 /* القيم الافتراضية (تُستبدل بما يُحفظ من لوحة التصميم) */
 const DEFAULTS = {
-  couple:{ groomAr:"العريس", brideAr:"العروس", groomEn:"Groom", brideEn:"Bride" },
+  couple:{ groomAr:"العريس", brideAr:"العروس", groomEn:"Groom", brideEn:"Bride",
+    groomFatherAr:"", groomFatherEn:"", brideFatherAr:"", brideFatherEn:"" },
   datetime:"2026-08-24T19:00:00",
+  show:{ bismillah:true, verse:true },
+  bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+  verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾",
   media:{ mapUrl:"https://maps.google.com/?q=Amman+Jordan", mapEmbed:"", music:"", couplePhoto:"", gallery:[] },
   colors:{ bg:"#EFE4D6", card:"#F7F0E5", gold:"#B8924E", green:"#2E4A3A", ink:"#3E3025", muted:"#8A785F" },
-  ar:{ tapToOpen:"المس الختم لفتح الدعوة", bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-    verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾",
-    family:"أفراح آل ...", parents:"السيد ... & السيد ...",
+  ar:{ tapToOpen:"المس الختم لفتح الدعوة",
     blessing:"وبكل الحب والفرح يتشرفان بدعوتكم لمشاركتهما فرحة زفاف ولديهما",
     willing:"﴿ وذلك بمشيئة الله تعالى ﴾", venueName:"اسم الصالة", venueSub:"الرجال: ...\nالنساء: ...",
     mapBtn:"الموقع على الخرائط", notePhoto:"نرجو عدم التصوير", noteKids:"نتمنى نوماً هنيئاً لأطفالكم",
     countdownTitle:"باقٍ على الفرح", lblDays:"يوم", lblHours:"ساعة", lblMins:"دقيقة", lblSecs:"ثانية",
     galleryTitle:"لحظاتنا", footer:"بحضوركم تكتمل فرحتنا ❤", done:"🎉 بدأ الفرح — ألف مبروك" },
-  en:{ tapToOpen:"Tap the seal to open", bismillah:"In the name of Allah, the Most Gracious, the Most Merciful",
-    verse:"“And among His signs is that He created for you mates from among yourselves, that you may find tranquility in them; and He placed between you affection and mercy.”",
-    family:"The ... Family", parents:"Mr. ... & Mr. ...",
+  en:{ tapToOpen:"Tap the seal to open",
     blessing:"With love and joy, request the honour of your presence at the wedding of their children",
     willing:"By the grace of God", venueName:"Venue name", venueSub:"Men: ...\nWomen: ...",
     mapBtn:"Open in Maps", notePhoto:"Kindly no photography", noteKids:"We wish your little ones a restful night",
@@ -274,7 +280,12 @@ function formatDateTime(iso){
 
 let lang="ar", DT, timer;
 const txt=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-const names=l=>l==="ar"?{groom:CONFIG.couple.groomAr,bride:CONFIG.couple.brideAr}:{groom:CONFIG.couple.groomEn,bride:CONFIG.couple.brideEn};
+function names(l){
+  const c=CONFIG.couple;
+  return l==="ar"
+    ? {groom:c.groomAr,bride:c.brideAr,gf:c.groomFatherAr,bf:c.brideFatherAr}
+    : {groom:c.groomEn,bride:c.brideEn,gf:c.groomFatherEn,bf:c.brideFatherEn};
+}
 
 function applyLang(l){
   lang=l; const L=CONFIG[l];
@@ -285,9 +296,11 @@ function applyLang(l){
   document.title=`${n.groom} & ${n.bride}`;
   document.getElementById("langAr").classList.toggle("active",l==="ar");
   document.getElementById("langEn").classList.toggle("active",l==="en");
-  txt("hint",L.tapToOpen); txt("bismillah",L.bismillah); txt("verse",L.verse);
-  txt("family",L.family); txt("parents",L.parents); txt("blessing",L.blessing);
+  txt("hint",L.tapToOpen); txt("blessing",L.blessing);
   txt("groom",n.groom); txt("bride",n.bride); txt("willing",L.willing);
+  txt("groomFather", n.gf||""); txt("brideFather", n.bf||"");
+  document.getElementById("groomFather").style.display=n.gf?"block":"none";
+  document.getElementById("brideFather").style.display=n.bf?"block":"none";
   txt("venueName",L.venueName);
   document.getElementById("venueSub").innerHTML=L.venueSub.replace(/\n/g,"<br>");
   txt("dayValue",DT[l].day); txt("dateValue",DT[l].date); txt("timeValue",DT[l].time);
@@ -373,6 +386,13 @@ function init(){
   document.getElementById("langEn").addEventListener("click",()=>applyLang("en"));
   applyLang("ar");
 
+  // البسملة والآية: دائماً بالعربي + إظهار/إخفاء
+  const showB=!CONFIG.show||CONFIG.show.bismillah!==false;
+  const showV=!CONFIG.show||CONFIG.show.verse!==false;
+  const bEl=document.getElementById("bismillah"), vEl=document.getElementById("verse");
+  if(showB && CONFIG.bismillah){ bEl.textContent=CONFIG.bismillah; bEl.style.display="block"; } else { bEl.style.display="none"; }
+  if(showV && CONFIG.verse){ vEl.textContent=CONFIG.verse; vEl.style.display="block"; } else { vEl.style.display="none"; }
+
   document.getElementById("mapBtn").href=CONFIG.media.mapUrl;
 
   if(CONFIG.media.couplePhoto){const bx=document.getElementById("couplePhoto");bx.style.display="block";bx.innerHTML=`<img src="${CONFIG.media.couplePhoto}" alt="">`;}
@@ -387,7 +407,17 @@ function init(){
   if(CONFIG.media.mapEmbed){const bx=document.getElementById("mapEmbed");bx.style.display="block";bx.innerHTML=`<iframe src="${CONFIG.media.mapEmbed}" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>`;}
 
   let audio=null;
-  if(CONFIG.media.music){audio=document.getElementById("audio");audio.src=CONFIG.media.music;const mb=document.getElementById("musicBtn");mb.style.display="flex";mb.addEventListener("click",()=>{if(audio.paused){audio.play();mb.textContent="⏸";}else{audio.pause();mb.textContent="♪";}});}
+  if(CONFIG.media.music){
+    audio=document.getElementById("audio");
+    audio.src=CONFIG.media.music;
+    audio.load();
+    const mb=document.getElementById("musicBtn");
+    mb.style.display="flex";
+    mb.addEventListener("click",()=>{
+      if(audio.paused){ audio.play().then(()=>{mb.textContent="⏸";}).catch(err=>{console.error("music play failed",err);}); }
+      else{ audio.pause(); mb.textContent="♪"; }
+    });
+  }
 
   const cover=document.getElementById("cover");
   document.getElementById("seal").addEventListener("click",()=>{

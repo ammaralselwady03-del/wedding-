@@ -1,6 +1,6 @@
 const SUPA_URL="https://ojfnqfjbeknsiustzjpx.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qZm5xZmpiZWtuc2l1c3R6anB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDczMjgsImV4cCI6MjEwMjYyMzMyOH0.hZ-AzI_n-v9nnGqjI57zrHTVqa_m3W-NRxKRXaW5fGU";
-const sb=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:window.sessionStorage}});
 const $=id=>document.getElementById(id);
 const show=id=>{["login","home","responses","design","passView"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");};
 const SITE_ROOT=location.origin+location.pathname.replace(/[^/]*$/,"");
@@ -96,7 +96,7 @@ async function ensureSlug(){
 function enterHome(){
   if(INV.slug){
     $("inviteLink").value=SITE_ROOT+INV.slug;
-    $("preview").src=SITE_ROOT+INV.slug;
+    $("preview").src=SITE_ROOT+INV.slug+"?t="+Date.now();
   }else{
     $("inviteLink").value="سيظهر الرابط بعد إدخال أسماء العروسين (بالإنجليزي) والحفظ";
   }
@@ -218,17 +218,23 @@ function loadSettings(){
     const link=SITE_ROOT+INV.slug;
     $("designLink").value=link;
     $("designLinkBox").style.display="block";
-    $("preview").src=link;
+    $("preview").src=link+"?t="+Date.now();
   }else{
     $("designLinkBox").style.display="none";
     $("preview").removeAttribute("src");
   }
-  const c=INV.data||{}, ar=c.ar||{}, en=c.en||{}, m=c.media||{}, cp=c.couple||{}, col=c.colors||{};
+  const c=INV.data||{}, ar=c.ar||{}, en=c.en||{}, m=c.media||{}, cp=c.couple||{}, col=c.colors||{}, sh=c.show||{};
   $("f_groomAr").value=cp.groomAr||""; $("f_brideAr").value=cp.brideAr||"";
   $("f_groomEn").value=cp.groomEn||""; $("f_brideEn").value=cp.brideEn||"";
+  $("f_groomFatherAr").value=cp.groomFatherAr||""; $("f_brideFatherAr").value=cp.brideFatherAr||"";
+  $("f_groomFatherEn").value=cp.groomFatherEn||""; $("f_brideFatherEn").value=cp.brideFatherEn||"";
   $("f_datetime").value=(c.datetime||"2026-08-24T19:00:00").slice(0,16);
   const setPair=(k)=>{$("f_ar_"+k).value=ar[k]||"";$("f_en_"+k).value=en[k]||"";};
-  ["family","parents","blessing","bismillah","verse","footer","venueName","venueSub","notePhoto","noteKids"].forEach(setPair);
+  ["blessing","footer","venueName","venueSub","notePhoto","noteKids"].forEach(setPair);
+  $("f_bismillah").value=(c.bismillah!==undefined)?c.bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
+  $("f_verse").value=(c.verse!==undefined)?c.verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾";
+  $("f_show_bismillah").checked=(sh.bismillah!==false);
+  $("f_show_verse").checked=(sh.verse!==false);
   $("f_mapUrl").value=m.mapUrl||""; $("f_mapEmbed").value=m.mapEmbed||"";
   $("f_couplePhoto").value=m.couplePhoto||"";
   $("f_gallery").value=(m.gallery||[]).join("\n");
@@ -239,12 +245,17 @@ function loadSettings(){
 }
 $("saveBtn").addEventListener("click",async()=>{
   const getPair=(k)=>({ar:$("f_ar_"+k).value,en:$("f_en_"+k).value});
-  const keys=["family","parents","blessing","bismillah","verse","footer","venueName","venueSub","notePhoto","noteKids"];
+  const keys=["blessing","footer","venueName","venueSub","notePhoto","noteKids"];
   const ar={},en={};
   keys.forEach(k=>{const p=getPair(k);ar[k]=p.ar;en[k]=p.en;});
   const data={
-    couple:{groomAr:$("f_groomAr").value,brideAr:$("f_brideAr").value,groomEn:$("f_groomEn").value,brideEn:$("f_brideEn").value},
+    couple:{groomAr:$("f_groomAr").value,brideAr:$("f_brideAr").value,groomEn:$("f_groomEn").value,brideEn:$("f_brideEn").value,
+      groomFatherAr:$("f_groomFatherAr").value,brideFatherAr:$("f_brideFatherAr").value,
+      groomFatherEn:$("f_groomFatherEn").value,brideFatherEn:$("f_brideFatherEn").value},
     datetime:($("f_datetime").value||"2026-08-24T19:00")+":00",
+    bismillah:$("f_bismillah").value,
+    verse:$("f_verse").value,
+    show:{bismillah:$("f_show_bismillah").checked,verse:$("f_show_verse").checked},
     ar,en,
     media:{mapUrl:$("f_mapUrl").value,mapEmbed:$("f_mapEmbed").value,couplePhoto:$("f_couplePhoto").value,music:$("f_music").value,gallery:$("f_gallery").value.split("\n").map(s=>s.trim()).filter(Boolean)},
     colors:{bg:$("c_bg").value,card:$("c_card").value,gold:$("c_gold").value,green:$("c_green").value,ink:$("c_ink").value,muted:$("c_muted").value}
@@ -259,7 +270,7 @@ $("saveBtn").addEventListener("click",async()=>{
   $("inviteLink").value=link;
   $("designLink").value=link;
   $("designLinkBox").style.display="block";
-  $("preview").src=link;
+  $("preview").src=link+"?t="+Date.now();
   $("savedMsg").textContent="✓ تم الحفظ";
   setTimeout(()=>$("savedMsg").textContent="",2500);
 });

@@ -157,7 +157,15 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
         <div><label>Groom name (English)</label><input id="f_groomEn"></div>
         <div><label>Bride name (English)</label><input id="f_brideEn"></div>
       </div>
-      <p class="hint">حرف الختم يتولّد تلقائياً من أول حرف بالاسم الإنجليزي.</p>
+      <div class="row2">
+        <div><label>اسم والد العريس (عربي)</label><input id="f_groomFatherAr"></div>
+        <div><label>اسم والد العروس (عربي)</label><input id="f_brideFatherAr"></div>
+      </div>
+      <div class="row2">
+        <div><label>Groom's father (English)</label><input id="f_groomFatherEn"></div>
+        <div><label>Bride's father (English)</label><input id="f_brideFatherEn"></div>
+      </div>
+      <p class="hint">اسم الأب يظهر تحت اسم العريس/العروس. اتركه فارغاً لإخفائه. حرف الختم يتولّد تلقائياً من أول حرف بالاسم الإنجليزي.</p>
     </div>
 
     <div class="card">
@@ -170,26 +178,20 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     <div class="card">
       <h2>نصوص الكرت</h2>
       <div class="row2">
-        <div><label>اسم العائلة (عربي)</label><input id="f_ar_family"></div>
-        <div><label>Family (English)</label><input id="f_en_family"></div>
-      </div>
-      <div class="row2">
-        <div><label>الأهل (عربي)</label><input id="f_ar_parents"></div>
-        <div><label>Parents (English)</label><input id="f_en_parents"></div>
-      </div>
-      <div class="row2">
         <div><label>جملة الدعوة (عربي)</label><textarea id="f_ar_blessing" rows="2"></textarea></div>
         <div><label>Invitation line (English)</label><textarea id="f_en_blessing" rows="2"></textarea></div>
       </div>
-      <div class="row2">
-        <div><label>البسملة (عربي)</label><input id="f_ar_bismillah"></div>
-        <div><label>Bismillah (English)</label><input id="f_en_bismillah"></div>
-      </div>
-      <div class="row2">
-        <div><label>الآية (عربي)</label><textarea id="f_ar_verse" rows="2"></textarea></div>
-        <div><label>Verse (English)</label><textarea id="f_en_verse" rows="2"></textarea></div>
-      </div>
-      <div class="row2">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="f_show_bismillah" style="width:auto"> إظهار البسملة
+      </label>
+      <label>البسملة (تظهر دائماً بالعربي)</label>
+      <input id="f_bismillah">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:14px">
+        <input type="checkbox" id="f_show_verse" style="width:auto"> إظهار الآية
+      </label>
+      <label>الآية (تظهر دائماً بالعربي)</label>
+      <textarea id="f_verse" rows="2"></textarea>
+      <div class="row2" style="margin-top:12px">
         <div><label>الفوتر (عربي)</label><input id="f_ar_footer"></div>
         <div><label>Footer (English)</label><input id="f_en_footer"></div>
       </div>
