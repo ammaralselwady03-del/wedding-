@@ -4,33 +4,17 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>دعوة زفاف</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Aref+Ruqaa:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Marcellus&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <style>
-:root{
-  --bg:#EFE4D6; --bg-2:#E7D8C6; --card:#F7F0E5;
-  --gold:#B8924E; --gold-soft:#D9BC85; --green:#2E4A3A;
-  --ink:#3E3025; --muted:#8A785F; --line:rgba(184,146,78,.35);
-}
+:root{--bg:#EFE4D6;--bg-2:#E7D8C6;--card:#F7F0E5;--gold:#B8924E;--gold-soft:#D9BC85;--green:#2E4A3A;--ink:#3E3025;--muted:#8A785F;--line:rgba(184,146,78,.35)}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
-body{
-  font-family:"Tajawal",sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;
-  background-image:radial-gradient(120% 70% at 50% -5%, rgba(184,146,78,.16), transparent 55%),linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);
-  background-attachment:fixed;
-}
+body{font-family:"Tajawal",sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;background-image:radial-gradient(120% 70% at 50% -5%,rgba(184,146,78,.16),transparent 55%),linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);background-attachment:fixed}
 body.locked{overflow:hidden;height:100vh}
-body.lang-en .display,body.lang-en .name-txt{font-family:"Cormorant Garamond",serif;font-weight:600}
-body.lang-en .label,body.lang-en .eyebrow{font-family:"Marcellus",serif;letter-spacing:1.5px}
-body.lang-en .verse{font-family:"Cormorant Garamond",serif;font-style:italic}
-
-.lang-toggle{position:fixed;top:16px;inset-inline-start:16px;z-index:1200;display:flex;background:var(--card);border:1px solid var(--line);border-radius:50px;overflow:hidden;box-shadow:0 4px 14px rgba(62,48,37,.12);font-family:"Marcellus",serif}
-.lang-toggle button{border:0;background:transparent;cursor:pointer;padding:8px 16px;font-size:.9rem;color:var(--muted);letter-spacing:1px;transition:.2s}
-.lang-toggle button.active{background:var(--green);color:#F3EAD9}
+body.lang-en .display{font-family:"Cormorant Garamond",serif;font-weight:600}
 
 .cover{position:fixed;inset:0;z-index:1000;background:transparent;overflow:hidden}
 .cover .hint{position:absolute;bottom:64px;inset-inline:0;text-align:center;color:var(--muted);font-size:1rem;letter-spacing:.5px;z-index:6;transition:opacity .4s}
@@ -40,7 +24,7 @@ body.lang-en .verse{font-family:"Cormorant Garamond",serif;font-style:italic}
 .seam{position:absolute;top:0;bottom:0;left:50%;width:1px;background:linear-gradient(180deg,transparent,var(--gold) 20%,var(--gold) 80%,transparent);transform:translateX(-50%);z-index:4;transition:opacity .5s}
 .seal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:132px;height:132px;border-radius:50%;z-index:5;cursor:pointer;background:radial-gradient(circle at 38% 34%,#E8CE96,#C6A15B 55%,#9C7635 100%);box-shadow:0 10px 26px rgba(120,86,32,.4),inset 0 2px 6px rgba(255,255,255,.4);display:flex;align-items:center;justify-content:center;transition:transform .5s ease,opacity .5s ease}
 .seal::before{content:"";position:absolute;inset:9px;border-radius:50%;border:1.5px solid rgba(255,255,255,.55)}
-.seal .mono{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:1.7rem;color:#5A4218;letter-spacing:1px;text-shadow:0 1px 1px rgba(255,255,255,.4)}
+.seal .mono{font-weight:600;font-size:1.7rem;color:#5A4218;letter-spacing:1px;text-shadow:0 1px 1px rgba(255,255,255,.4)}
 .seal:hover{transform:translate(-50%,-50%) scale(1.05)}
 .cover.open .flap.left{transform:translateX(-101%)}
 .cover.open .flap.right{transform:translateX(101%)}
@@ -49,23 +33,22 @@ body.lang-en .verse{font-family:"Cormorant Garamond",serif;font-style:italic}
 
 .music-btn{position:fixed;bottom:16px;inset-inline-start:16px;z-index:1200;width:48px;height:48px;border-radius:50%;border:0;cursor:pointer;background:var(--green);color:#F3EAD9;font-size:1.1rem;display:none;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(46,74,58,.35)}
 
-.wrap{max-width:600px;margin:0 auto;padding:80px 22px 46px}
+.wrap{max-width:600px;margin:0 auto;padding:56px 22px 46px}
 .reveal{opacity:0;transform:translateY(20px)}
 .opened .reveal{animation:up .9s ease forwards}
-.opened .d1{animation-delay:.15s}.opened .d2{animation-delay:.35s}.opened .d3{animation-delay:.55s}.opened .d4{animation-delay:.75s}.opened .d5{animation-delay:.95s}.opened .d6{animation-delay:1.15s}
+.opened .d1{animation-delay:.15s}.opened .d3{animation-delay:.55s}.opened .d4{animation-delay:.75s}.opened .d5{animation-delay:.95s}.opened .d6{animation-delay:1.15s}
 @keyframes up{to{opacity:1;transform:none}}
 
 .invite-card{background:var(--card);border:1px solid var(--line);border-radius:170px 170px 22px 22px;padding:48px 26px 40px;box-shadow:0 20px 50px rgba(62,48,37,.14);text-align:center}
 .bismillah{font-family:"Amiri",serif;font-size:1.5rem;color:var(--green);margin-bottom:16px}
 .verse{font-family:"Amiri",serif;color:var(--muted);font-size:1.02rem;line-height:2.1;max-width:420px;margin:0 auto 30px}
-.family{font-family:"Aref Ruqaa",serif;color:var(--green);font-size:2rem;margin-bottom:22px}
-.parents{color:var(--ink);font-size:1.02rem;line-height:1.9;margin-bottom:16px}
 .blessing{color:var(--muted);font-size:1rem;line-height:1.9;max-width:440px;margin:0 auto 26px}
-.couple{display:flex;align-items:center;justify-content:center;gap:18px;margin:14px 0 18px}
-.couple .name-txt{font-family:"Aref Ruqaa",serif;color:var(--ink);font-size:clamp(2.2rem,10vw,3.2rem);line-height:1.2}
-.couple .person{display:flex;flex-direction:column;align-items:center;gap:4px}
-.couple .father{color:var(--muted);font-size:.9rem;font-weight:500}
-.rings{width:44px;height:26px;flex:0 0 auto}
+.couple{display:flex;align-items:flex-end;justify-content:center;gap:18px;margin:14px 0 18px}
+.couple .person{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.couple .father{color:var(--muted);font-size:.92rem;font-weight:500}
+.couple .title{color:var(--green);font-size:.9rem;font-weight:700}
+.couple .name-txt{font-family:"Aref Ruqaa",serif;color:var(--ink);font-size:clamp(2rem,9vw,3rem);line-height:1.2}
+.rings{width:44px;height:26px;flex:0 0 auto;margin-bottom:10px}
 .rings circle{fill:none;stroke:var(--gold);stroke-width:2}
 .willing{font-family:"Amiri",serif;color:var(--muted);font-size:1rem;margin-bottom:6px}
 .rule{display:flex;align-items:center;justify-content:center;gap:12px;margin:28px 0}
@@ -99,8 +82,6 @@ body.lang-en .verse{font-family:"Cormorant Garamond",serif;font-style:italic}
 .lightbox img{max-width:100%;max-height:90vh;border-radius:14px}
 .footer{text-align:center;color:var(--muted);font-size:1rem;line-height:2;margin-top:42px}
 .footer .heart{color:var(--gold)}
-
-/* تأكيد الحضور */
 .rsvp-card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px 22px;max-width:520px;margin:0 auto}
 .rsvp-lbl{display:block;text-align:start;color:var(--green);font-weight:700;font-size:.98rem;margin:16px 2px 8px}
 .rsvp-in{width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:1rem;color:var(--ink);outline:none}
@@ -113,18 +94,12 @@ textarea.rsvp-in{resize:vertical}
 .rsvp-err{color:#9C4A3C;font-size:.9rem;margin-top:12px;min-height:1em;text-align:center}
 .rsvp-send{width:100%;margin-top:20px;background:var(--gold);color:#3A2817;border:0;border-radius:50px;padding:14px;font-family:inherit;font-weight:700;font-size:1.05rem;cursor:pointer;transition:.2s;box-shadow:0 8px 22px rgba(184,146,78,.3)}
 .rsvp-send:hover{transform:translateY(-2px)}
-.rsvp-send:disabled{opacity:.6;cursor:default;transform:none}
+.rsvp-send:disabled{opacity:.6}
 .rsvp-done{text-align:center;font-family:"Aref Ruqaa",serif;color:var(--green);font-size:1.4rem;padding:22px 6px;line-height:1.7}
-
 @media (prefers-reduced-motion:reduce){.reveal{animation:none!important;opacity:1;transform:none}.flap,.seal{transition:none}}
 </style>
 </head>
 <body class="locked">
-
-<div class="lang-toggle">
-  <button id="langEn">EN</button>
-  <button id="langAr" class="active">AR</button>
-</div>
 
 <button class="music-btn" id="musicBtn">♪</button>
 <audio id="audio" loop></audio>
@@ -145,13 +120,15 @@ textarea.rsvp-in{resize:vertical}
     <div class="blessing" id="blessing"></div>
     <div class="couple">
       <div class="person">
+        <span class="father" id="groomFather" style="display:none"></span>
+        <span class="title" id="groomTitle" style="display:none"></span>
         <span class="name-txt display" id="groom"></span>
-        <span class="father" id="groomFather"></span>
       </div>
       <svg class="rings" viewBox="0 0 44 26"><circle cx="16" cy="13" r="10"/><circle cx="28" cy="13" r="10"/></svg>
       <div class="person">
+        <span class="father" id="brideFather" style="display:none"></span>
+        <span class="title" id="brideTitle" style="display:none"></span>
         <span class="name-txt display" id="bride"></span>
-        <span class="father" id="brideFather"></span>
       </div>
     </div>
     <div class="willing" id="willing"></div>
@@ -190,312 +167,11 @@ textarea.rsvp-in{resize:vertical}
   </div>
 
   <div class="block reveal d5" id="rsvpBlock"></div>
-
   <p class="footer reveal d6" id="footer"></p>
 </div>
 
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
-<script>
-/* الاتصال بقاعدة البيانات (لتحميل الإعدادات وحفظ الردود) */
-const SUPA_URL = "https://ojfnqfjbeknsiustzjpx.supabase.co";
-const SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qZm5xZmpiZWtuc2l1c3R6anB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDczMjgsImV4cCI6MjEwMjYyMzMyOH0.hZ-AzI_n-v9nnGqjI57zrHTVqa_m3W-NRxKRXaW5fGU";
-const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
-
-/* ====== انتهاء صلاحية الدعوة ====== */
-// حط تاريخ الانتهاء وبعده تختفي الدعوة تماماً (صفحة فاضية).
-// الصيغة: "2026-08-31T23:59:00"  (نظام 24 ساعة)
-// اتركه فاضي  ""  لتبقى الدعوة شغّالة دائماً.
-const EXPIRY = "";
-
-/* القيم الافتراضية (تُستبدل بما يُحفظ من لوحة التصميم) */
-const DEFAULTS = {
-  couple:{ groomAr:"العريس", brideAr:"العروس", groomEn:"Groom", brideEn:"Bride",
-    groomFatherAr:"", groomFatherEn:"", brideFatherAr:"", brideFatherEn:"" },
-  datetime:"2026-08-24T19:00:00",
-  show:{ bismillah:true, verse:true },
-  bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
-  verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾",
-  media:{ mapUrl:"https://maps.google.com/?q=Amman+Jordan", mapEmbed:"", music:"", couplePhoto:"", gallery:[] },
-  colors:{ bg:"#EFE4D6", card:"#F7F0E5", gold:"#B8924E", green:"#2E4A3A", ink:"#3E3025", muted:"#8A785F" },
-  ar:{ tapToOpen:"المس الختم لفتح الدعوة",
-    blessing:"وبكل الحب والفرح يتشرفان بدعوتكم لمشاركتهما فرحة زفاف ولديهما",
-    willing:"﴿ وذلك بمشيئة الله تعالى ﴾", venueName:"اسم الصالة", venueSub:"الرجال: ...\nالنساء: ...",
-    mapBtn:"الموقع على الخرائط", notePhoto:"نرجو عدم التصوير", noteKids:"نتمنى نوماً هنيئاً لأطفالكم",
-    countdownTitle:"باقٍ على الفرح", lblDays:"يوم", lblHours:"ساعة", lblMins:"دقيقة", lblSecs:"ثانية",
-    galleryTitle:"لحظاتنا", footer:"بحضوركم تكتمل فرحتنا ❤", done:"🎉 بدأ الفرح — ألف مبروك" },
-  en:{ tapToOpen:"Tap the seal to open",
-    blessing:"With love and joy, request the honour of your presence at the wedding of their children",
-    willing:"By the grace of God", venueName:"Venue name", venueSub:"Men: ...\nWomen: ...",
-    mapBtn:"Open in Maps", notePhoto:"Kindly no photography", noteKids:"We wish your little ones a restful night",
-    countdownTitle:"Counting down to the joy", lblDays:"Days", lblHours:"Hours", lblMins:"Minutes", lblSecs:"Seconds",
-    galleryTitle:"Our Moments", footer:"Your presence completes our joy ❤", done:"🎉 The celebration has begun — Congratulations" },
-};
-
-let CONFIG = JSON.parse(JSON.stringify(DEFAULTS));
-
-/* دمج الإعدادات المحفوظة فوق الافتراضية */
-function mergeInto(base, over){
-  if(!over) return base;
-  for(const k in over){
-    const v = over[k];
-    if(v && typeof v === "object" && !Array.isArray(v)){
-      base[k] = base[k] || {};
-      mergeInto(base[k], v);
-    } else if(v !== undefined && v !== null && v !== ""){
-      base[k] = v;
-    }
-  }
-  return base;
-}
-
-/* الألوان */
-function hex2rgb(h){h=h.replace("#","");if(h.length===3)h=h.split("").map(c=>c+c).join("");return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
-function rgb2hex(r,g,b){const t=x=>Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,"0");return "#"+t(r)+t(g)+t(b);}
-function lighten(h,a){const [r,g,b]=hex2rgb(h);return rgb2hex(r+(255-r)*a,g+(255-g)*a,b+(255-b)*a);}
-function darken(h,a){const [r,g,b]=hex2rgb(h);return rgb2hex(r*(1-a),g*(1-a),b*(1-a));}
-function rgba(h,a){const [r,g,b]=hex2rgb(h);return `rgba(${r},${g},${b},${a})`;}
-function applyColors(c){
-  const s=document.documentElement.style;
-  s.setProperty("--bg",c.bg); s.setProperty("--bg-2",darken(c.bg,.06)); s.setProperty("--card",c.card);
-  s.setProperty("--gold",c.gold); s.setProperty("--gold-soft",lighten(c.gold,.28));
-  s.setProperty("--green",c.green); s.setProperty("--ink",c.ink); s.setProperty("--muted",c.muted);
-  s.setProperty("--line",rgba(c.gold,.35));
-}
-
-/* التاريخ التلقائي */
-function formatDateTime(iso){
-  const [dp,tp="00:00"]=String(iso).split("T");
-  const [Y,Mo,Da]=dp.split("-").map(Number);
-  const [H,Mi]=tp.split(":").map(Number);
-  const d=new Date(Y,(Mo||1)-1,Da||1,H||0,Mi||0);
-  const toAr=s=>String(s).replace(/[0-9]/g,x=>"٠١٢٣٤٥٦٧٨٩"[x]);
-  const pad=n=>String(n).padStart(2,"0");
-  const h12=((H+11)%12)+1;
-  return {
-    en:{day:new Intl.DateTimeFormat("en-GB",{weekday:"long"}).format(d),date:new Intl.DateTimeFormat("en-GB",{day:"numeric",month:"long",year:"numeric"}).format(d),time:`${h12}:${pad(Mi)} ${H<12?"AM":"PM"}`},
-    ar:{day:"يوم "+new Intl.DateTimeFormat("ar",{weekday:"long"}).format(d),date:new Intl.DateTimeFormat("ar-u-nu-arab",{day:"numeric",month:"long",year:"numeric"}).format(d),time:`الساعة ${toAr(h12)}:${toAr(pad(Mi))} ${H<12?"صباحاً":"مساءً"}`}
-  };
-}
-
-let lang="ar", DT, timer;
-const txt=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
-function names(l){
-  const c=CONFIG.couple;
-  return l==="ar"
-    ? {groom:c.groomAr,bride:c.brideAr,gf:c.groomFatherAr,bf:c.brideFatherAr}
-    : {groom:c.groomEn,bride:c.brideEn,gf:c.groomFatherEn,bf:c.brideFatherEn};
-}
-
-function applyLang(l){
-  lang=l; const L=CONFIG[l];
-  document.documentElement.lang=l;
-  document.documentElement.dir=(l==="ar")?"rtl":"ltr";
-  document.body.classList.toggle("lang-en",l==="en");
-  const n=names(l);
-  document.title=`${n.groom} & ${n.bride}`;
-  document.getElementById("langAr").classList.toggle("active",l==="ar");
-  document.getElementById("langEn").classList.toggle("active",l==="en");
-  txt("hint",L.tapToOpen); txt("blessing",L.blessing);
-  txt("groom",n.groom); txt("bride",n.bride); txt("willing",L.willing);
-  txt("groomFather", n.gf||""); txt("brideFather", n.bf||"");
-  document.getElementById("groomFather").style.display=n.gf?"block":"none";
-  document.getElementById("brideFather").style.display=n.bf?"block":"none";
-  txt("venueName",L.venueName);
-  document.getElementById("venueSub").innerHTML=L.venueSub.replace(/\n/g,"<br>");
-  txt("dayValue",DT[l].day); txt("dateValue",DT[l].date); txt("timeValue",DT[l].time);
-  document.getElementById("mapBtn").textContent="📍 "+L.mapBtn;
-  txt("notePhoto",L.notePhoto); txt("noteKids",L.noteKids);
-  txt("countdownTitle",L.countdownTitle);
-  txt("lblDays",L.lblDays); txt("lblHours",L.lblHours); txt("lblMins",L.lblMins); txt("lblSecs",L.lblSecs);
-  txt("galleryTitle",L.galleryTitle);
-  document.getElementById("footer").innerHTML=L.footer.replace("❤",'<span class="heart">❤</span>');
-  renderRsvpLang();
-}
-
-/* نموذج تأكيد الحضور */
-const RT={
-  ar:{title:"تأكيد الحضور",name:"الاسم",phone:"رقم الهاتف",q:"هل ستحضر؟",yes:"نتشرف بالحضور",no:"نعتذر عن الحضور",count:"عدد الحاضرين",msg:"رسالة للعروسين (اختياري)",send:"إرسال التأكيد",sending:"جارٍ الإرسال...",thanks:"شكراً لتأكيدك 🌸 نراكم في الفرح",thanksNo:"شكراً لإعلامنا، سنفتقد وجودكم 🤍",errName:"فضلاً اكتب الاسم",errPhone:"فضلاً اكتب رقم الهاتف",errAtt:"فضلاً اختر إن كنت ستحضر",errSend:"صار خطأ بالإرسال، حاول مرة ثانية"},
-  en:{title:"RSVP",name:"Name",phone:"Phone number",q:"Will you attend?",yes:"Joyfully accept",no:"Regretfully decline",count:"Number of guests",msg:"Message to the couple (optional)",send:"Send RSVP",sending:"Sending...",thanks:"Thank you 🌸 See you at the celebration",thanksNo:"Thank you for letting us know 🤍",errName:"Please enter your name",errPhone:"Please enter your phone",errAtt:"Please choose whether you'll attend",errSend:"Something went wrong, please try again"}
-};
-let attending=null;
-function buildRsvp(){
-  document.getElementById("rsvpBlock").innerHTML=`
-    <h2 class="section-title" id="rsvpTitle"></h2>
-    <div class="rsvp-card">
-      <div id="rsvpForm">
-        <label class="rsvp-lbl" id="lblName"></label>
-        <input class="rsvp-in" id="rsvpName" type="text">
-        <label class="rsvp-lbl" id="lblPhone"></label>
-        <input class="rsvp-in" id="rsvpPhone" type="tel" inputmode="tel">
-        <div class="rsvp-lbl" id="lblQ"></div>
-        <div class="att-row">
-          <button type="button" class="att-btn yes" id="attYes"></button>
-          <button type="button" class="att-btn no" id="attNo"></button>
-        </div>
-        <div id="countRow">
-          <label class="rsvp-lbl" id="lblCount"></label>
-          <input class="rsvp-in" id="rsvpCount" type="number" min="1" value="1">
-        </div>
-        <label class="rsvp-lbl" id="lblMsg"></label>
-        <textarea class="rsvp-in" id="rsvpMsg" rows="3"></textarea>
-        <div class="rsvp-err" id="rsvpErr"></div>
-        <button type="button" class="rsvp-send" id="rsvpSend"></button>
-      </div>
-      <div id="rsvpDone" class="rsvp-done" style="display:none"></div>
-    </div>`;
-  const attYes=document.getElementById("attYes"),attNo=document.getElementById("attNo");
-  attYes.addEventListener("click",()=>{attending=true;attYes.classList.add("active");attNo.classList.remove("active");document.getElementById("countRow").style.display="block";});
-  attNo.addEventListener("click",()=>{attending=false;attNo.classList.add("active");attYes.classList.remove("active");document.getElementById("countRow").style.display="none";});
-  document.getElementById("rsvpSend").addEventListener("click",submitRsvp);
-}
-function renderRsvpLang(){
-  const L=RT[lang];
-  txt("rsvpTitle",L.title); txt("lblName",L.name); txt("lblPhone",L.phone); txt("lblQ",L.q);
-  txt("attYes",L.yes); txt("attNo",L.no); txt("lblCount",L.count); txt("lblMsg",L.msg); txt("rsvpSend",L.send);
-}
-async function submitRsvp(){
-  const L=RT[lang],errBox=document.getElementById("rsvpErr"),btn=document.getElementById("rsvpSend");
-  const name=document.getElementById("rsvpName").value.trim();
-  const phone=document.getElementById("rsvpPhone").value.trim();
-  const message=document.getElementById("rsvpMsg").value.trim();
-  errBox.textContent="";
-  if(!name){errBox.textContent=L.errName;return;}
-  if(!phone){errBox.textContent=L.errPhone;return;}
-  if(attending===null){errBox.textContent=L.errAtt;return;}
-  const guests_count=attending?Math.max(1,parseInt(document.getElementById("rsvpCount").value||"1",10)):0;
-  btn.disabled=true;btn.textContent=L.sending;
-  const {error}=await sb.from("rsvp").insert({invitation_id:INVITATION_ID,name,phone,attending,guests_count,message});
-  btn.disabled=false;btn.textContent=L.send;
-  if(error){errBox.textContent=L.errSend;console.error(error);return;}
-  document.getElementById("rsvpForm").style.display="none";
-  const done=document.getElementById("rsvpDone");done.style.display="block";
-  done.textContent=attending?L.thanks:L.thanksNo;
-}
-
-/* التشغيل */
-function init(){
-  applyColors(CONFIG.colors);
-  const g=(CONFIG.couple.groomEn||"").trim()[0]||"";
-  const b=(CONFIG.couple.brideEn||"").trim()[0]||"";
-  document.getElementById("mono").textContent=(g+" & "+b).toUpperCase();
-  DT=formatDateTime(CONFIG.datetime);
-
-  buildRsvp();
-  document.getElementById("langAr").addEventListener("click",()=>applyLang("ar"));
-  document.getElementById("langEn").addEventListener("click",()=>applyLang("en"));
-  applyLang("ar");
-
-  // البسملة والآية: دائماً بالعربي + إظهار/إخفاء
-  const showB=!CONFIG.show||CONFIG.show.bismillah!==false;
-  const showV=!CONFIG.show||CONFIG.show.verse!==false;
-  const bEl=document.getElementById("bismillah"), vEl=document.getElementById("verse");
-  if(showB && CONFIG.bismillah){ bEl.textContent=CONFIG.bismillah; bEl.style.display="block"; } else { bEl.style.display="none"; }
-  if(showV && CONFIG.verse){ vEl.textContent=CONFIG.verse; vEl.style.display="block"; } else { vEl.style.display="none"; }
-
-  document.getElementById("mapBtn").href=CONFIG.media.mapUrl;
-
-  if(CONFIG.media.couplePhoto){const bx=document.getElementById("couplePhoto");bx.style.display="block";bx.innerHTML=`<img src="${CONFIG.media.couplePhoto}" alt="">`;}
-  if(Array.isArray(CONFIG.media.gallery)&&CONFIG.media.gallery.length){
-    document.getElementById("gallerySection").style.display="block";
-    const grid=document.getElementById("gallery");
-    grid.innerHTML=CONFIG.media.gallery.map(s=>`<img src="${s}" alt="" loading="lazy">`).join("");
-    const lb=document.getElementById("lightbox"),lbImg=document.getElementById("lightboxImg");
-    grid.querySelectorAll("img").forEach(img=>img.addEventListener("click",()=>{lbImg.src=img.src;lb.classList.add("open")}));
-    lb.addEventListener("click",()=>lb.classList.remove("open"));
-  }
-  if(CONFIG.media.mapEmbed){const bx=document.getElementById("mapEmbed");bx.style.display="block";bx.innerHTML=`<iframe src="${CONFIG.media.mapEmbed}" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>`;}
-
-  let audio=null;
-  if(CONFIG.media.music){
-    audio=document.getElementById("audio");
-    audio.src=CONFIG.media.music;
-    audio.load();
-    const mb=document.getElementById("musicBtn");
-    mb.style.display="flex";
-    mb.addEventListener("click",()=>{
-      if(audio.paused){ audio.play().then(()=>{mb.textContent="⏸";}).catch(err=>{console.error("music play failed",err);}); }
-      else{ audio.pause(); mb.textContent="♪"; }
-    });
-  }
-
-  const cover=document.getElementById("cover");
-  document.getElementById("seal").addEventListener("click",()=>{
-    if(cover.classList.contains("open"))return;
-    cover.classList.add("open");
-    document.body.classList.remove("locked");
-    document.body.classList.add("opened");
-    if(audio){audio.play().then(()=>{document.getElementById("musicBtn").textContent="⏸";}).catch(()=>{});}
-    setTimeout(()=>{cover.style.display="none";},1200);
-  });
-
-  const target=new Date(CONFIG.datetime).getTime();
-  const pad=n=>String(n).padStart(2,"0");
-  function tick(){
-    const diff=target-Date.now();
-    if(diff<=0){document.getElementById("countdown").innerHTML=`<div class="cd-done">${CONFIG[lang].done}</div>`;clearInterval(timer);return;}
-    document.getElementById("days").textContent=Math.floor(diff/86400000);
-    document.getElementById("hours").textContent=pad(Math.floor((diff%86400000)/3600000));
-    document.getElementById("mins").textContent=pad(Math.floor((diff%3600000)/60000));
-    document.getElementById("secs").textContent=pad(Math.floor((diff%60000)/1000));
-  }
-  tick(); timer=setInterval(tick,1000);
-
-  // زر حفظ صورة الكرت (يظهر فقط عبر الرابط الخاص ?save=1)
-  if(/[?&]save/.test(location.search)){
-    const hc=document.createElement("script");
-    hc.src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";
-    document.head.appendChild(hc);
-    const btn=document.createElement("button");
-    btn.textContent="⬇ حفظ صورة الكرت";
-    btn.style.cssText="position:fixed;bottom:16px;inset-inline-end:16px;z-index:1500;background:var(--gold);color:#3A2817;border:0;border-radius:50px;padding:12px 20px;font-family:inherit;font-weight:700;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.25)";
-    document.body.appendChild(btn);
-    btn.addEventListener("click",async()=>{
-      const cover=document.getElementById("cover");
-      if(cover) cover.style.display="none";
-      document.body.classList.remove("locked");
-      const card=document.querySelector(".invite-card");
-      card.style.opacity="1"; card.style.transform="none";
-      if(typeof html2canvas==="undefined"){alert("جارٍ التحميل، انتظر ثانية وحاول");return;}
-      btn.textContent="جارٍ الحفظ...";
-      try{
-        const canvas=await html2canvas(card,{backgroundColor:getComputedStyle(document.body).backgroundColor,scale:2,useCORS:true});
-        const a=document.createElement("a");
-        a.download="wedding-card.png";
-        a.href=canvas.toDataURL("image/png");
-        a.click();
-      }catch(e){ console.error(e); alert("تعذّر حفظ الصورة"); }
-      btn.textContent="⬇ حفظ صورة الكرت";
-    });
-  }
-}
-
-let INVITATION_ID=null;
-
-async function boot(){
-  // اسم الرابط (slug) من المسار:  site.com/ahmad-lina
-  const slug=decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g,"").split("/").pop()||"");
-  if(!slug || slug.endsWith(".html")){ showExpired(); return; } // لا يوجد عرس بالرابط
-  try{
-    const {data,error}=await sb.from("invitations").select("id,data").eq("slug",slug).limit(1);
-    if(error){ console.warn("query error",error); showExpired(); return; }
-    if(!data || !data.length){ showExpired(); return; } // رابط غير موجود
-    INVITATION_ID=data[0].id;
-    if(data[0].data) mergeInto(CONFIG,data[0].data);
-  }catch(e){ console.warn("load failed",e); showExpired(); return; }
-  init();
-}
-function showExpired(){
-  document.body.className="";
-  document.body.innerHTML="";
-  document.body.style.background="#fff";
-  document.documentElement.style.background="#fff";
-}
-if(EXPIRY && Date.now() > new Date(EXPIRY).getTime()){
-  showExpired();
-}else{
-  boot();
-}
-</script>
+<script src="invite.js"></script>
 </body>
 </html>

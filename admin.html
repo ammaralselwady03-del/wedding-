@@ -18,7 +18,7 @@ h2{font-family:"Aref Ruqaa",serif;color:var(--green);font-size:1.35rem;margin:26
 .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:16px}
 label{display:block;color:var(--green);font-weight:700;font-size:.92rem;margin:14px 2px 6px}
 input,textarea,select{width:100%;background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 13px;font-family:inherit;font-size:1rem;color:var(--ink);outline:none}
-input:focus,textarea:focus{border-color:var(--gold)}
+input:focus,textarea:focus,select:focus{border-color:var(--gold)}
 textarea{resize:vertical}
 input[type=color]{padding:4px;height:46px;cursor:pointer}
 .btn{background:var(--green);color:#F3EAD9;border:0;border-radius:50px;padding:13px 22px;font-family:inherit;font-weight:700;font-size:1rem;cursor:pointer;transition:.2s}
@@ -31,6 +31,7 @@ input[type=color]{padding:4px;height:46px;cursor:pointer}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 @media(max-width:560px){.row2,.row3{grid-template-columns:1fr}}
+.title-name{display:grid;grid-template-columns:90px 1fr;gap:8px}
 .hidden{display:none}
 .home-btns{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
 @media(max-width:560px){.home-btns{grid-template-columns:1fr}}
@@ -51,28 +52,26 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
 .badge{display:inline-block;padding:2px 10px;border-radius:50px;font-size:.82rem}
 .badge.y{background:#DDEAE1;color:#2E4A3A}.badge.n{background:#F0DAD5;color:#9C4A3C}
 .saved{color:var(--green);text-align:center;font-weight:700;min-height:1.2em;margin-top:10px}
-.preview{width:100%;height:520px;border:1px solid var(--line);border-radius:14px;margin-top:14px;background:#fff}
+.preview{width:100%;height:560px;border:1px solid var(--line);border-radius:14px;margin-top:14px;background:#fff}
 .hint{color:var(--muted);font-size:.88rem;line-height:1.7;margin:2px 2px 0}
-.slug-line{display:flex;align-items:center;gap:4px}
-.slug-line .pre{color:var(--muted);font-size:.9rem;white-space:nowrap}
-.center-card{max-width:420px;margin:50px auto}
 .tabs{display:flex;gap:8px;margin-bottom:14px}
 .tab{flex:1;background:transparent;border:1px solid var(--line);border-radius:50px;padding:10px;color:var(--muted);cursor:pointer;font-family:inherit}
 .tab.active{background:var(--green);color:#F3EAD9;border-color:var(--green)}
+.center-card{max-width:420px;margin:50px auto}
+.chk{display:flex;align-items:center;gap:8px;cursor:pointer}
+.chk input{width:auto}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- تسجيل الدخول / إنشاء حساب -->
+  <!-- دخول / إنشاء حساب -->
   <div id="login" class="card center-card">
     <h1>لوحة الدعوة</h1>
     <div class="tabs">
       <button class="tab active" id="tabLogin">دخول</button>
       <button class="tab" id="tabSignup">إنشاء حساب</button>
     </div>
-
-    <!-- دخول -->
     <div id="loginForm">
       <label>اسم المستخدم</label>
       <input id="loginUser" autocomplete="username">
@@ -81,8 +80,6 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
       <div class="err" id="loginErr"></div>
       <button class="btn wide" id="loginBtn" style="margin-top:14px">دخول</button>
     </div>
-
-    <!-- إنشاء حساب -->
     <div id="signupForm" class="hidden">
       <label>كود التسجيل</label>
       <input id="suCode" placeholder="الكود الذي حصلت عليه">
@@ -101,13 +98,6 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     <div class="topbar">
       <h1 style="margin:0">لوحة الدعوة</h1>
       <button class="btn ghost" id="logout">خروج</button>
-    </div>
-    <div class="card">
-      <label>رابط دعوتك (انسخه وابعته للضيوف)</label>
-      <div class="link-box">
-        <input id="inviteLink" readonly>
-        <button class="btn gold" id="copyLink">نسخ</button>
-      </div>
     </div>
     <div class="home-btns">
       <div class="big-btn" id="goResponses"><div class="ic">📋</div><div class="t">الردود</div></div>
@@ -129,7 +119,7 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     <div class="tbl-wrap"><table id="tbl"></table></div>
   </div>
 
-  <!-- تغيير كلمة المرور -->
+  <!-- كلمة المرور -->
   <div id="passView" class="hidden">
     <div class="topbar"><button class="btn ghost" id="backFromPass">‹ رجوع</button><h2 style="margin:0">تغيير كلمة المرور</h2></div>
     <div class="card center-card">
@@ -148,66 +138,55 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     <div class="topbar"><button class="btn ghost" id="backFromDesign">‹ رجوع</button><h2 style="margin:0">تصميم كرت الدعوة</h2></div>
 
     <div class="card">
-      <h2>الأسماء</h2>
-      <div class="row2">
-        <div><label>اسم العريس (عربي)</label><input id="f_groomAr"></div>
-        <div><label>اسم العروس (عربي)</label><input id="f_brideAr"></div>
-      </div>
-      <div class="row2">
-        <div><label>Groom name (English)</label><input id="f_groomEn"></div>
-        <div><label>Bride name (English)</label><input id="f_brideEn"></div>
-      </div>
-      <div class="row2">
-        <div><label>اسم والد العريس (عربي)</label><input id="f_groomFatherAr"></div>
-        <div><label>اسم والد العروس (عربي)</label><input id="f_brideFatherAr"></div>
-      </div>
-      <div class="row2">
-        <div><label>Groom's father (English)</label><input id="f_groomFatherEn"></div>
-        <div><label>Bride's father (English)</label><input id="f_brideFatherEn"></div>
-      </div>
-      <p class="hint">اسم الأب يظهر تحت اسم العريس/العروس. اتركه فارغاً لإخفائه. حرف الختم يتولّد تلقائياً من أول حرف بالاسم الإنجليزي.</p>
+      <h2>لغة الكرت</h2>
+      <select id="f_lang">
+        <option value="ar">عربي</option>
+        <option value="en">English</option>
+      </select>
+      <p class="hint">تحدّد لغة الدعوة. اكتب الأسماء والنصوص بنفس اللغة المختارة.</p>
+    </div>
+
+    <div class="card">
+      <h2>العريس والعروس</h2>
+      <label>العريس (اللقب + الاسم)</label>
+      <div class="title-name"><input id="f_groomTitle" placeholder="السيد"><input id="f_groom" placeholder="أحمد"></div>
+      <label>والد العريس (اللقب + الاسم) — يظهر فوق اسم العريس</label>
+      <div class="title-name"><input id="f_groomFatherTitle" placeholder="السيد"><input id="f_groomFather" placeholder="عبد الله"></div>
+
+      <label style="margin-top:18px">العروس (اللقب + الاسم)</label>
+      <div class="title-name"><input id="f_brideTitle" placeholder="الآنسة"><input id="f_bride" placeholder="جمانة"></div>
+      <label>والد العروس (اللقب + الاسم) — يظهر فوق اسم العروس</label>
+      <div class="title-name"><input id="f_brideFatherTitle" placeholder="السيد"><input id="f_brideFather" placeholder="محمود"></div>
+      <p class="hint">اللقب اختياري (السيد/الدكتور/الأستاذ...). اترك أي حقل فارغاً لإخفائه.</p>
     </div>
 
     <div class="card">
       <h2>الموعد</h2>
       <label>تاريخ ووقت العرس</label>
       <input id="f_datetime" type="datetime-local">
-      <p class="hint">منه يتولّد العدّاد والتاريخ بالعربي والإنجليزي تلقائياً.</p>
+      <p class="hint">منه يتولّد العدّاد والتاريخ تلقائياً بلغة الكرت.</p>
     </div>
 
     <div class="card">
       <h2>نصوص الكرت</h2>
-      <div class="row2">
-        <div><label>جملة الدعوة (عربي)</label><textarea id="f_ar_blessing" rows="2"></textarea></div>
-        <div><label>Invitation line (English)</label><textarea id="f_en_blessing" rows="2"></textarea></div>
-      </div>
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
-        <input type="checkbox" id="f_show_bismillah" style="width:auto"> إظهار البسملة
-      </label>
+      <label>جملة الدعوة</label>
+      <textarea id="f_blessing" rows="2"></textarea>
+      <label class="chk" style="margin-top:14px"><input type="checkbox" id="f_show_bismillah"> إظهار البسملة</label>
       <label>البسملة (تظهر دائماً بالعربي)</label>
       <input id="f_bismillah">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:14px">
-        <input type="checkbox" id="f_show_verse" style="width:auto"> إظهار الآية
-      </label>
+      <label class="chk" style="margin-top:14px"><input type="checkbox" id="f_show_verse"> إظهار الآية</label>
       <label>الآية (تظهر دائماً بالعربي)</label>
       <textarea id="f_verse" rows="2"></textarea>
-      <div class="row2" style="margin-top:12px">
-        <div><label>الفوتر (عربي)</label><input id="f_ar_footer"></div>
-        <div><label>Footer (English)</label><input id="f_en_footer"></div>
-      </div>
-      <p class="hint">استخدم ❤ داخل الفوتر لإظهار قلب ملوّن.</p>
+      <label style="margin-top:14px">الفوتر (استخدم ❤ لقلب ملوّن)</label>
+      <input id="f_footer">
     </div>
 
     <div class="card">
       <h2>المكان</h2>
-      <div class="row2">
-        <div><label>اسم الصالة (عربي)</label><input id="f_ar_venueName"></div>
-        <div><label>Venue name (English)</label><input id="f_en_venueName"></div>
-      </div>
-      <div class="row2">
-        <div><label>تفاصيل المكان (عربي)</label><textarea id="f_ar_venueSub" rows="2"></textarea></div>
-        <div><label>Venue details (English)</label><textarea id="f_en_venueSub" rows="2"></textarea></div>
-      </div>
+      <label>اسم الصالة</label>
+      <input id="f_venueName">
+      <label>تفاصيل المكان (كل سطر يظهر منفصلاً)</label>
+      <textarea id="f_venueSub" rows="2"></textarea>
       <label>رابط الموقع على خرائط جوجل</label>
       <input id="f_mapUrl">
       <label>رابط الخريطة المضمّنة (Embed) — اختياري</label>
@@ -216,23 +195,19 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
 
     <div class="card">
       <h2>الملاحظات</h2>
-      <div class="row2">
-        <div><label>ملاحظة التصوير (عربي)</label><input id="f_ar_notePhoto"></div>
-        <div><label>Photo note (English)</label><input id="f_en_notePhoto"></div>
-      </div>
-      <div class="row2">
-        <div><label>ملاحظة الأطفال (عربي)</label><input id="f_ar_noteKids"></div>
-        <div><label>Kids note (English)</label><input id="f_en_noteKids"></div>
-      </div>
+      <label>ملاحظة التصوير</label>
+      <input id="f_notePhoto">
+      <label>ملاحظة الأطفال</label>
+      <input id="f_noteKids">
     </div>
 
     <div class="card">
       <h2>الصور والموسيقى</h2>
       <label>صورة العروسين (رابط) — اتركها فارغة لإخفائها</label>
       <input id="f_couplePhoto">
-      <label>معرض الصور (رابط لكل سطر) — اتركه فارغاً لإخفائه</label>
+      <label>معرض الصور (رابط لكل سطر)</label>
       <textarea id="f_gallery" rows="3"></textarea>
-      <label>ملف موسيقى (رابط) — اختياري</label>
+      <label>موسيقى — رابط ملف mp3 مباشر (ينتهي بـ .mp3)</label>
       <input id="f_music">
     </div>
 
@@ -253,7 +228,7 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     <button class="btn gold wide" id="saveBtn" style="margin-top:6px">حفظ التغييرات</button>
     <div class="saved" id="savedMsg"></div>
 
-    <div id="designLinkBox" class="card" style="display:none">
+    <div id="designLinkBox" class="card" style="display:none;margin-top:16px">
       <label>رابط دعوتك — انسخه وابعته للضيوف</label>
       <div class="link-box">
         <input id="designLink" readonly>
@@ -266,7 +241,6 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
   </div>
 
 </div>
-
 <script src="admin.js"></script>
 </body>
 </html>
