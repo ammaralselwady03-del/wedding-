@@ -39,8 +39,9 @@ $("signupBtn").addEventListener("click",async()=>{
 $("logout").addEventListener("click",async()=>{await sb.auth.signOut();INV=null;show("login");});
 
 async function afterLogin(){
-  let {data}=await sb.from("invitations").select("*").limit(1);
-  if(!data||!data.length){const {data:inv}=await sb.from("invitations").insert({data:{}}).select().single();data=inv?[inv]:[];}
+  const {data:userData}=await sb.auth.getUser();
+  const uid=userData?.user?.id;
+  let {data}=await sb.from("invitations").select("*").eq("owner",uid).limit(1);  if(!data||!data.length){const {data:inv}=await sb.from("invitations").insert({data:{}}).select().single();data=inv?[inv]:[];}
   if(data&&data.length){INV=data[0];show("home");}else{$("loginErr").textContent="صار خطأ بتحميل الدعوة";show("login");}
 }
 async function checkSession(){const {data}=await sb.auth.getSession();if(data&&data.session){afterLogin();}else{show("login");}}
@@ -234,9 +235,8 @@ $("genCode").addEventListener("click",async()=>{
 });
 
 async function loadCodes(){
-  await sb.rpc("purge_expired").catch(()=>{}); // نظّف المنتهي قبل العرض
-  const {data,error}=await sb.rpc("admin_list_codes");
-  const tbl=$("codesTbl");
+  try{ await sb.rpc("purge_expired"); }catch(e){}
+  const {data,error}=await sb.rpc("admin_list_codes");  const tbl=$("codesTbl");
   if(error){tbl.innerHTML="<tr><td>تعذّر التحميل</td></tr>";console.error(error);return;}
   let rows=`<tr><th>الكود</th><th>الحالة</th><th>ينتهي</th><th></th></tr>`;
   (data||[]).forEach(c=>{
