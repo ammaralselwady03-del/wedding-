@@ -117,6 +117,7 @@ function loadSettings(){
   $("f_mapUrl").value=m.mapUrl||"";$("f_mapEmbed").value=m.mapEmbed||"";
   $("f_notePhoto").value=t.notePhoto||"";$("f_noteKids").value=t.noteKids||"";
   $("f_couplePhoto").value=m.couplePhoto||"";$("f_gallery").value=(m.gallery||[]).join("\n");$("f_music").value=m.music||"";
+  if(m.music){ $("musicPreview").src=m.music; $("musicPreview").style.display="block"; }
   $("c_bg").value=col.bg||DEF_COLORS.bg;$("c_card").value=col.card||DEF_COLORS.card;$("c_gold").value=col.gold||DEF_COLORS.gold;
   $("c_green").value=col.green||DEF_COLORS.green;$("c_ink").value=col.ink||DEF_COLORS.ink;$("c_muted").value=col.muted||DEF_COLORS.muted;
 
@@ -176,7 +177,23 @@ async function ensureSlug(){
   await sb.from("invitations").update({slug}).eq("id",INV.id);
   INV.slug=slug;return slug;
 }
-
+$("f_music_file").addEventListener("change", async (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const status = $("musicUploadStatus");
+  status.textContent = "جارٍ الرفع...";
+  const ext = file.name.split(".").pop();
+  const path = `${INV.id}-${Date.now()}.${ext}`;
+  const { error } = await sb.storage.from("wedding-music").upload(path, file, { upsert:true });
+  if(error){ status.textContent = "صار خطأ بالرفع، حاول مرة ثانية"; console.error(error); return; }
+  const { data } = sb.storage.from("wedding-music").getPublicUrl(path);
+  $("f_music").value = data.publicUrl;
+  status.textContent = "✓ تم رفع الملف";
+  const preview = $("musicPreview");
+  preview.src = data.publicUrl;
+  preview.style.display = "block";
+  pushPreview();
+});
 $("saveBtn").addEventListener("click",async()=>{
   const data=collectData();
   $("savedMsg").textContent="جارٍ الحفظ...";

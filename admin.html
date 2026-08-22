@@ -207,9 +207,11 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
       <input id="f_couplePhoto">
       <label>معرض الصور (رابط لكل سطر)</label>
       <textarea id="f_gallery" rows="3"></textarea>
-      <label>موسيقى — رابط ملف mp3 مباشر (ينتهي بـ .mp3)</label>
-      <input id="f_music">
-    </div>
+<label>موسيقى (اختر ملف صوت من جهازك)</label>
+<input id="f_music_file" type="file" accept="audio/*">
+<div id="musicUploadStatus" class="hint"></div>
+<input type="hidden" id="f_music">
+<audio id="musicPreview" controls style="width:100%;margin-top:10px;display:none"></audio>    </div>
 
     <div class="card">
       <h2>الألوان</h2>
