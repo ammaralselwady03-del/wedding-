@@ -239,6 +239,32 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     <h2>معاينة مباشرة</h2>
     <iframe class="preview" id="preview"></iframe>
   </div>
+  <!-- شاشة المالك (مخفية: 3 ضغطات على زر دخول) -->
+  <div id="owner" class="hidden">
+    <div class="topbar"><button class="btn ghost" id="ownerBack">‹ رجوع</button><h2 style="margin:0">أكواد التسجيل</h2></div>
+    <div id="ownerLogin" class="card center-card">
+      <p class="hint" style="text-align:center;margin-bottom:6px">دخول المالك</p>
+      <label>اسم المستخدم</label>
+      <input id="ownUser" autocomplete="username">
+      <label>كلمة المرور</label>
+      <input id="ownPass" type="password" autocomplete="current-password">
+      <div class="err" id="ownErr"></div>
+      <button class="btn wide" id="ownLoginBtn" style="margin-top:14px">دخول</button>
+    </div>
+    <div id="ownerPanel" class="hidden">
+      <div class="card">
+        <label>مدة صلاحية الكود (أيام)</label>
+        <input id="codeDays" type="number" min="0" value="30">
+        <p class="hint">بعد انتهاء المدة يُشطب الكود وحساب العريس ودعوته تلقائياً. اكتب 0 لكود بلا انتهاء.</p>
+        <button class="btn gold wide" id="genCode" style="margin-top:12px">توليد كود جديد</button>
+        <div class="ok" id="genMsg"></div>
+      </div>
+      <div class="card">
+        <h2 style="margin-top:0">الأكواد</h2>
+        <div class="tbl-wrap"><table id="codesTbl"></table></div>
+      </div>
+    </div>
+  </div>
 
 </div>
 <script src="admin.js"></script>

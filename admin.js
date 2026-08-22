@@ -3,7 +3,7 @@ const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 // الجلسة تبقى بالتاب (الريفرش لا يخرجك)، وتُمسح عند إغلاق المتصفح
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:window.sessionStorage}});
 const $=id=>document.getElementById(id);
-const show=id=>{["login","home","responses","design","passView"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");};
+const show=id=>{["login","home","responses","design","passView","owner"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");};
 const SITE_ROOT=location.origin+location.pathname.replace(/[^/]*$/,"");
 const USER_DOMAIN="@gmail.com";
 const toEmail=u=>u.toLowerCase().trim()+USER_DOMAIN;
@@ -27,10 +27,11 @@ $("signupBtn").addEventListener("click",async()=>{
   if(!/^[a-z0-9_]{3,20}$/.test(u)){$("signupErr").textContent="اسم المستخدم: أحرف إنجليزية صغيرة وأرقام (3-20)";return;}
   if(p.length<6){$("signupErr").textContent="كلمة المرور 6 أحرف على الأقل";return;}
   const {data:ok,error:cErr}=await sb.rpc("check_invite_code",{p_code:code});
-  if(cErr||!ok){$("signupErr").textContent="كود التسجيل غير صحيح";return;}
+  if(cErr||!ok){$("signupErr").textContent="كود التسجيل غير صحيح أو مستخدم";return;}
   const {error}=await sb.auth.signUp({email:toEmail(u),password:p});
   if(error){$("signupErr").textContent=(error.message||"").includes("already")?"اسم المستخدم مأخوذ":"صار خطأ، حاول مرة ثانية";return;}
   await sb.auth.signInWithPassword({email:toEmail(u),password:p});
+  await sb.rpc("consume_invite_code",{p_code:code}); // الكود يصير مستخدماً بعد نجاح التسجيل
   const {data:inv}=await sb.from("invitations").insert({data:{}}).select().single();
   INV=inv||null;
   afterLogin();
@@ -188,3 +189,69 @@ $("saveBtn").addEventListener("click",async()=>{
   setTimeout(()=>$("savedMsg").textContent="",2500);
   pushPreview();
 });
+
+/* ===== شاشة المالك (إدارة الأكواد) — 3 ضغطات على زر دخول ===== */
+let clickTimes=[];
+$("loginBtn").addEventListener("click",()=>{
+  const now=Date.now();
+  clickTimes.push(now);
+  clickTimes=clickTimes.filter(t=>now-t<900);
+  if(clickTimes.length>=3){ clickTimes=[]; openOwner(); }
+});
+function openOwner(){
+  $("ownErr").textContent=""; $("ownUser").value=""; $("ownPass").value="";
+  $("ownerLogin").classList.remove("hidden"); $("ownerPanel").classList.add("hidden");
+  show("owner");
+}
+$("ownerBack").addEventListener("click",()=>show("login"));
+
+$("ownLoginBtn").addEventListener("click",async()=>{
+  $("ownErr").textContent="";
+  const u=$("ownUser").value.trim();
+  if(!u){$("ownErr").textContent="اكتب اسم المستخدم";return;}
+  const {error}=await sb.auth.signInWithPassword({email:toEmail(u),password:$("ownPass").value});
+  if(error){$("ownErr").textContent="بيانات الدخول غير صحيحة";return;}
+  const {data:owner}=await sb.rpc("am_i_owner");
+  if(!owner){$("ownErr").textContent="هذا الحساب ليس مالكاً";await sb.auth.signOut();return;}
+  $("ownerLogin").classList.add("hidden");
+  $("ownerPanel").classList.remove("hidden");
+  loadCodes();
+});
+
+function randCode(){
+  const A="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let s="";
+  for(let i=0;i<6;i++) s+=A[Math.floor(Math.random()*A.length)];
+  return s;
+}
+$("genCode").addEventListener("click",async()=>{
+  $("genMsg").textContent="";
+  const days=parseInt($("codeDays").value||"0",10)||0;
+  let code=randCode();
+  const {data:ok,error}=await sb.rpc("admin_add_code",{p_code:code,p_days:days});
+  if(error||!ok){$("genMsg").textContent="صار خطأ، حاول مرة ثانية";console.error(error);return;}
+  $("genMsg").textContent="كود جديد: "+code+(days>0?` (صالح ${days} يوم)`:" (بلا انتهاء)");
+  loadCodes();
+});
+
+async function loadCodes(){
+  await sb.rpc("purge_expired").catch(()=>{}); // نظّف المنتهي قبل العرض
+  const {data,error}=await sb.rpc("admin_list_codes");
+  const tbl=$("codesTbl");
+  if(error){tbl.innerHTML="<tr><td>تعذّر التحميل</td></tr>";console.error(error);return;}
+  let rows=`<tr><th>الكود</th><th>الحالة</th><th>ينتهي</th><th></th></tr>`;
+  (data||[]).forEach(c=>{
+    const st=c.used?`<span class="badge n">مستخدم</span>`:`<span class="badge y">متاح</span>`;
+    let exp="—";
+    if(c.expires_at){
+      const d=new Date(c.expires_at), past=d.getTime()<Date.now();
+      exp=`<span style="color:${past?'#9C4A3C':'var(--muted)'}">${d.toLocaleDateString("ar-EG")}${past?" (منتهٍ)":""}</span>`;
+    }
+    rows+=`<tr><td style="font-weight:700">${esc(c.code)}</td><td>${st}</td><td>${exp}</td><td><button class="btn ghost del-code" data-code="${esc(c.code)}" style="padding:6px 14px">حذف</button></td></tr>`;
+  });
+  tbl.innerHTML=rows;
+  tbl.querySelectorAll(".del-code").forEach(b=>b.addEventListener("click",async()=>{
+    if(!confirm("حذف الكود "+b.dataset.code+"؟"))return;
+    await sb.rpc("admin_delete_code",{p_code:b.dataset.code});
+    loadCodes();
+  }));
+}

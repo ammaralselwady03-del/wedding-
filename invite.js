@@ -245,6 +245,7 @@ function showExpired(){document.body.className="";document.body.innerHTML="";doc
 
 /* ===== التشغيل ===== */
 async function boot(){
+  sb.rpc("purge_expired").then(()=>{}).catch(()=>{}); // تنظيف الأكواد المنتهية وحساباتها (بصمت)
   const slug=decodeURIComponent(location.pathname.replace(/^\/+|\/+$/g,"").split("/").pop()||"");
   if(!slug||slug.endsWith(".html")){showExpired();return;}
   try{
