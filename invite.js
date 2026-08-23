@@ -14,7 +14,7 @@ const DEFAULTS={
   verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾",
   text:{blessing:"",venueName:"",venueSub:"",notePhoto:"",noteKids:"",footer:""},
   media:{mapUrl:"",mapEmbed:"",music:"",couplePhoto:"",gallery:[]},
-  colors:{bg:"#EFE4D6",card:"#F7F0E5",gold:"#B8924E",green:"#2E4A3A",ink:"#3E3025",muted:"#8A785F"}
+  colors:{bg:"#FBF3E7",card:"#F3E6D3",gold:"#B08C55",green:"#6E2C3B",ink:"#4A2E33",muted:"#C68A93"}
 };
 
 const LABELS={

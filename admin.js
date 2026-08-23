@@ -1,9 +1,14 @@
 const SUPA_URL="https://ojfnqfjbeknsiustzjpx.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qZm5xZmpiZWtuc2l1c3R6anB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDczMjgsImV4cCI6MjEwMjYyMzMyOH0.hZ-AzI_n-v9nnGqjI57zrHTVqa_m3W-NRxKRXaW5fGU";
+// حماية: لو مكتبة الاتصال ما حمّلت (نت ضعيف أو منع تتبّع بالمتصفح)
+if(typeof supabase==="undefined"){
+  alert("تعذّر تحميل مكتبة الاتصال. تأكد من الإنترنت، أو أوقف \"منع التتبّع\" لهذا الموقع من إعدادات المتصفح، ثم أعد تحميل الصفحة.");
+  throw new Error("supabase library failed to load");
+}
 // الجلسة تبقى بالتاب (الريفرش لا يخرجك)، وتُمسح عند إغلاق المتصفح
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:window.sessionStorage}});
 const $=id=>document.getElementById(id);
-const show=id=>{["login","home","responses","design","passView","owner"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden");};
+const show=id=>{["login","home","responses","design","passView","owner"].forEach(x=>{const e=$(x);if(e)e.classList.add("hidden");});const t=$(id);if(t)t.classList.remove("hidden");};
 const SITE_ROOT=location.origin+location.pathname.replace(/[^/]*$/,"");
 const USER_DOMAIN="@gmail.com";
 const toEmail=u=>u.toLowerCase().trim()+USER_DOMAIN;
@@ -98,7 +103,7 @@ $("dlResp").addEventListener("click",()=>{
 });
 
 /* ===== التصميم ===== */
-const DEF_COLORS={bg:"#FBF3E7",card:"#F3E6D3",gold:"#C68A93",green:"#6E2C3B",ink:"#4A2E33",muted:"#D9C093"};
+const DEF_COLORS={bg:"#FBF3E7",card:"#F3E6D3",gold:"#B08C55",green:"#6E2C3B",ink:"#4A2E33",muted:"#C68A93"};
 function loadSettings(){
   const c=INV.data||{}, cp=c.couple||{}, t=c.text||{}, m=c.media||{}, col=c.colors||{}, sh=c.show||{};
   $("f_lang").value=(c.lang==="en")?"en":"ar";
@@ -186,6 +191,13 @@ $("design").addEventListener("input",()=>{
   clearTimeout(saveTimer);saveTimer=setTimeout(autoSave,800);
 });
 $("design").addEventListener("change",()=>{clearTimeout(saveTimer);saveTimer=setTimeout(autoSave,300);});
+
+/* استعادة الألوان الافتراضية للكرت */
+$("resetColors").addEventListener("click",()=>{
+  $("c_bg").value=DEF_COLORS.bg;$("c_card").value=DEF_COLORS.card;$("c_gold").value=DEF_COLORS.gold;
+  $("c_green").value=DEF_COLORS.green;$("c_ink").value=DEF_COLORS.ink;$("c_muted").value=DEF_COLORS.muted;
+  pushPreview();clearTimeout(saveTimer);saveTimer=setTimeout(autoSave,200);
+});
 
 /* توليد الرابط من الأسماء */
 function slugify(s){return String(s||"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
