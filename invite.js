@@ -9,7 +9,7 @@ const DEFAULTS={
   lang:"ar",
   couple:{groomTitle:"",groom:"العريس",groomFatherTitle:"",groomFather:"",brideTitle:"",bride:"العروس",brideFatherTitle:"",brideFather:""},
   datetime:"2026-08-24T19:00:00",
-  show:{bismillah:true,verse:true},
+  show:{bismillah:true,verse:true,dividers:true},
   bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
   verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾",
   text:{blessing:"",venueName:"",venueSub:"",notePhoto:"",noteKids:"",footer:""},
@@ -53,6 +53,43 @@ function mergeInto(base,over){
 const $=id=>document.getElementById(id);
 const txt=(id,v)=>{const el=$(id);if(el)el.textContent=v;};
 const showEl=(id,on)=>{const el=$(id);if(el)el.style.display=on?"":"none";};
+
+/* فاصل راقي بسيط: خط ذهبي رفيع + معيّن صغير (currentColor = الذهبي) */
+const FLORAL_SVG=`<svg viewBox="0 0 260 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="fadeL" x1="0" x2="1"><stop offset="0" stop-color="currentColor" stop-opacity="0"/><stop offset="1" stop-color="currentColor" stop-opacity=".55"/></linearGradient>
+    <linearGradient id="fadeR" x1="0" x2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".55"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient>
+  </defs>
+  <line x1="24" y1="10" x2="112" y2="10" stroke="url(#fadeL)" stroke-width="1"/>
+  <line x1="148" y1="10" x2="236" y2="10" stroke="url(#fadeR)" stroke-width="1"/>
+  <circle cx="119" cy="10" r="1.4" fill="currentColor" opacity=".65"/>
+  <circle cx="141" cy="10" r="1.4" fill="currentColor" opacity=".65"/>
+  <path d="M130 3.5 L134.5 10 L130 16.5 L125.5 10 Z" fill="none" stroke="currentColor" stroke-width="1.1"/>
+</svg>`;
+
+/* يدرج الفاصل بين الأقسام الظاهرة فقط (يُحترم خيار الإظهار) */
+function insertFlorals(){
+  const card=document.querySelector(".invite-card");
+  if(!card)return;
+  card.querySelectorAll(".floral").forEach(f=>f.remove());
+  if((CONFIG.show||{}).dividers===false)return;
+  const anchors=["bismillah","verse","blessing","coupleRow","infoRow","notesRow"];
+  let prevShown=false;
+  anchors.forEach(id=>{
+    const el=$(id);
+    if(!el)return;
+    const shown=el.style.display!=="none" && getComputedStyle(el).display!=="none";
+    if(shown){
+      if(prevShown){
+        const div=document.createElement("div");
+        div.className="floral";
+        div.innerHTML=FLORAL_SVG;
+        card.insertBefore(div,el);
+      }
+      prevShown=true;
+    }
+  });
+}
 function joinTitle(t,n){ n=(n||"").trim(); if(!n) return ""; t=(t||"").trim(); return t?t+" "+n:n; }
 
 function hex2rgb(h){h=h.replace("#","");if(h.length===3)h=h.split("").map(c=>c+c).join("");return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
@@ -175,6 +212,7 @@ function renderAll(){
   renderMedia(d.media||{});
   renderRsvpLang(lang);
   startCountdown(d.datetime||DEFAULTS.datetime);
+  insertFlorals();
 }
 
 function renderMedia(m){

@@ -135,7 +135,7 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
 
   <!-- التصميم -->
   <div id="design" class="hidden">
-    <div class="topbar"><button class="btn ghost" id="backFromDesign">‹ رجوع</button><h2 style="margin:0">تصميم كرت الدعوة</h2></div>
+    <div class="topbar"><button class="btn ghost" id="backFromDesign">‹ رجوع</button><h2 style="margin:0">تصميم كرت الدعوة</h2><span id="autoSaveStatus" class="hint" style="margin:0;min-width:70px;text-align:end"></span></div>
 
     <div class="card">
       <h2>لغة الكرت</h2>
@@ -144,6 +144,14 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
         <option value="en">English</option>
       </select>
       <p class="hint">تحدّد لغة الدعوة. اكتب الأسماء والنصوص بنفس اللغة المختارة.</p>
+    </div>
+
+    <div class="card">
+      <h2>اسم الرابط</h2>
+      <label>اسم رابط الدعوة (إنجليزي)</label>
+      <input id="f_slug" placeholder="ahmad-jumana" style="direction:ltr;text-align:left">
+      <div class="err" id="slugErr"></div>
+      <p class="hint">أحرف إنجليزية صغيرة وأرقام وشرطة (-) فقط، مثل <b>ahmad-jumana</b>. اتركه فارغاً ليتولّد رابط تلقائي.</p>
     </div>
 
     <div class="card">
@@ -214,7 +222,11 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
 <audio id="musicPreview" controls style="width:100%;margin-top:10px;display:none"></audio>    </div>
 
     <div class="card">
-      <h2>الألوان</h2>
+      <h2>الألوان والمظهر</h2>
+      <label class="chk" style="margin-bottom:12px"><input type="checkbox" id="f_show_dividers"> إظهار الفواصل الزخرفية بين الأقسام</label>
+    <div class="card">
+      <h2>الألوان والمظهر</h2>
+      <label class="chk" style="margin-bottom:12px"><input type="checkbox" id="f_show_dividers"> إظهار الفواصل الزخرفية بين الأقسام</label>
       <div class="row3">
         <div><label>الخلفية</label><input id="c_bg" type="color"></div>
         <div><label>الكرت</label><input id="c_card" type="color"></div>
@@ -227,7 +239,8 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
       </div>
     </div>
 
-    <button class="btn gold wide" id="saveBtn" style="margin-top:6px">حفظ التغييرات</button>
+    <button class="btn gold wide" id="saveBtn" style="margin-top:6px">حفظ ونشر الرابط</button>
+    <p class="hint" style="text-align:center">التغييرات تُحفظ تلقائياً أثناء التعديل. هذا الزر يُنشئ أو يُحدّث رابط الدعوة للمشاركة.</p>
     <div class="saved" id="savedMsg"></div>
 
     <div id="designLinkBox" class="card" style="display:none;margin-top:16px">

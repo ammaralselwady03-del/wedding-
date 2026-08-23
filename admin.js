@@ -53,7 +53,7 @@ $("goDesign").addEventListener("click",()=>{show("design");loadSettings();});
 $("goPass").addEventListener("click",()=>{$("passErr").textContent="";$("passOk").textContent="";$("newPass").value="";$("newPass2").value="";show("passView");});
 $("dlCard").addEventListener("click",()=>{if(!INV.slug){alert("احفظ التصميم أولاً ليتولّد الرابط");return;}window.open(SITE_ROOT+INV.slug+"?save=1","_blank");});
 $("backFromResp").addEventListener("click",()=>show("home"));
-$("backFromDesign").addEventListener("click",()=>show("home"));
+$("backFromDesign").addEventListener("click",async()=>{clearTimeout(saveTimer);await autoSave();show("home");});
 $("backFromPass").addEventListener("click",()=>show("home"));
 
 /* ===== نسخ ===== */
@@ -98,7 +98,7 @@ $("dlResp").addEventListener("click",()=>{
 });
 
 /* ===== التصميم ===== */
-const DEF_COLORS={bg:"#EFE4D6",card:"#F7F0E5",gold:"#B8924E",green:"#2E4A3A",ink:"#3E3025",muted:"#8A785F"};
+const DEF_COLORS={bg:"#FBF3E7",card:"#F3E6D3",gold:"#C68A93",green:"#6E2C3B",ink:"#4A2E33",muted:"#D9C093"};
 function loadSettings(){
   const c=INV.data||{}, cp=c.couple||{}, t=c.text||{}, m=c.media||{}, col=c.colors||{}, sh=c.show||{};
   $("f_lang").value=(c.lang==="en")?"en":"ar";
@@ -112,6 +112,7 @@ function loadSettings(){
   $("f_verse").value=(c.verse!==undefined)?c.verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾";
   $("f_show_bismillah").checked=(sh.bismillah!==false);
   $("f_show_verse").checked=(sh.verse!==false);
+  $("f_show_dividers").checked=(sh.dividers!==false);
   $("f_footer").value=t.footer||"";
   $("f_venueName").value=t.venueName||"";$("f_venueSub").value=t.venueSub||"";
   $("f_mapUrl").value=m.mapUrl||"";$("f_mapEmbed").value=m.mapEmbed||"";
@@ -121,6 +122,9 @@ function loadSettings(){
   $("c_bg").value=col.bg||DEF_COLORS.bg;$("c_card").value=col.card||DEF_COLORS.card;$("c_gold").value=col.gold||DEF_COLORS.gold;
   $("c_green").value=col.green||DEF_COLORS.green;$("c_ink").value=col.ink||DEF_COLORS.ink;$("c_muted").value=col.muted||DEF_COLORS.muted;
 
+  // لا نعرض الروابط العشوائية (inv-xxxx) بالحقل حتى يقدر يكتب اسم من عنده
+  $("f_slug").value=(INV.slug && !/^inv-/.test(INV.slug)) ? INV.slug : "";
+  $("slugErr").textContent="";
   if(INV.slug){$("designLink").value=SITE_ROOT+INV.slug;$("designLinkBox").style.display="block";}
   else{$("designLinkBox").style.display="none";}
 
@@ -139,7 +143,7 @@ function collectData(){
       brideFatherTitle:$("f_brideFatherTitle").value,brideFather:$("f_brideFather").value
     },
     datetime:($("f_datetime").value||"2026-08-24T19:00")+":00",
-    show:{bismillah:$("f_show_bismillah").checked,verse:$("f_show_verse").checked},
+    show:{bismillah:$("f_show_bismillah").checked,verse:$("f_show_verse").checked,dividers:$("f_show_dividers").checked},
     bismillah:$("f_bismillah").value,
     verse:$("f_verse").value,
     text:{blessing:$("f_blessing").value,venueName:$("f_venueName").value,venueSub:$("f_venueSub").value,
@@ -158,22 +162,54 @@ function pushPreview(){
 window.addEventListener("message",ev=>{
   if(ev.data&&ev.data.type==="preview-ready"){previewReady=true;pushPreview();}
 });
-let pvTimer=null;
-$("design").addEventListener("input",()=>{clearTimeout(pvTimer);pvTimer=setTimeout(pushPreview,250);});
+/* ===== الحفظ التلقائي ===== */
+function setSaveStatus(t){const el=$("autoSaveStatus");if(el)el.textContent=t;}
+let saving=false, pending=false;
+async function autoSave(){
+  if(!INV){return;}
+  if(saving){pending=true;return;}
+  saving=true;
+  const data=collectData();
+  setSaveStatus("جارٍ الحفظ…");
+  const {error}=await sb.from("invitations").update({data,updated_at:new Date().toISOString()}).eq("id",INV.id);
+  saving=false;
+  if(error){setSaveStatus("تعذّر الحفظ");console.error(error);return;}
+  INV.data=data;
+  setSaveStatus("✓ محفوظ");
+  if(pending){pending=false;autoSave();}
+}
+
+let pvTimer=null, saveTimer=null;
+$("design").addEventListener("input",()=>{
+  clearTimeout(pvTimer);pvTimer=setTimeout(pushPreview,250);
+  setSaveStatus("…");
+  clearTimeout(saveTimer);saveTimer=setTimeout(autoSave,800);
+});
+$("design").addEventListener("change",()=>{clearTimeout(saveTimer);saveTimer=setTimeout(autoSave,300);});
 
 /* توليد الرابط من الأسماء */
 function slugify(s){return String(s||"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
 function randSlug(){return "inv-"+Math.random().toString(36).slice(2,8);}
+async function slugTaken(slug){
+  const {data}=await sb.from("invitations").select("id").eq("slug",slug).neq("id",INV.id).limit(1);
+  return !!(data&&data.length);
+}
+// يبني الرابط من الحقل اللي كتبه العريس؛ لو فاضي يبقى القديم أو عشوائي
 async function ensureSlug(){
-  if(INV.slug)return INV.slug;
-  let base=(slugify($("f_groom").value)+"-"+slugify($("f_bride").value)).replace(/^-+|-+$/g,"");
-  if(!base||base==="-")base=randSlug();
-  let slug=base,n=1;
-  while(true){
-    const {data}=await sb.from("invitations").select("id").eq("slug",slug).neq("id",INV.id).limit(1);
-    if(!data||!data.length)break;
-    n++;slug=base+"-"+n;
+  const wanted=slugify($("f_slug").value);
+  // فاضي: خلّي القديم إن وُجد، وإلا عشوائي
+  if(!wanted){
+    if(INV.slug)return INV.slug;
+    let slug=randSlug();
+    while(await slugTaken(slug))slug=randSlug();
+    await sb.from("invitations").update({slug}).eq("id",INV.id);
+    INV.slug=slug;return slug;
   }
+  // نفس الرابط الحالي: ما في داعي نغيّر
+  if(wanted===INV.slug)return INV.slug;
+  // رابط جديد: نتأكد إنه فريد (نضيف -2, -3 لو محجوز)
+  let slug=wanted,n=1;
+  while(await slugTaken(slug)){n++;slug=wanted+"-"+n;}
   await sb.from("invitations").update({slug}).eq("id",INV.id);
   INV.slug=slug;return slug;
 }
@@ -195,6 +231,14 @@ $("f_music_file").addEventListener("change", async (e)=>{
   pushPreview();
 });
 $("saveBtn").addEventListener("click",async()=>{
+  // تحقّق اسم الرابط: لو العريس كتب شي بس ما طلع منه رابط صالح
+  $("slugErr").textContent="";
+  const rawSlug=$("f_slug").value.trim();
+  const cleanSlug=slugify(rawSlug);
+  if(rawSlug && (!cleanSlug || cleanSlug.length<2)){
+    $("slugErr").textContent="اسم الرابط لازم يكون أحرف إنجليزية/أرقام (حرفين على الأقل)";
+    return;
+  }
   const data=collectData();
   $("savedMsg").textContent="جارٍ الحفظ...";
   const {error}=await sb.from("invitations").update({data,updated_at:new Date().toISOString()}).eq("id",INV.id);
@@ -202,6 +246,8 @@ $("saveBtn").addEventListener("click",async()=>{
   INV.data=data;
   await ensureSlug();
   const link=SITE_ROOT+INV.slug;
+  // لو انضاف -2 أو تولّد عشوائي، حدّث الحقل ليشوف العريس الرابط الفعلي
+  $("f_slug").value=(INV.slug && !/^inv-/.test(INV.slug)) ? INV.slug : "";
   $("designLink").value=link;$("designLinkBox").style.display="block";
   $("savedMsg").textContent="✓ تم الحفظ";
   setTimeout(()=>$("savedMsg").textContent="",2500);

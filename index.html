@@ -39,7 +39,11 @@ body.lang-en .display{font-family:"Cormorant Garamond",serif;font-weight:600}
 .opened .d1{animation-delay:.15s}.opened .d3{animation-delay:.55s}.opened .d4{animation-delay:.75s}.opened .d5{animation-delay:.95s}.opened .d6{animation-delay:1.15s}
 @keyframes up{to{opacity:1;transform:none}}
 
-.invite-card{background:var(--card);border:1px solid var(--line);border-radius:170px 170px 22px 22px;padding:48px 26px 40px;box-shadow:0 20px 50px rgba(62,48,37,.14);text-align:center}
+.invite-card{background:transparent;border:0;border-radius:0;padding:14px 20px 26px;box-shadow:none;text-align:center}
+.frame{position:fixed;inset:12px;border:1px solid var(--line);border-radius:4px;pointer-events:none;z-index:2}
+.frame::before{content:"";position:absolute;inset:5px;border:1px solid var(--line);border-radius:2px;opacity:.6}
+.floral{margin:26px auto;text-align:center;color:var(--gold);line-height:0}
+.floral svg{display:inline-block;width:170px;max-width:62%;height:auto}
 .bismillah{font-family:"Amiri",serif;font-size:1.5rem;color:var(--green);margin-bottom:16px}
 .verse{font-family:"Amiri",serif;color:var(--muted);font-size:1.02rem;line-height:2.1;max-width:420px;margin:0 auto 30px}
 .blessing{color:var(--muted);font-size:1rem;line-height:1.9;max-width:440px;margin:0 auto 26px}
@@ -47,7 +51,7 @@ body.lang-en .display{font-family:"Cormorant Garamond",serif;font-weight:600}
 .couple .person{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
 .couple .father{color:var(--muted);font-size:.92rem;font-weight:500}
 .couple .title{color:var(--green);font-size:.9rem;font-weight:700}
-.couple .name-txt{font-family:"Aref Ruqaa",serif;color:var(--ink);font-size:clamp(2rem,9vw,3rem);line-height:1.2}
+.couple .name-txt{font-family:"Aref Ruqaa",serif;color:var(--ink);font-size:clamp(2rem,9vw,3rem);line-height:1.2;letter-spacing:.5px}
 .rings{width:44px;height:26px;flex:0 0 auto;margin-bottom:10px}
 .rings circle{fill:none;stroke:var(--gold);stroke-width:2}
 .willing{font-family:"Amiri",serif;color:var(--muted);font-size:1rem;margin-bottom:6px}
@@ -57,15 +61,15 @@ body.lang-en .display{font-family:"Cormorant Garamond",serif;font-weight:600}
 .rule .d{width:8px;height:8px;transform:rotate(45deg);background:var(--gold)}
 .info-row{display:flex;gap:18px;justify-content:center;text-align:start;flex-wrap:wrap}
 .info-col{flex:1;min-width:180px}
-.info-head{display:flex;align-items:center;gap:8px;color:var(--green);font-weight:700;font-size:1.15rem;margin-bottom:8px}
+.info-head{display:flex;align-items:center;gap:8px;color:var(--green);font-weight:700;font-size:1.12rem;margin-bottom:8px;letter-spacing:.3px}
 .info-col .sub{color:var(--muted);font-size:.98rem;line-height:1.9}
-.map-btn{display:inline-flex;align-items:center;gap:8px;margin-top:26px;background:var(--green);color:#F3EAD9;font-weight:700;font-size:1rem;text-decoration:none;padding:12px 28px;border-radius:50px;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 22px rgba(46,74,58,.28)}
+.map-btn{display:inline-flex;align-items:center;gap:8px;margin-top:26px;background:var(--green);color:#F6F3EC;font-weight:600;font-size:.98rem;letter-spacing:1.2px;text-decoration:none;padding:13px 32px;border-radius:2px;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 22px rgba(44,74,59,.20)}
 .map-btn:hover{transform:translateY(-2px)}
 .map-embed{margin-top:20px;border-radius:14px;overflow:hidden;border:1px solid var(--line);line-height:0}
 .map-embed iframe{width:100%;height:220px;border:0;filter:sepia(.12)}
-.notes{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:30px;padding-top:22px;border-top:1px solid var(--line)}
+.notes{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:30px;padding-top:4px}
 .note{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.92rem}
-.section-title{text-align:center;font-family:"Aref Ruqaa",serif;color:var(--green);font-size:1.6rem;margin-bottom:22px}
+.section-title{text-align:center;font-family:"Aref Ruqaa",serif;color:var(--green);font-size:1.6rem;margin-bottom:22px;letter-spacing:.5px}
 .block{margin-top:48px}
 .countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 .cd-box{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 6px 12px;text-align:center}
@@ -101,6 +105,8 @@ textarea.rsvp-in{resize:vertical}
 </head>
 <body class="locked">
 
+<div class="frame"></div>
+
 <button class="music-btn" id="musicBtn">♪</button>
 <audio id="audio" loop></audio>
 
@@ -118,7 +124,7 @@ textarea.rsvp-in{resize:vertical}
     <div class="bismillah" id="bismillah" dir="rtl" style="display:none"></div>
     <div class="verse" id="verse" dir="rtl" style="display:none"></div>
     <div class="blessing" id="blessing"></div>
-    <div class="couple">
+    <div class="couple" id="coupleRow">
       <div class="person">
         <span class="father" id="groomFather" style="display:none"></span>
         <span class="title" id="groomTitle" style="display:none"></span>
@@ -132,8 +138,7 @@ textarea.rsvp-in{resize:vertical}
       </div>
     </div>
     <div class="willing" id="willing"></div>
-    <div class="rule"><span class="l"></span><span class="d"></span><span class="l r"></span></div>
-    <div class="info-row">
+    <div class="info-row" id="infoRow">
       <div class="info-col">
         <div class="info-head"><span>📍</span><span id="venueName"></span></div>
         <div class="sub" id="venueSub"></div>
@@ -145,7 +150,7 @@ textarea.rsvp-in{resize:vertical}
     </div>
     <a class="map-btn" id="mapBtn" target="_blank" rel="noopener"></a>
     <div class="map-embed" id="mapEmbed" style="display:none"></div>
-    <div class="notes">
+    <div class="notes" id="notesRow">
       <div class="note"><span>📷</span><span id="notePhoto"></span></div>
       <div class="note"><span>🌙</span><span id="noteKids"></span></div>
     </div>
