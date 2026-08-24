@@ -50,6 +50,7 @@ body.lang-en .display{font-family:"Cormorant Garamond",serif;font-weight:600}
 .couple{display:flex;align-items:flex-end;justify-content:center;gap:18px;margin:14px 0 18px}
 .couple .person{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
 .couple .father{color:var(--muted);font-size:.92rem;font-weight:500}
+.couple .rel{color:var(--muted);font-size:.88rem;font-weight:500;font-style:italic}
 .couple .title{color:var(--green);font-size:.9rem;font-weight:700}
 .couple .name-txt{font-family:"Aref Ruqaa",serif;color:var(--ink);font-size:clamp(2rem,9vw,3rem);line-height:1.2;letter-spacing:.5px}
 .rings{width:44px;height:26px;flex:0 0 auto;margin-bottom:10px}
@@ -127,12 +128,14 @@ textarea.rsvp-in{resize:vertical}
     <div class="couple" id="coupleRow">
       <div class="person">
         <span class="father" id="groomFather" style="display:none"></span>
+        <span class="rel" id="groomRel" style="display:none"></span>
         <span class="title" id="groomTitle" style="display:none"></span>
         <span class="name-txt display" id="groom"></span>
       </div>
       <svg class="rings" viewBox="0 0 44 26"><circle cx="16" cy="13" r="10"/><circle cx="28" cy="13" r="10"/></svg>
       <div class="person">
         <span class="father" id="brideFather" style="display:none"></span>
+        <span class="rel" id="brideRel" style="display:none"></span>
         <span class="title" id="brideTitle" style="display:none"></span>
         <span class="name-txt display" id="bride"></span>
       </div>

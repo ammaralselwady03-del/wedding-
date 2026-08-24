@@ -109,8 +109,10 @@ function loadSettings(){
   $("f_lang").value=(c.lang==="en")?"en":"ar";
   $("f_groomTitle").value=cp.groomTitle||"";$("f_groom").value=cp.groom||"";
   $("f_groomFatherTitle").value=cp.groomFatherTitle||"";$("f_groomFather").value=cp.groomFather||"";
+  $("f_groomRel").value=cp.groomRel||"";
   $("f_brideTitle").value=cp.brideTitle||"";$("f_bride").value=cp.bride||"";
   $("f_brideFatherTitle").value=cp.brideFatherTitle||"";$("f_brideFather").value=cp.brideFather||"";
+  $("f_brideRel").value=cp.brideRel||"";
   $("f_datetime").value=(c.datetime||"2026-08-24T19:00:00").slice(0,16);
   lockDateUI(!!c.dateLocked);
   $("f_blessing").value=t.blessing||"";
@@ -149,9 +151,9 @@ function collectData(){
     lang:$("f_lang").value,
     couple:{
       groomTitle:$("f_groomTitle").value,groom:$("f_groom").value,
-      groomFatherTitle:$("f_groomFatherTitle").value,groomFather:$("f_groomFather").value,
+      groomFatherTitle:$("f_groomFatherTitle").value,groomFather:$("f_groomFather").value,groomRel:$("f_groomRel").value,
       brideTitle:$("f_brideTitle").value,bride:$("f_bride").value,
-      brideFatherTitle:$("f_brideFatherTitle").value,brideFather:$("f_brideFather").value
+      brideFatherTitle:$("f_brideFatherTitle").value,brideFather:$("f_brideFather").value,brideRel:$("f_brideRel").value
     },
     datetime:($("f_datetime").value||"2026-08-24T19:00")+":00",
     dateLocked:(INV&&INV.data&&INV.data.dateLocked)||false,

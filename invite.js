@@ -7,7 +7,7 @@ const EXPIRY="";
 
 const DEFAULTS={
   lang:"ar",
-  couple:{groomTitle:"",groom:"العريس",groomFatherTitle:"",groomFather:"",brideTitle:"",bride:"العروس",brideFatherTitle:"",brideFather:""},
+  couple:{groomTitle:"",groom:"العريس",groomFatherTitle:"",groomFather:"",groomRel:"",brideTitle:"",bride:"العروس",brideFatherTitle:"",brideFather:"",brideRel:""},
   datetime:"2026-08-24T19:00:00",
   show:{bismillah:true,verse:true,dividers:true},
   bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
@@ -192,6 +192,8 @@ function renderAll(){
   const gf=joinTitle(cp.groomFatherTitle,cp.groomFather), bf=joinTitle(cp.brideFatherTitle,cp.brideFather);
   txt("groomFather",gf);showEl("groomFather",!!gf);
   txt("brideFather",bf);showEl("brideFather",!!bf);
+  txt("groomRel",(cp.groomRel||"").trim());showEl("groomRel",!!(cp.groomRel||"").trim());
+  txt("brideRel",(cp.brideRel||"").trim());showEl("brideRel",!!(cp.brideRel||"").trim());
 
   txt("willing",L.willing);
   txt("venueName",T.venueName||L.venueName);
