@@ -69,20 +69,23 @@ function insertFlorals(){
   if(!card)return;
   card.querySelectorAll(".floral").forEach(f=>f.remove());
   if((CONFIG.show||{}).dividers===false)return;
-  const anchors=["bismillah","verse","blessing","coupleRow","infoRow","notesRow"];
-  let prevShown=false;
+  const gold=(getComputedStyle(document.documentElement).getPropertyValue("--gold")||"").trim()||"#B08C55";
+  const rings=card.querySelector(".rings"); if(rings){rings.style.color=gold;rings.querySelectorAll("circle").forEach(c=>{c.setAttribute("stroke",gold);c.setAttribute("fill","none");});}
+  const anchors=["verse","blessing","coupleRow","infoRow","notesRow"];
+  let prevShown=false, prevId=null;
   anchors.forEach(id=>{
     const el=$(id);
     if(!el)return;
     const shown=el.style.display!=="none" && getComputedStyle(el).display!=="none";
     if(shown){
-      if(prevShown){
+      if(prevShown && prevId!=="bismillah"){
         const div=document.createElement("div");
         div.className="floral";
+        div.style.color=gold;
         div.innerHTML=FLORAL_SVG;
         card.insertBefore(div,el);
       }
-      prevShown=true;
+      prevShown=true; prevId=id;
     }
   });
 }
@@ -310,8 +313,14 @@ function enableSaveImage(){
     const card=document.querySelector(".invite-card");card.style.opacity="1";card.style.transform="none";
     if(typeof htmlToImage==="undefined"){alert("جارٍ التحميل، انتظر ثانية وحاول");return;}
     btn.textContent="جارٍ الحفظ...";
+    const gold=(getComputedStyle(document.documentElement).getPropertyValue("--gold")||"#B08C55").trim();
+    card.querySelectorAll(".rings circle").forEach(c=>{c.style.fill="none";c.style.stroke=gold;c.style.strokeWidth="2";});
+    const florals=[...card.querySelectorAll(".floral")];
+    const origHTML=florals.map(f=>f.innerHTML);
+    florals.forEach(f=>{f.style.color=gold;f.innerHTML=f.innerHTML.replace(/currentColor/g,gold);});
     try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
     try{const bg=getComputedStyle(document.body).backgroundColor;const dataUrl=await htmlToImage.toPng(card,{pixelRatio:2,backgroundColor:bg,cacheBust:true});const a=document.createElement("a");a.download="wedding-card.png";a.href=dataUrl;a.click();}catch(e){console.error(e);alert("تعذّر حفظ الصورة");}
+    florals.forEach((f,i)=>{f.innerHTML=origHTML[i];f.style.color="";});
     btn.textContent="⬇ حفظ صورة الكرت";
   });
 }
