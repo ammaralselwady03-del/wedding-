@@ -217,9 +217,18 @@ async function slugTaken(slug){
 // يبني الرابط من الحقل اللي كتبه العريس؛ لو فاضي يبقى القديم أو عشوائي
 async function ensureSlug(){
   const wanted=slugify($("f_slug").value);
-  // فاضي: خلّي القديم إن وُجد، وإلا عشوائي
+  // فاضي:
   if(!wanted){
+    // لو كان في اسم مخصّص وحذفه العريس => ولّد رابط عشوائي جديد (حذف الاسم)
+    if(INV.slug && !/^inv-/.test(INV.slug)){
+      let slug=randSlug();
+      while(await slugTaken(slug))slug=randSlug();
+      await sb.from("invitations").update({slug}).eq("id",INV.id);
+      INV.slug=slug;return slug;
+    }
+    // رابط عشوائي موجود مسبقاً => خلّيه زي ما هو
     if(INV.slug)return INV.slug;
+    // لا يوجد رابط => ولّد عشوائي
     let slug=randSlug();
     while(await slugTaken(slug))slug=randSlug();
     await sb.from("invitations").update({slug}).eq("id",INV.id);
