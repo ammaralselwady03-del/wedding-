@@ -121,7 +121,7 @@ function loadSettings(){
   $("f_show_dividers").checked=(sh.dividers!==false);
   $("f_footer").value=t.footer||"";
   $("f_venueName").value=t.venueName||"";$("f_venueSub").value=t.venueSub||"";
-  $("f_mapUrl").value=m.mapUrl||"";$("f_mapEmbed").value=m.mapEmbed||"";
+  $("f_mapUrl").value=m.mapUrl||"";
   $("f_notePhoto").value=t.notePhoto||"";$("f_noteKids").value=t.noteKids||"";
   $("f_couplePhoto").value=m.couplePhoto||"";$("f_gallery").value=(m.gallery||[]).join("\n");$("f_music").value=m.music||"";
   if(m.music){ $("musicPreview").src=m.music; $("musicPreview").style.display="block"; }
@@ -160,7 +160,7 @@ function collectData(){
     verse:$("f_verse").value,
     text:{blessing:$("f_blessing").value,venueName:$("f_venueName").value,venueSub:$("f_venueSub").value,
       notePhoto:$("f_notePhoto").value,noteKids:$("f_noteKids").value,footer:$("f_footer").value},
-    media:{mapUrl:$("f_mapUrl").value,mapEmbed:$("f_mapEmbed").value,couplePhoto:$("f_couplePhoto").value,music:$("f_music").value,
+    media:{mapUrl:$("f_mapUrl").value,couplePhoto:$("f_couplePhoto").value,music:$("f_music").value,
       gallery:$("f_gallery").value.split("\n").map(s=>s.trim()).filter(Boolean),
       shareImage:(INV&&INV.data&&INV.data.media&&INV.data.media.shareImage)||""},
     colors:{bg:$("c_bg").value,card:$("c_card").value,gold:$("c_gold").value,green:$("c_green").value,ink:$("c_ink").value,muted:$("c_muted").value}
@@ -295,10 +295,9 @@ async function generateShareImage(){
     const el=$("shareCard"); if(!el)return;
     $("shMono").textContent=gi+" & "+bi;
     $("shNames").textContent=((c.groom||"")+" & "+(c.bride||"")).trim();
-    if(typeof html2canvas==="undefined")return;
+    if(typeof htmlToImage==="undefined")return;
     try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
-    const canvas=await html2canvas(el,{backgroundColor:"#FBF3E7",scale:1,width:1200,height:630,useCORS:true});
-    const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
+    const blob=await htmlToImage.toBlob(el,{pixelRatio:1,width:1200,height:630,backgroundColor:"#FBF3E7",cacheBust:true});
     if(!blob)return;
     const path=INV.id+".png";
     const up=await sb.storage.from("share").upload(path,blob,{upsert:true,contentType:"image/png"});

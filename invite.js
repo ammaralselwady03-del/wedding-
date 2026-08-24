@@ -14,7 +14,7 @@ const DEFAULTS={
   verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾",
   text:{blessing:"",venueName:"",venueSub:"",notePhoto:"",noteKids:"",footer:""},
   media:{mapUrl:"",mapEmbed:"",music:"",couplePhoto:"",gallery:[]},
-  colors:{bg:"#FBF3E7",card:"#F3E6D3",gold:"#B08C55",green:"#6E2C3B",ink:"#4A2E33",muted:"#6E2C3B"}
+  colors:{bg:"#FBF3E7",card:"#F3E6D3",gold:"#B08C55",green:"#6E2C3B",ink:"#4A2E33",muted:"#C68A93"}
 };
 
 const LABELS={
@@ -200,8 +200,11 @@ function renderAll(){
   const DT=formatDateTime(d.datetime||DEFAULTS.datetime);
   txt("dayValue",DT[lang].day);txt("dateValue",DT[lang].date);txt("timeValue",DT[lang].time);
 
-  $("mapBtn").textContent="📍 "+L.mapBtn;
-  $("mapBtn").href=(d.media&&d.media.mapUrl)||"#";
+  let _mapUrl=((d.media&&d.media.mapUrl)||"").trim();
+  if(_mapUrl && !/^https?:\/\//i.test(_mapUrl)) _mapUrl="https://"+_mapUrl;
+  const _mb=$("mapBtn");
+  if(_mapUrl){ _mb.textContent="📍 "+L.mapBtn; _mb.href=_mapUrl; _mb.style.display=""; }
+  else { _mb.style.display="none"; _mb.removeAttribute("href"); }
   txt("notePhoto",T.notePhoto||L.notePhoto);txt("noteKids",T.noteKids||L.noteKids);
   txt("countdownTitle",L.countdownTitle);
   txt("lblDays",L.lblDays);txt("lblHours",L.lblHours);txt("lblMins",L.lblMins);txt("lblSecs",L.lblSecs);
@@ -226,7 +229,7 @@ function renderMedia(m){
     grid.querySelectorAll("img").forEach(img=>img.addEventListener("click",()=>{lbImg.src=img.src;lb.classList.add("open");}));
   }else{gs.style.display="none";grid.innerHTML="";}
   const me=$("mapEmbed");
-  if(m.mapEmbed){me.style.display="block";me.innerHTML=`<iframe src="${m.mapEmbed}" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade"></iframe>`;}else{me.style.display="none";me.innerHTML="";}
+  if(me){me.style.display="none";me.innerHTML="";}
   const mb=$("musicBtn");
   if(m.music){audio=$("audio");audio.src=m.music;audio.load();mb.style.display="flex";}else{mb.style.display="none";}
 }
@@ -300,7 +303,7 @@ async function boot(){
 
 function enableSaveImage(){
   if(!/[?&]save/.test(location.search))return;
-  const hc=document.createElement("script");hc.src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js";document.head.appendChild(hc);
+  const hc=document.createElement("script");hc.src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.13/dist/html-to-image.js";document.head.appendChild(hc);
   const btn=document.createElement("button");btn.textContent="⬇ حفظ صورة الكرت";
   btn.style.cssText="position:fixed;bottom:16px;inset-inline-end:16px;z-index:1500;background:var(--gold);color:#3A2817;border:0;border-radius:50px;padding:12px 20px;font-family:inherit;font-weight:700;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.25)";
   document.body.appendChild(btn);
@@ -308,9 +311,14 @@ function enableSaveImage(){
     const cover=$("cover");if(cover)cover.style.display="none";
     document.body.classList.remove("locked");
     const card=document.querySelector(".invite-card");card.style.opacity="1";card.style.transform="none";
-    if(typeof html2canvas==="undefined"){alert("جارٍ التحميل، انتظر ثانية وحاول");return;}
+    if(typeof htmlToImage==="undefined"){alert("جارٍ التحميل، انتظر ثانية وحاول");return;}
     btn.textContent="جارٍ الحفظ...";
-    try{const canvas=await html2canvas(card,{backgroundColor:getComputedStyle(document.body).backgroundColor,scale:2,useCORS:true});const a=document.createElement("a");a.download="wedding-card.png";a.href=canvas.toDataURL("image/png");a.click();}catch(e){console.error(e);alert("تعذّر حفظ الصورة");}
+    try{
+      try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
+      const bg=getComputedStyle(document.body).backgroundColor;
+      const dataUrl=await htmlToImage.toPng(card,{pixelRatio:2,backgroundColor:bg,cacheBust:true});
+      const a=document.createElement("a");a.download="wedding-card.png";a.href=dataUrl;a.click();
+    }catch(e){console.error(e);alert("تعذّر حفظ الصورة");}
     btn.textContent="⬇ حفظ صورة الكرت";
   });
 }
