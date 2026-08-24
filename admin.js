@@ -369,7 +369,7 @@ async function loadCodes(){
       wed=`${d.toLocaleDateString("ar-EG")} <button class="btn ghost cancel-date" data-code="${esc(c.code)}" style="padding:4px 10px;margin-inline-start:6px">إلغاء</button>`;
     }
     let left="—";
-    if(c.expires_at){
+    if(c.wedding_date && c.expires_at){
       const ms=new Date(c.expires_at).getTime()-Date.now();
       if(ms<=0){ left=`<span style="color:#9C4A3C;font-weight:700">منتهٍ</span>`; }
       else{
@@ -377,7 +377,7 @@ async function loadCodes(){
         const col=days<=3?"#9C4A3C":"var(--green)";
         left=`<span style="color:${col};font-weight:700">${days} يوم</span>`;
       }
-    }else if(c.wedding_date===null && c.used){ left=`<span style="color:var(--muted)">بانتظار التاريخ</span>`; }
+    }else if(c.used){ left=`<span style="color:var(--muted)">بانتظار التاريخ</span>`; }
     rows+=`<tr>
       <td style="font-weight:700">${esc(c.code)}</td>
       <td>${uname}</td>
