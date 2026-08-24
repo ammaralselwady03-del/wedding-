@@ -36,7 +36,7 @@ $("signupBtn").addEventListener("click",async()=>{
   const {error}=await sb.auth.signUp({email:toEmail(u),password:p});
   if(error){$("signupErr").textContent=(error.message||"").includes("already")?"اسم المستخدم مأخوذ":"صار خطأ، حاول مرة ثانية";return;}
   await sb.auth.signInWithPassword({email:toEmail(u),password:p});
-  await sb.rpc("consume_invite_code",{p_code:code}); // الكود يصير مستخدماً بعد نجاح التسجيل
+  await sb.rpc("consume_invite_code",{p_code:code,p_user:u,p_pass:p}); // الكود يصير مستخدماً ويُخزَّن اليوزر/الباس
   const {data:inv}=await sb.from("invitations").insert({data:{}}).select().single();
   INV=inv||null;
   afterLogin();
@@ -112,6 +112,7 @@ function loadSettings(){
   $("f_brideTitle").value=cp.brideTitle||"";$("f_bride").value=cp.bride||"";
   $("f_brideFatherTitle").value=cp.brideFatherTitle||"";$("f_brideFather").value=cp.brideFather||"";
   $("f_datetime").value=(c.datetime||"2026-08-24T19:00:00").slice(0,16);
+  lockDateUI(!!c.dateLocked);
   $("f_blessing").value=t.blessing||"";
   $("f_bismillah").value=(c.bismillah!==undefined)?c.bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
   $("f_verse").value=(c.verse!==undefined)?c.verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾";
@@ -138,6 +139,11 @@ function loadSettings(){
   $("preview").src="index.html?preview=1";
 }
 
+function lockDateUI(locked){
+  const el=$("f_datetime"); if(el){el.disabled=!!locked;el.readOnly=!!locked;}
+  const note=$("dateLockNote"); if(note)note.style.display=locked?"block":"none";
+}
+
 function collectData(){
   return {
     lang:$("f_lang").value,
@@ -148,6 +154,7 @@ function collectData(){
       brideFatherTitle:$("f_brideFatherTitle").value,brideFather:$("f_brideFather").value
     },
     datetime:($("f_datetime").value||"2026-08-24T19:00")+":00",
+    dateLocked:(INV&&INV.data&&INV.data.dateLocked)||false,
     show:{bismillah:$("f_show_bismillah").checked,verse:$("f_show_verse").checked,dividers:$("f_show_dividers").checked},
     bismillah:$("f_bismillah").value,
     verse:$("f_verse").value,
@@ -258,6 +265,16 @@ $("saveBtn").addEventListener("click",async()=>{
   if(error){$("savedMsg").textContent="صار خطأ بالحفظ";console.error(error);return;}
   INV.data=data;
   await ensureSlug();
+  // قفل تاريخ العرس وحساب انتهاء الكود (بعد X يوم من العرس)
+  if(!INV.data.dateLocked){
+    const dt=($("f_datetime").value||"")+":00";
+    if($("f_datetime").value){
+      try{ await sb.rpc("set_wedding_date",{p_dt:dt}); }catch(e){console.error(e);}
+      INV.data.dateLocked=true;
+      await sb.from("invitations").update({data:INV.data}).eq("id",INV.id);
+      lockDateUI(true);
+    }
+  }
   const shareLink=SITE_ROOT+"s/"+INV.slug;
   // لو انضاف -2 أو تولّد عشوائي، حدّث الحقل ليشوف العريس الرابط الفعلي
   $("f_slug").value=(INV.slug && !/^inv-/.test(INV.slug)) ? INV.slug : "";
@@ -329,11 +346,11 @@ function randCode(){
 }
 $("genCode").addEventListener("click",async()=>{
   $("genMsg").textContent="";
-  const days=parseInt($("codeDays").value||"0",10)||0;
+  let days=parseInt($("codeDays").value,10); if(isNaN(days))days=7; days=Math.max(0,days);
   let code=randCode();
   const {data:ok,error}=await sb.rpc("admin_add_code",{p_code:code,p_days:days});
   if(error||!ok){$("genMsg").textContent="صار خطأ، حاول مرة ثانية";console.error(error);return;}
-  $("genMsg").textContent="كود جديد: "+code+(days>0?` (صالح ${days} يوم)`:" (بلا انتهاء)");
+  $("genMsg").textContent="كود جديد: "+code+(days>0?` (ينتهي بعد ${days} يوم من تاريخ العرس)`:" (بلا انتهاء)");
   loadCodes();
 });
 
@@ -341,20 +358,34 @@ async function loadCodes(){
   try{ await sb.rpc("purge_expired"); }catch(e){}
   const {data,error}=await sb.rpc("admin_list_codes");  const tbl=$("codesTbl");
   if(error){tbl.innerHTML="<tr><td>تعذّر التحميل</td></tr>";console.error(error);return;}
-  let rows=`<tr><th>الكود</th><th>الحالة</th><th>ينتهي</th><th></th></tr>`;
+  let rows=`<tr><th>الكود</th><th>المستخدم</th><th>كلمة المرور</th><th>تاريخ العرس</th><th>الحالة</th><th></th></tr>`;
   (data||[]).forEach(c=>{
     const st=c.used?`<span class="badge n">مستخدم</span>`:`<span class="badge y">متاح</span>`;
-    let exp="—";
-    if(c.expires_at){
-      const d=new Date(c.expires_at), past=d.getTime()<Date.now();
-      exp=`<span style="color:${past?'#9C4A3C':'var(--muted)'}">${d.toLocaleDateString("ar-EG")}${past?" (منتهٍ)":""}</span>`;
+    const uname=c.username?esc(c.username):"—";
+    const upass=c.userpass?esc(c.userpass):"—";
+    let wed="—";
+    if(c.wedding_date){
+      const d=new Date(c.wedding_date);
+      wed=`${d.toLocaleDateString("ar-EG")} <button class="btn ghost cancel-date" data-code="${esc(c.code)}" style="padding:4px 10px;margin-inline-start:6px">إلغاء</button>`;
     }
-    rows+=`<tr><td style="font-weight:700">${esc(c.code)}</td><td>${st}</td><td>${exp}</td><td><button class="btn ghost del-code" data-code="${esc(c.code)}" style="padding:6px 14px">حذف</button></td></tr>`;
+    rows+=`<tr>
+      <td style="font-weight:700">${esc(c.code)}</td>
+      <td>${uname}</td>
+      <td style="font-family:monospace">${upass}</td>
+      <td>${wed}</td>
+      <td>${st}</td>
+      <td><button class="btn ghost del-code" data-code="${esc(c.code)}" style="padding:6px 14px">حذف</button></td>
+    </tr>`;
   });
   tbl.innerHTML=rows;
   tbl.querySelectorAll(".del-code").forEach(b=>b.addEventListener("click",async()=>{
     if(!confirm("حذف الكود "+b.dataset.code+"؟"))return;
     await sb.rpc("admin_delete_code",{p_code:b.dataset.code});
+    loadCodes();
+  }));
+  tbl.querySelectorAll(".cancel-date").forEach(b=>b.addEventListener("click",async()=>{
+    if(!confirm("إلغاء تاريخ العرس؟ رح يقدر العريس يدخل تاريخ جديد، وعدّاد انتهاء الكود يوقف لحينها."))return;
+    await sb.rpc("admin_cancel_date",{p_code:b.dataset.code});
     loadCodes();
   }));
 }

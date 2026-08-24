@@ -173,6 +173,7 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
       <h2>الموعد</h2>
       <label>تاريخ ووقت العرس</label>
       <input id="f_datetime" type="datetime-local">
+      <p class="hint" id="dateLockNote" style="display:none;color:#9C4A3C">📌 تاريخ العرس مثبّت ولا يمكن تعديله. لتغييره تواصل مع مزوّد الخدمة.</p>
       <p class="hint">منه يتولّد العدّاد والتاريخ تلقائياً بلغة الكرت.</p>
     </div>
 
@@ -267,9 +268,9 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     </div>
     <div id="ownerPanel" class="hidden">
       <div class="card">
-        <label>مدة صلاحية الكود (أيام)</label>
-        <input id="codeDays" type="number" min="0" value="30">
-        <p class="hint">بعد انتهاء المدة يُشطب الكود وحساب العريس ودعوته تلقائياً. اكتب 0 لكود بلا انتهاء.</p>
+        <label>مدة صلاحية الكود (أيام بعد العرس)</label>
+        <input id="codeDays" type="number" min="0" value="7">
+        <p class="hint">الكود ينتهي بعد هذه المدة من <b>تاريخ العرس</b> الذي يُدخله العريس، ثم يُشطب حسابه ودعوته تلقائياً. اكتب 0 لكود بلا انتهاء.</p>
         <button class="btn gold wide" id="genCode" style="margin-top:12px">توليد كود جديد</button>
         <div class="ok" id="genMsg"></div>
       </div>
