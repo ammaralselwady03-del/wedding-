@@ -130,7 +130,7 @@ function loadSettings(){
   // لا نعرض الروابط العشوائية (inv-xxxx) بالحقل حتى يقدر يكتب اسم من عنده
   $("f_slug").value=(INV.slug && !/^inv-/.test(INV.slug)) ? INV.slug : "";
   $("slugErr").textContent="";
-  if(INV.slug){$("designLink").value=SITE_ROOT+INV.slug;$("designLinkBox").style.display="block";}
+  if(INV.slug){$("designLink").value=SITE_ROOT+"s/"+INV.slug;$("designLinkBox").style.display="block";}
   else{$("designLinkBox").style.display="none";}
 
   // المعاينة الحيّة (غير مربوطة برابط)
@@ -154,7 +154,8 @@ function collectData(){
     text:{blessing:$("f_blessing").value,venueName:$("f_venueName").value,venueSub:$("f_venueSub").value,
       notePhoto:$("f_notePhoto").value,noteKids:$("f_noteKids").value,footer:$("f_footer").value},
     media:{mapUrl:$("f_mapUrl").value,mapEmbed:$("f_mapEmbed").value,couplePhoto:$("f_couplePhoto").value,music:$("f_music").value,
-      gallery:$("f_gallery").value.split("\n").map(s=>s.trim()).filter(Boolean)},
+      gallery:$("f_gallery").value.split("\n").map(s=>s.trim()).filter(Boolean),
+      shareImage:(INV&&INV.data&&INV.data.media&&INV.data.media.shareImage)||""},
     colors:{bg:$("c_bg").value,card:$("c_card").value,gold:$("c_gold").value,green:$("c_green").value,ink:$("c_ink").value,muted:$("c_muted").value}
   };
 }
@@ -257,14 +258,41 @@ $("saveBtn").addEventListener("click",async()=>{
   if(error){$("savedMsg").textContent="صار خطأ بالحفظ";console.error(error);return;}
   INV.data=data;
   await ensureSlug();
-  const link=SITE_ROOT+INV.slug;
+  const shareLink=SITE_ROOT+"s/"+INV.slug;
   // لو انضاف -2 أو تولّد عشوائي، حدّث الحقل ليشوف العريس الرابط الفعلي
   $("f_slug").value=(INV.slug && !/^inv-/.test(INV.slug)) ? INV.slug : "";
-  $("designLink").value=link;$("designLinkBox").style.display="block";
+  $("designLink").value=shareLink;$("designLinkBox").style.display="block";
+  $("savedMsg").textContent="✓ تم الحفظ، جارٍ تجهيز صورة المشاركة…";
+  await generateShareImage();
   $("savedMsg").textContent="✓ تم الحفظ";
   setTimeout(()=>$("savedMsg").textContent="",2500);
   pushPreview();
 });
+
+/* توليد صورة المعاينة (المونوغرام + الأسماء) ورفعها للتخزين */
+async function generateShareImage(){
+  if(!INV||!INV.id)return;
+  try{
+    const d=INV.data||{}, c=d.couple||{};
+    const gi=(c.groom||"").trim()[0]||"", bi=(c.bride||"").trim()[0]||"";
+    const el=$("shareCard"); if(!el)return;
+    $("shMono").textContent=gi+" & "+bi;
+    $("shNames").textContent=((c.groom||"")+" & "+(c.bride||"")).trim();
+    if(typeof html2canvas==="undefined")return;
+    try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
+    const canvas=await html2canvas(el,{backgroundColor:"#FBF3E7",scale:1,width:1200,height:630,useCORS:true});
+    const blob=await new Promise(r=>canvas.toBlob(r,"image/png"));
+    if(!blob)return;
+    const path=INV.id+".png";
+    const up=await sb.storage.from("share").upload(path,blob,{upsert:true,contentType:"image/png"});
+    if(up.error){console.error("share upload:",up.error);return;}
+    const {data:pub}=sb.storage.from("share").getPublicUrl(path);
+    if(!pub||!pub.publicUrl)return;
+    d.media=d.media||{}; d.media.shareImage=pub.publicUrl;
+    await sb.from("invitations").update({data:d}).eq("id",INV.id);
+    INV.data=d;
+  }catch(e){console.error("generateShareImage:",e);}
+}
 
 /* ===== شاشة المالك (إدارة الأكواد) — 3 ضغطات على زر دخول ===== */
 let clickTimes=[];
