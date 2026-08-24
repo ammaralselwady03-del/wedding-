@@ -13,8 +13,8 @@ const DEFAULTS={
   bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
   verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾",
   text:{blessing:"",venueName:"",venueSub:"",notePhoto:"",noteKids:"",footer:""},
-  media:{mapUrl:"",mapEmbed:"",music:"",couplePhoto:"",gallery:[]},
-  colors:{bg:"#FBF3E7",card:"#F3E6D3",gold:"#B08C55",green:"#6E2C3B",ink:"#4A2E33",muted:"#C68A93"}
+  media:{mapUrl:"",music:"",couplePhoto:"",gallery:[]},
+  colors:{bg:"#FBF3E7",card:"#F3E6D3",gold:"#B08C55",green:"#6E2C3B",ink:"#4A2E33",muted:"#6E2C3B"}
 };
 
 const LABELS={
@@ -56,12 +56,8 @@ const showEl=(id,on)=>{const el=$(id);if(el)el.style.display=on?"":"none";};
 
 /* فاصل راقي بسيط: خط ذهبي رفيع + معيّن صغير (currentColor = الذهبي) */
 const FLORAL_SVG=`<svg viewBox="0 0 260 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <defs>
-    <linearGradient id="fadeL" x1="0" x2="1"><stop offset="0" stop-color="currentColor" stop-opacity="0"/><stop offset="1" stop-color="currentColor" stop-opacity=".55"/></linearGradient>
-    <linearGradient id="fadeR" x1="0" x2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".55"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient>
-  </defs>
-  <line x1="24" y1="10" x2="112" y2="10" stroke="url(#fadeL)" stroke-width="1"/>
-  <line x1="148" y1="10" x2="236" y2="10" stroke="url(#fadeR)" stroke-width="1"/>
+  <line x1="24" y1="10" x2="112" y2="10" stroke="currentColor" stroke-width="1" opacity=".5"/>
+  <line x1="148" y1="10" x2="236" y2="10" stroke="currentColor" stroke-width="1" opacity=".5"/>
   <circle cx="119" cy="10" r="1.4" fill="currentColor" opacity=".65"/>
   <circle cx="141" cy="10" r="1.4" fill="currentColor" opacity=".65"/>
   <path d="M130 3.5 L134.5 10 L130 16.5 L125.5 10 Z" fill="none" stroke="currentColor" stroke-width="1.1"/>
@@ -130,7 +126,7 @@ function buildRsvp(){
         </div>
         <div id="countRow">
           <label class="rsvp-lbl" id="rLblCount"></label>
-          <input class="rsvp-in" id="rsvpCount" type="number" min="1" value="1">
+          <input class="rsvp-in" id="rsvpCount" type="number" min="1" placeholder="">
         </div>
         <label class="rsvp-lbl" id="rLblMsg"></label>
         <textarea class="rsvp-in" id="rsvpMsg" rows="3"></textarea>
@@ -230,8 +226,7 @@ function renderMedia(m){
     const lb=$("lightbox"),lbImg=$("lightboxImg");
     grid.querySelectorAll("img").forEach(img=>img.addEventListener("click",()=>{lbImg.src=img.src;lb.classList.add("open");}));
   }else{gs.style.display="none";grid.innerHTML="";}
-  const me=$("mapEmbed");
-  if(me){me.style.display="none";me.innerHTML="";}
+  const me=$("mapEmbed"); if(me){me.style.display="none";me.innerHTML="";}
   const mb=$("musicBtn");
   if(m.music){audio=$("audio");audio.src=m.music;audio.load();mb.style.display="flex";}else{mb.style.display="none";}
 }
@@ -315,12 +310,8 @@ function enableSaveImage(){
     const card=document.querySelector(".invite-card");card.style.opacity="1";card.style.transform="none";
     if(typeof htmlToImage==="undefined"){alert("جارٍ التحميل، انتظر ثانية وحاول");return;}
     btn.textContent="جارٍ الحفظ...";
-    try{
-      try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
-      const bg=getComputedStyle(document.body).backgroundColor;
-      const dataUrl=await htmlToImage.toPng(card,{pixelRatio:2,backgroundColor:bg,cacheBust:true});
-      const a=document.createElement("a");a.download="wedding-card.png";a.href=dataUrl;a.click();
-    }catch(e){console.error(e);alert("تعذّر حفظ الصورة");}
+    try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
+    try{const bg=getComputedStyle(document.body).backgroundColor;const dataUrl=await htmlToImage.toPng(card,{pixelRatio:2,backgroundColor:bg,cacheBust:true});const a=document.createElement("a");a.download="wedding-card.png";a.href=dataUrl;a.click();}catch(e){console.error(e);alert("تعذّر حفظ الصورة");}
     btn.textContent="⬇ حفظ صورة الكرت";
   });
 }

@@ -1,7 +1,11 @@
 const SUPA_URL="https://ojfnqfjbeknsiustzjpx.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9qZm5xZmpiZWtuc2l1c3R6anB4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDczMjgsImV4cCI6MjEwMjYyMzMyOH0.hZ-AzI_n-v9nnGqjI57zrHTVqa_m3W-NRxKRXaW5fGU";
+// حماية: لو مكتبة الاتصال ما حمّلت (نت ضعيف أو منع تتبّع بالمتصفح)
+if(typeof supabase==="undefined"){
+  alert("تعذّر تحميل مكتبة الاتصال. تأكد من الإنترنت، أو أوقف \"منع التتبّع\" لهذا الموقع من إعدادات المتصفح، ثم أعد تحميل الصفحة.");
+  throw new Error("supabase library failed to load");
+}
 // الجلسة تبقى بالتاب (الريفرش لا يخرجك)، وتُمسح عند إغلاق المتصفح
-if(typeof supabase==="undefined"){alert("تعذّر تحميل مكتبة الاتصال. تأكد من الإنترنت أو أوقف منع التتبّع بالمتصفح ثم أعد التحميل.");throw new Error("supabase not loaded");}
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY,{auth:{persistSession:true,autoRefreshToken:true,storage:window.sessionStorage}});
 const $=id=>document.getElementById(id);
 const show=id=>{["login","home","responses","design","passView","owner"].forEach(x=>{const e=$(x);if(e)e.classList.add("hidden");});const t=$(id);if(t)t.classList.remove("hidden");};
@@ -32,7 +36,7 @@ $("signupBtn").addEventListener("click",async()=>{
   const {error}=await sb.auth.signUp({email:toEmail(u),password:p});
   if(error){$("signupErr").textContent=(error.message||"").includes("already")?"اسم المستخدم مأخوذ":"صار خطأ، حاول مرة ثانية";return;}
   await sb.auth.signInWithPassword({email:toEmail(u),password:p});
-  await sb.rpc("consume_invite_code",{p_code:code,p_user:u,p_pass:p}); // يخزّن اليوزر/الباس
+  await sb.rpc("consume_invite_code",{p_code:code,p_user:u,p_pass:p}); // الكود يصير مستخدماً ويُخزَّن اليوزر/الباس
   const {data:inv}=await sb.from("invitations").insert({data:{}}).select().single();
   INV=inv||null;
   afterLogin();
@@ -99,16 +103,14 @@ $("dlResp").addEventListener("click",()=>{
 });
 
 /* ===== التصميم ===== */
-const DEF_COLORS={bg:"#FBF3E7",card:"#F3E6D3",gold:"#B08C55",green:"#6E2C3B",ink:"#4A2E33",muted:"#6E2C3B"};
+const DEF_COLORS={bg:"#FBF3E7",card:"#F3E6D3",gold:"#B08C55",green:"#6E2C3B",ink:"#4A2E33",muted:"#C68A93"};
 function loadSettings(){
   const c=INV.data||{}, cp=c.couple||{}, t=c.text||{}, m=c.media||{}, col=c.colors||{}, sh=c.show||{};
   $("f_lang").value=(c.lang==="en")?"en":"ar";
   $("f_groomTitle").value=cp.groomTitle||"";$("f_groom").value=cp.groom||"";
   $("f_groomFatherTitle").value=cp.groomFatherTitle||"";$("f_groomFather").value=cp.groomFather||"";
-  $("f_groomRel").value=cp.groomRel||"";
   $("f_brideTitle").value=cp.brideTitle||"";$("f_bride").value=cp.bride||"";
   $("f_brideFatherTitle").value=cp.brideFatherTitle||"";$("f_brideFather").value=cp.brideFather||"";
-  $("f_brideRel").value=cp.brideRel||"";
   $("f_datetime").value=(c.datetime||"2026-08-24T19:00:00").slice(0,16);
   lockDateUI(!!c.dateLocked);
   $("f_blessing").value=t.blessing||"";
@@ -141,14 +143,15 @@ function lockDateUI(locked){
   const el=$("f_datetime"); if(el){el.disabled=!!locked;el.readOnly=!!locked;}
   const note=$("dateLockNote"); if(note)note.style.display=locked?"block":"none";
 }
+
 function collectData(){
   return {
     lang:$("f_lang").value,
     couple:{
       groomTitle:$("f_groomTitle").value,groom:$("f_groom").value,
-      groomFatherTitle:$("f_groomFatherTitle").value,groomFather:$("f_groomFather").value,groomRel:$("f_groomRel").value,
+      groomFatherTitle:$("f_groomFatherTitle").value,groomFather:$("f_groomFather").value,
       brideTitle:$("f_brideTitle").value,bride:$("f_bride").value,
-      brideFatherTitle:$("f_brideFatherTitle").value,brideFather:$("f_brideFather").value,brideRel:$("f_brideRel").value
+      brideFatherTitle:$("f_brideFatherTitle").value,brideFather:$("f_brideFather").value
     },
     datetime:($("f_datetime").value||"2026-08-24T19:00")+":00",
     dateLocked:(INV&&INV.data&&INV.data.dateLocked)||false,
@@ -197,6 +200,13 @@ $("design").addEventListener("input",()=>{
 });
 $("design").addEventListener("change",()=>{clearTimeout(saveTimer);saveTimer=setTimeout(autoSave,300);});
 
+/* استعادة الألوان الافتراضية للكرت */
+$("resetColors").addEventListener("click",()=>{
+  $("c_bg").value=DEF_COLORS.bg;$("c_card").value=DEF_COLORS.card;$("c_gold").value=DEF_COLORS.gold;
+  $("c_green").value=DEF_COLORS.green;$("c_ink").value=DEF_COLORS.ink;$("c_muted").value=DEF_COLORS.muted;
+  pushPreview();clearTimeout(saveTimer);saveTimer=setTimeout(autoSave,200);
+});
+
 /* توليد الرابط من الأسماء */
 function slugify(s){return String(s||"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
 function randSlug(){return "inv-"+Math.random().toString(36).slice(2,8);}
@@ -207,15 +217,18 @@ async function slugTaken(slug){
 // يبني الرابط من الحقل اللي كتبه العريس؛ لو فاضي يبقى القديم أو عشوائي
 async function ensureSlug(){
   const wanted=slugify($("f_slug").value);
+  // فاضي:
   if(!wanted){
-    // اسم مخصّص محذوف => رابط عشوائي جديد
+    // لو كان في اسم مخصّص وحذفه العريس => ولّد رابط عشوائي جديد (حذف الاسم)
     if(INV.slug && !/^inv-/.test(INV.slug)){
       let slug=randSlug();
       while(await slugTaken(slug))slug=randSlug();
       await sb.from("invitations").update({slug}).eq("id",INV.id);
       INV.slug=slug;return slug;
     }
+    // رابط عشوائي موجود مسبقاً => خلّيه زي ما هو
     if(INV.slug)return INV.slug;
+    // لا يوجد رابط => ولّد عشوائي
     let slug=randSlug();
     while(await slugTaken(slug))slug=randSlug();
     await sb.from("invitations").update({slug}).eq("id",INV.id);
@@ -261,15 +274,18 @@ $("saveBtn").addEventListener("click",async()=>{
   if(error){$("savedMsg").textContent="صار خطأ بالحفظ";console.error(error);return;}
   INV.data=data;
   await ensureSlug();
-  // قفل تاريخ العرس وحساب انتهاء الكود
-  if(!INV.data.dateLocked && $("f_datetime").value){
-    const dt=$("f_datetime").value+":00";
-    try{ await sb.rpc("set_wedding_date",{p_dt:dt}); }catch(e){console.error(e);}
-    INV.data.dateLocked=true;
-    await sb.from("invitations").update({data:INV.data}).eq("id",INV.id);
-    lockDateUI(true);
+  // قفل تاريخ العرس وحساب انتهاء الكود (بعد X يوم من العرس)
+  if(!INV.data.dateLocked){
+    const dt=($("f_datetime").value||"")+":00";
+    if($("f_datetime").value){
+      try{ await sb.rpc("set_wedding_date",{p_dt:dt}); }catch(e){console.error(e);}
+      INV.data.dateLocked=true;
+      await sb.from("invitations").update({data:INV.data}).eq("id",INV.id);
+      lockDateUI(true);
+    }
   }
   const shareLink=SITE_ROOT+"s/"+INV.slug;
+  // لو انضاف -2 أو تولّد عشوائي، حدّث الحقل ليشوف العريس الرابط الفعلي
   $("f_slug").value=(INV.slug && !/^inv-/.test(INV.slug)) ? INV.slug : "";
   $("designLink").value=shareLink;$("designLinkBox").style.display="block";
   $("savedMsg").textContent="✓ تم الحفظ، جارٍ تجهيز صورة المشاركة…";
@@ -279,6 +295,7 @@ $("saveBtn").addEventListener("click",async()=>{
   pushPreview();
 });
 
+/* توليد صورة المعاينة (المونوغرام + الأسماء) ورفعها للتخزين */
 async function generateShareImage(){
   if(!INV||!INV.id)return;
   try{
@@ -363,7 +380,11 @@ async function loadCodes(){
     if(c.wedding_date && c.expires_at){
       const ms=new Date(c.expires_at).getTime()-Date.now();
       if(ms<=0){ left=`<span style="color:#9C4A3C;font-weight:700">منتهٍ</span>`; }
-      else{ const days=Math.ceil(ms/86400000); const col=days<=3?"#9C4A3C":"var(--green)"; left=`<span style="color:${col};font-weight:700">${days} يوم</span>`; }
+      else{
+        const days=Math.ceil(ms/86400000);
+        const col=days<=3?"#9C4A3C":"var(--green)";
+        left=`<span style="color:${col};font-weight:700">${days} يوم</span>`;
+      }
     }else if(c.used){ left=`<span style="color:var(--muted)">بانتظار التاريخ</span>`; }
     rows+=`<tr>
       <td style="font-weight:700">${esc(c.code)}</td>

@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Aref+Ruqaa:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Marcellus&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#FBF3E7;--bg-2:#F3E6D3;--card:#F3E6D3;--gold:#B08C55;--gold-soft:#D9C093;--green:#6E2C3B;--ink:#4A2E33;--muted:#C68A93;--line:rgba(176,140,85,.35)}
+:root{--bg:#FBF3E7;--bg-2:#F3E6D3;--card:#F3E6D3;--gold:#B08C55;--gold-soft:#D9C093;--green:#6E2C3B;--ink:#4A2E33;--muted:#6E2C3B;--line:rgba(176,140,85,.35)}
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{font-family:"Tajawal",sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;background-image:radial-gradient(120% 70% at 50% -5%,rgba(184,146,78,.16),transparent 55%),linear-gradient(180deg,var(--bg) 0%,var(--bg-2) 100%);background-attachment:fixed}
@@ -18,7 +18,7 @@ body.lang-en .display{font-family:"Cormorant Garamond",serif;font-weight:600}
 
 .cover{position:fixed;inset:0;z-index:1000;background:transparent;overflow:hidden}
 .cover .hint{position:absolute;bottom:64px;inset-inline:0;text-align:center;color:var(--muted);font-size:1rem;letter-spacing:.5px;z-index:6;transition:opacity .4s}
-.flap{position:absolute;top:0;bottom:0;width:50.4%;background:linear-gradient(180deg,#F4EBDC,#EADDCB);transition:transform 1.05s cubic-bezier(.76,0,.24,1);z-index:3}
+.flap{position:absolute;top:0;bottom:0;width:50.4%;background:linear-gradient(180deg,#FBFAF7,#F1EDE4);transition:transform 1.05s cubic-bezier(.76,0,.24,1);z-index:3}
 .flap.left{left:0;box-shadow:inset -1px 0 0 var(--gold),8px 0 30px rgba(62,48,37,.08)}
 .flap.right{right:0;box-shadow:inset 1px 0 0 var(--gold),-8px 0 30px rgba(62,48,37,.08)}
 .seam{position:absolute;top:0;bottom:0;left:50%;width:1px;background:linear-gradient(180deg,transparent,var(--gold) 20%,var(--gold) 80%,transparent);transform:translateX(-50%);z-index:4;transition:opacity .5s}
