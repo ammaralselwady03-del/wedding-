@@ -122,6 +122,8 @@ function loadSettings(){
   $("f_mapUrl").value=m.mapUrl||"";
   $("f_notePhoto").value=t.notePhoto||"";$("f_noteKids").value=t.noteKids||"";
   $("f_couplePhoto").value=m.couplePhoto||"";$("f_gallery").value=(m.gallery||[]).join("\n");$("f_music").value=m.music||"";
+  { const pv=$("couplePhotoPreview"); if(m.couplePhoto){pv.src=m.couplePhoto;pv.style.display="block";}else{pv.style.display="none";} $("couplePhotoStatus").textContent=""; }
+  renderGalleryThumbs(); $("galleryStatus").textContent="";
   if(m.music){ $("musicPreview").src=m.music; $("musicPreview").style.display="block"; }
   $("c_bg").value=col.bg||DEF_COLORS.bg;$("c_card").value=col.card||DEF_COLORS.card;$("c_gold").value=col.gold||DEF_COLORS.gold;
   $("c_green").value=col.green||DEF_COLORS.green;$("c_ink").value=col.ink||DEF_COLORS.ink;$("c_muted").value=col.muted||DEF_COLORS.muted;
@@ -245,6 +247,51 @@ $("f_music_file").addEventListener("change", async (e)=>{
   preview.src = data.publicUrl;
   preview.style.display = "block";
   pushPreview();
+});
+
+/* رفع صورة العروسين من الجهاز */
+$("f_couplePhoto_file").addEventListener("change", async (e)=>{
+  const file=e.target.files[0]; if(!file||!INV) return;
+  const status=$("couplePhotoStatus"); status.textContent="جارٍ الرفع...";
+  const ext=(file.name.split(".").pop()||"jpg").toLowerCase();
+  const path=`${INV.id}-couple-${Date.now()}.${ext}`;
+  const {error}=await sb.storage.from("share").upload(path,file,{upsert:true,contentType:file.type});
+  if(error){status.textContent="صار خطأ بالرفع، حاول مرة ثانية";console.error(error);return;}
+  const {data}=sb.storage.from("share").getPublicUrl(path);
+  $("f_couplePhoto").value=data.publicUrl;
+  const pv=$("couplePhotoPreview"); pv.src=data.publicUrl; pv.style.display="block";
+  status.textContent="✓ تم رفع الصورة";
+  pushPreview(); clearTimeout(saveTimer); saveTimer=setTimeout(autoSave,300);
+});
+
+/* رفع صور المعرض (متعددة) — تُضاف للموجود */
+function renderGalleryThumbs(){
+  const box=$("galleryPreview"); if(!box)return;
+  const urls=$("f_gallery").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  box.innerHTML=urls.map(u=>`<img src="${u}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)">`).join("");
+  $("clearGallery").style.display=urls.length?"inline-block":"none";
+}
+$("f_gallery_file").addEventListener("change", async (e)=>{
+  const files=[...e.target.files]; if(!files.length||!INV) return;
+  const status=$("galleryStatus"); status.textContent=`جارٍ رفع ${files.length} صورة...`;
+  const urls=$("f_gallery").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  let done=0;
+  for(const file of files){
+    const ext=(file.name.split(".").pop()||"jpg").toLowerCase();
+    const path=`${INV.id}-g-${Date.now()}-${Math.random().toString(36).slice(2,6)}.${ext}`;
+    const {error}=await sb.storage.from("share").upload(path,file,{upsert:true,contentType:file.type});
+    if(!error){ const {data}=sb.storage.from("share").getPublicUrl(path); urls.push(data.publicUrl); done++; }
+    else console.error(error);
+  }
+  $("f_gallery").value=urls.join("\n");
+  renderGalleryThumbs();
+  status.textContent=`✓ تم رفع ${done} صورة`;
+  e.target.value="";
+  pushPreview(); clearTimeout(saveTimer); saveTimer=setTimeout(autoSave,300);
+});
+$("clearGallery").addEventListener("click",()=>{
+  $("f_gallery").value=""; renderGalleryThumbs(); $("galleryStatus").textContent="";
+  pushPreview(); clearTimeout(saveTimer); saveTimer=setTimeout(autoSave,300);
 });
 $("saveBtn").addEventListener("click",async()=>{
   // تحقّق اسم الرابط: لو العريس كتب شي بس ما طلع منه رابط صالح
