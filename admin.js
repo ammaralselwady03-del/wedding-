@@ -8,7 +8,7 @@ const show=id=>{["login","home","responses","design","passView","owner"].forEach
 const SITE_ROOT=location.origin+location.pathname.replace(/[^/]*$/,"");
 const USER_DOMAIN="@gmail.com";
 const toEmail=u=>u.toLowerCase().trim()+USER_DOMAIN;
-let INV=null, RESP=[], previewReady=false;
+let INV=null, RESP=[], previewReady=false, CARD_TYPE="wedding";
 
 /* ===== تبويبات الدخول ===== */
 $("tabLogin").addEventListener("click",()=>{$("tabLogin").classList.add("active");$("tabSignup").classList.remove("active");$("loginForm").classList.remove("hidden");$("signupForm").classList.add("hidden");});
@@ -43,7 +43,7 @@ async function afterLogin(){
   const {data:userData}=await sb.auth.getUser();
   const uid=userData?.user?.id;
   let {data}=await sb.from("invitations").select("*").eq("owner",uid).limit(1);  if(!data||!data.length){const {data:inv}=await sb.from("invitations").insert({data:{}}).select().single();data=inv?[inv]:[];}
-  if(data&&data.length){INV=data[0];show("home");}else{$("loginErr").textContent="صار خطأ بتحميل الدعوة";show("login");}
+  if(data&&data.length){INV=data[0];try{const {data:t}=await sb.rpc("my_card_type");CARD_TYPE=t||"wedding";}catch(e){CARD_TYPE="wedding";}show("home");}else{$("loginErr").textContent="صار خطأ بتحميل الدعوة";show("login");}
 }
 async function checkSession(){const {data}=await sb.auth.getSession();if(data&&data.session){afterLogin();}else{show("login");}}
 checkSession();
@@ -100,6 +100,14 @@ $("dlResp").addEventListener("click",()=>{
 
 /* ===== التصميم ===== */
 const DEF_COLORS={bg:"#FBF3E7",card:"#F3E6D3",gold:"#B08C55",green:"#6E2C3B",ink:"#4A2E33",muted:"#6E2C3B"};
+function applyCardTypeUI(){
+  const henna=(CARD_TYPE==="henna");
+  const q=$("quranWrap"); if(q)q.style.display=henna?"none":"";
+  const hi=$("hennaIntroWrap"); if(hi)hi.style.display=henna?"":"none";
+  const sg=$("showGroomWrap"); if(sg)sg.style.display=henna?"":"none";
+  const dtLabel=$("f_datetime")?$("f_datetime").previousElementSibling:null;
+  if(dtLabel&&dtLabel.tagName==="LABEL")dtLabel.textContent=henna?"تاريخ ووقت الحنة":"تاريخ ووقت العرس";
+}
 function loadSettings(){
   const c=INV.data||{}, cp=c.couple||{}, t=c.text||{}, m=c.media||{}, col=c.colors||{}, sh=c.show||{};
   $("f_lang").value=(c.lang==="en")?"en":"ar";
@@ -117,6 +125,9 @@ function loadSettings(){
   $("f_show_bismillah").checked=(sh.bismillah!==false);
   $("f_show_verse").checked=(sh.verse!==false);
   $("f_show_dividers").checked=(sh.dividers!==false);
+  $("f_hennaIntro").value=c.hennaIntro||"";
+  $("f_show_groom").checked=(sh.groom!==false);
+  applyCardTypeUI();
   $("f_footer").value=t.footer||"";
   $("f_venueName").value=t.venueName||"";$("f_venueSub").value=t.venueSub||"";
   $("f_mapUrl").value=m.mapUrl||"";
@@ -155,7 +166,9 @@ function collectData(){
     },
     datetime:($("f_datetime").value||"2026-08-24T19:00")+":00",
     dateLocked:(INV&&INV.data&&INV.data.dateLocked)||false,
-    show:{bismillah:$("f_show_bismillah").checked,verse:$("f_show_verse").checked,dividers:$("f_show_dividers").checked},
+    cardType:CARD_TYPE,
+    hennaIntro:$("f_hennaIntro").value,
+    show:{bismillah:$("f_show_bismillah").checked,verse:$("f_show_verse").checked,dividers:$("f_show_dividers").checked,groom:$("f_show_groom").checked},
     bismillah:$("f_bismillah").value,
     verse:$("f_verse").value,
     text:{blessing:$("f_blessing").value,venueName:$("f_venueName").value,venueSub:$("f_venueSub").value,
@@ -333,8 +346,11 @@ async function generateShareImage(){
     const d=INV.data||{}, c=d.couple||{};
     const gi=(c.groom||"").trim()[0]||"", bi=(c.bride||"").trim()[0]||"";
     const el=$("shareCard"); if(!el)return;
-    $("shMono").textContent=gi+" & "+bi;
-    $("shNames").textContent=((c.groom||"")+" & "+(c.bride||"")).trim();
+    const henna=(CARD_TYPE==="henna");
+    const showGroom=henna?((d.show||{}).groom!==false):true;
+    $("shMono").textContent=(showGroom&&gi)?(gi+" & "+bi):bi;
+    $("shNames").textContent=(showGroom?((c.groom||"")+" & "+(c.bride||"")):(c.bride||"")).trim();
+    const shType=document.getElementById("shType"); if(shType)shType.textContent=henna?"دعوة حنّة":"دعوة زفاف";
     if(typeof htmlToImage==="undefined")return;
     try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
     const blob=await htmlToImage.toBlob(el,{pixelRatio:1,width:1200,height:630,backgroundColor:"#FBF3E7",cacheBust:true});
@@ -386,10 +402,11 @@ function randCode(){
 $("genCode").addEventListener("click",async()=>{
   $("genMsg").textContent="";
   let days=parseInt($("codeDays").value,10); if(isNaN(days))days=7; days=Math.max(0,days);
+  const type=$("codeType")?$("codeType").value:"wedding";
   let code=randCode();
-  const {data:ok,error}=await sb.rpc("admin_add_code",{p_code:code,p_days:days});
+  const {data:ok,error}=await sb.rpc("admin_add_code",{p_code:code,p_days:days,p_type:type});
   if(error||!ok){$("genMsg").textContent="صار خطأ، حاول مرة ثانية";console.error(error);return;}
-  $("genMsg").textContent="كود جديد: "+code+(days>0?` (ينتهي بعد ${days} يوم من تاريخ العرس)`:" (بلا انتهاء)");
+  $("genMsg").textContent="كود جديد ("+(type==="henna"?"حنة":"عرس")+"): "+code+(days>0?` (ينتهي بعد ${days} يوم من التاريخ)`:" (بلا انتهاء)");
   loadCodes();
 });
 
@@ -397,9 +414,10 @@ async function loadCodes(){
   try{ await sb.rpc("purge_expired"); }catch(e){}
   const {data,error}=await sb.rpc("admin_list_codes");  const tbl=$("codesTbl");
   if(error){tbl.innerHTML="<tr><td>تعذّر التحميل</td></tr>";console.error(error);return;}
-  let rows=`<tr><th>الكود</th><th>المستخدم</th><th>كلمة المرور</th><th>تاريخ العرس</th><th>المتبقّي</th><th>الحالة</th><th></th></tr>`;
+  let rows=`<tr><th>الكود</th><th>النوع</th><th>المستخدم</th><th>كلمة المرور</th><th>تاريخ العرس</th><th>المتبقّي</th><th>الحالة</th><th></th></tr>`;
   (data||[]).forEach(c=>{
     const st=c.used?`<span class="badge n">مستخدم</span>`:`<span class="badge y">متاح</span>`;
+    const typ=(c.card_type==="henna")?`<span class="badge y">حنة</span>`:`<span class="badge n">عرس</span>`;
     const uname=c.username?esc(c.username):"—";
     const upass=c.userpass?esc(c.userpass):"—";
     let wed="—";
@@ -415,6 +433,7 @@ async function loadCodes(){
     }else if(c.used){ left=`<span style="color:var(--muted)">بانتظار التاريخ</span>`; }
     rows+=`<tr>
       <td style="font-weight:700">${esc(c.code)}</td>
+      <td>${typ}</td>
       <td>${uname}</td>
       <td style="font-family:monospace">${upass}</td>
       <td>${wed}</td>

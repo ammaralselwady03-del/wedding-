@@ -157,6 +157,7 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
 
     <div class="card">
       <h2>العريس والعروس</h2>
+      <label class="chk" id="showGroomWrap" style="margin-bottom:12px;display:none"><input type="checkbox" id="f_show_groom" checked> إظهار اسم العريس على الكرت</label>
       <label>العريس (اللقب + الاسم)</label>
       <div class="title-name"><input id="f_groomTitle"><input id="f_groom"></div>
       <label>والد العريس (اللقب + الاسم) — يظهر فوق اسم العريس</label>
@@ -185,12 +186,18 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
       <h2>نصوص الكرت</h2>
       <label>جملة الدعوة</label>
       <textarea id="f_blessing" rows="2"></textarea>
-      <label class="chk" style="margin-top:14px"><input type="checkbox" id="f_show_bismillah"> إظهار البسملة</label>
-      <label>البسملة (تظهر دائماً بالعربي)</label>
-      <input id="f_bismillah">
-      <label class="chk" style="margin-top:14px"><input type="checkbox" id="f_show_verse"> إظهار الآية</label>
-      <label>الآية (تظهر دائماً بالعربي)</label>
-      <textarea id="f_verse" rows="2"></textarea>
+      <div id="hennaIntroWrap" style="display:none">
+        <label style="margin-top:14px">جمل الحنة (تظهر أعلى الكرت — سطر لكل جملة)</label>
+        <textarea id="f_hennaIntro" rows="3"></textarea>
+      </div>
+      <div id="quranWrap">
+        <label class="chk" style="margin-top:14px"><input type="checkbox" id="f_show_bismillah"> إظهار البسملة</label>
+        <label>البسملة (تظهر دائماً بالعربي)</label>
+        <input id="f_bismillah">
+        <label class="chk" style="margin-top:14px"><input type="checkbox" id="f_show_verse"> إظهار الآية</label>
+        <label>الآية (تظهر دائماً بالعربي)</label>
+        <textarea id="f_verse" rows="2"></textarea>
+      </div>
       <label style="margin-top:14px">الفوتر (استخدم ❤ لقلب ملوّن)</label>
       <input id="f_footer">
     </div>
@@ -278,7 +285,12 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     </div>
     <div id="ownerPanel" class="hidden">
       <div class="card">
-        <label>مدة صلاحية الكود (أيام بعد العرس)</label>
+        <label>نوع الكرت</label>
+        <select id="codeType">
+          <option value="wedding">عرس</option>
+          <option value="henna">حنة عروس</option>
+        </select>
+        <label style="margin-top:14px">مدة صلاحية الكود (أيام بعد العرس)</label>
         <input id="codeDays" type="number" min="0" value="7">
         <p class="hint">الكود ينتهي بعد هذه المدة من <b>تاريخ العرس</b> الذي يُدخله العريس، ثم يُشطب حسابه ودعوته تلقائياً. اكتب 0 لكود بلا انتهاء.</p>
         <button class="btn gold wide" id="genCode" style="margin-top:12px">توليد كود جديد</button>
@@ -303,8 +315,8 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     <span style="width:12px;height:12px;background:#B08C55;transform:rotate(45deg);display:block"></span>
     <span style="display:block;width:120px;height:2px;background:linear-gradient(90deg,#B08C55,transparent)"></span>
   </div>
-  <div style="font-family:'Amiri',serif;font-size:52px;color:#6E2C3B">دعوة زفاف</div>
+  <div id="shType" style="font-family:'Amiri',serif;font-size:52px;color:#6E2C3B">دعوة زفاف</div>
 </div>
-<script src="admin.js?v=15"></script>
+<script src="admin.js?v=17"></script>
 </body>
 </html>

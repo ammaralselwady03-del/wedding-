@@ -31,6 +31,24 @@ body.lang-en .display{font-family:"Cormorant Garamond",serif;font-weight:600}
 .cover.open .seal{transform:translate(-50%,-50%) scale(.3);opacity:0}
 .cover.open .seam,.cover.open .hint{opacity:0}
 
+/* ===== غلاف الحنة: باب تراثي + تطريز ===== */
+.henna-band{position:absolute;left:0;right:0;height:46px;z-index:6;display:none;background-repeat:repeat-x;background-size:auto 46px;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%2744%27%20height%3D%2746%27%20viewBox%3D%270%200%2044%2046%27%3E%3Crect%20width%3D%2744%27%20height%3D%2746%27%20fill%3D%27%23FBF3E7%27%2F%3E%3Cpath%20d%3D%27M0%2046%20L22%204%20L44%2046Z%27%20fill%3D%27%236E2C3B%27%2F%3E%3Cpath%20d%3D%27M9%2046%20L22%2022%20L35%2046Z%27%20fill%3D%27%23B08C55%27%2F%3E%3Cpath%20d%3D%27M16%2046%20L22%2033%20L28%2046Z%27%20fill%3D%27%232b1a1e%27%2F%3E%3Crect%20x%3D%2720%27%20y%3D%270%27%20width%3D%274%27%20height%3D%276%27%20fill%3D%27%236E2C3B%27%2F%3E%3C%2Fsvg%3E")}
+.henna-band.top{top:0;border-bottom:2px solid var(--gold)}
+.henna-band.bottom{bottom:0;transform:scaleY(-1);border-top:2px solid var(--gold)}
+.cover.henna .henna-band{display:block}
+.cover.henna .flap{background-color:#6E2C3B;background:
+  radial-gradient(circle at 30px 44px, rgba(0,0,0,.38) 2.4px, transparent 3.4px) 0 46px/62px 92px,
+  repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 1px, transparent 1px 44px),
+  linear-gradient(90deg,#54202c,#7a3341 50%,#54202c);
+  box-shadow:none}
+.cover.henna .flap.left{box-shadow:inset -2px 0 0 var(--gold),6px 0 24px rgba(0,0,0,.2)}
+.cover.henna .flap.right{box-shadow:inset 2px 0 0 var(--gold),-6px 0 24px rgba(0,0,0,.2)}
+.cover.henna .seam{background:linear-gradient(180deg,transparent,var(--gold) 12%,var(--gold) 88%,transparent);width:4px}
+.cover.henna .seal{width:100px;height:100px;background:radial-gradient(circle at 40% 34%,#E8CE96,#C6A15B 55%,#8a6528 100%);box-shadow:0 8px 22px rgba(0,0,0,.35),inset 0 2px 6px rgba(255,255,255,.35)}
+.cover.henna .seal::before{content:"";position:absolute;inset:14px;border-radius:50%;border:3px solid rgba(84,32,44,.55)}
+.cover.henna .seal .mono{display:none}
+.cover.henna .hint{color:#F6E9CE}
+
 .music-btn{position:fixed;bottom:16px;inset-inline-start:16px;z-index:1200;width:48px;height:48px;border-radius:50%;border:0;cursor:pointer;background:var(--green);color:#F3EAD9;font-size:1.1rem;display:none;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(46,74,58,.35)}
 
 .wrap{max-width:600px;margin:0 auto;padding:56px 22px 46px}
@@ -45,6 +63,7 @@ body.lang-en .display{font-family:"Cormorant Garamond",serif;font-weight:600}
 .floral{margin:26px auto;text-align:center;color:var(--gold);line-height:0}
 .floral svg{display:inline-block;width:170px;max-width:62%;height:auto}
 .bismillah{font-family:"Amiri",serif;font-size:1.5rem;color:var(--green);margin-bottom:16px}
+.henna-intro{font-family:"Amiri",serif;color:var(--green);font-size:1.15rem;line-height:2;max-width:440px;margin:0 auto 16px;white-space:pre-line}
 .verse{font-family:"Amiri",serif;color:var(--muted);font-size:1.02rem;line-height:2.1;max-width:420px;margin:0 auto 30px}
 .blessing{color:var(--muted);font-size:1rem;line-height:1.9;max-width:440px;margin:0 auto 26px}
 .couple{display:flex;align-items:flex-end;justify-content:center;gap:18px;margin:14px 0 18px}
@@ -114,6 +133,8 @@ textarea.rsvp-in{resize:vertical}
 <div class="cover" id="cover">
   <div class="flap left"></div>
   <div class="flap right"></div>
+  <div class="henna-band top"></div>
+  <div class="henna-band bottom"></div>
   <div class="seam"></div>
   <div class="seal" id="seal"><span class="mono" id="mono"></span></div>
   <div class="hint" id="hint"></div>
@@ -122,17 +143,18 @@ textarea.rsvp-in{resize:vertical}
 <div class="wrap">
   <div class="couple-photo reveal d1" id="couplePhoto" style="display:none"></div>
   <div class="invite-card reveal d1">
+    <div class="henna-intro" id="hennaIntro" dir="rtl" style="display:none"></div>
     <div class="bismillah" id="bismillah" dir="rtl" style="display:none"></div>
     <div class="verse" id="verse" dir="rtl" style="display:none"></div>
     <div class="blessing" id="blessing"></div>
     <div class="couple" id="coupleRow">
-      <div class="person">
+      <div class="person" id="groomPerson">
         <span class="father" id="groomFather" style="display:none"></span>
         <span class="rel" id="groomRel" style="display:none"></span>
         <span class="title" id="groomTitle" style="display:none"></span>
         <span class="name-txt display" id="groom"></span>
       </div>
-      <svg class="rings" viewBox="0 0 44 26"><circle cx="16" cy="13" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="28" cy="13" r="10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+      <svg class="rings" id="ringsSvg" viewBox="0 0 44 26"><circle cx="16" cy="13" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="28" cy="13" r="10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
       <div class="person">
         <span class="father" id="brideFather" style="display:none"></span>
         <span class="rel" id="brideRel" style="display:none"></span>
@@ -179,6 +201,6 @@ textarea.rsvp-in{resize:vertical}
 
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
-<script src="/invite.js?v=5"></script>
+<script src="/invite.js?v=7"></script>
 </body>
 </html>

@@ -8,8 +8,10 @@ const EXPIRY="";
 const DEFAULTS={
   lang:"ar",
   couple:{groomTitle:"",groom:"العريس",groomFatherTitle:"",groomFather:"",groomRel:"",brideTitle:"",bride:"العروس",brideFatherTitle:"",brideFather:"",brideRel:""},
+  cardType:"wedding",
+  hennaIntro:"",
   datetime:"2026-08-24T19:00:00",
-  show:{bismillah:true,verse:true,dividers:true},
+  show:{bismillah:true,verse:true,dividers:true,groom:true},
   bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
   verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾",
   text:{blessing:"",venueName:"",venueSub:"",notePhoto:"",noteKids:"",footer:""},
@@ -71,7 +73,7 @@ function insertFlorals(){
   if((CONFIG.show||{}).dividers===false)return;
   const gold=(getComputedStyle(document.documentElement).getPropertyValue("--gold")||"").trim()||"#B08C55";
   const rings=card.querySelector(".rings"); if(rings){rings.style.color=gold;rings.querySelectorAll("circle").forEach(c=>{c.setAttribute("stroke",gold);c.setAttribute("fill","none");});}
-  const anchors=["verse","blessing","coupleRow","infoRow","notesRow"];
+  const anchors=["hennaIntro","verse","blessing","coupleRow","infoRow","notesRow"];
   let prevShown=false, prevId=null;
   anchors.forEach(id=>{
     const el=$(id);
@@ -178,23 +180,34 @@ function renderAll(){
   const gi=(cp.groom||"").trim()[0]||"", bi=(cp.bride||"").trim()[0]||"";
   const mono=$("mono");mono.textContent=gi+" & "+bi;
   mono.style.fontFamily=(lang==="ar")?'"Aref Ruqaa",serif':'"Cormorant Garamond",serif';
+  { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); } }
 
-  txt("hint",L.tapToOpen);
+  txt("hint",(d.cardType==="henna")?((lang==="ar")?"المس الباب لفتح الدعوة":"Tap the door to open"):L.tapToOpen);
   document.title=(cp.groom||"")+" & "+(cp.bride||"");
 
-  const showB=(d.show||{}).bismillah!==false, showV=(d.show||{}).verse!==false;
+  const isHenna=(d.cardType==="henna");
+  const showGroom=isHenna?((d.show||{}).groom!==false):true;
+
+  // جمل الحنة أعلى الكرت (بدل البسملة والآية)
+  if(isHenna && (d.hennaIntro||"").trim()){$("hennaIntro").textContent=d.hennaIntro;$("hennaIntro").style.display="block";}
+  else{$("hennaIntro").style.display="none";}
+
+  const showB=!isHenna && (d.show||{}).bismillah!==false, showV=!isHenna && (d.show||{}).verse!==false;
   if(showB && d.bismillah){$("bismillah").textContent=d.bismillah;$("bismillah").style.display="block";}else{$("bismillah").style.display="none";}
   if(showV && d.verse){$("verse").textContent=d.verse;$("verse").style.display="block";}else{$("verse").style.display="none";}
 
   txt("blessing",T.blessing||L.blessing);
 
   txt("groom",cp.groom||"");txt("bride",cp.bride||"");
-  txt("groomTitle",cp.groomTitle||"");showEl("groomTitle",!!(cp.groomTitle||"").trim());
+  // إخفاء العريس والخواتم لكرت الحنة عند الاختيار
+  showEl("groomPerson",showGroom);
+  { const r=$("ringsSvg"); if(r)r.style.display=showGroom?"":"none"; }
+  txt("groomTitle",cp.groomTitle||"");showEl("groomTitle",showGroom && !!(cp.groomTitle||"").trim());
   txt("brideTitle",cp.brideTitle||"");showEl("brideTitle",!!(cp.brideTitle||"").trim());
   const gf=joinTitle(cp.groomFatherTitle,cp.groomFather), bf=joinTitle(cp.brideFatherTitle,cp.brideFather);
-  txt("groomFather",gf);showEl("groomFather",!!gf);
+  txt("groomFather",gf);showEl("groomFather",showGroom && !!gf);
   txt("brideFather",bf);showEl("brideFather",!!bf);
-  txt("groomRel",(cp.groomRel||"").trim());showEl("groomRel",!!(cp.groomRel||"").trim());
+  txt("groomRel",(cp.groomRel||"").trim());showEl("groomRel",showGroom && !!(cp.groomRel||"").trim());
   txt("brideRel",(cp.brideRel||"").trim());showEl("brideRel",!!(cp.brideRel||"").trim());
 
   txt("willing",L.willing);

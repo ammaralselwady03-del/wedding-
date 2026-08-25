@@ -19,7 +19,11 @@ module.exports = async (req, res) => {
     const c = d.couple || {};
     const groom = (c.groom || "").trim();
     const bride = (c.bride || "").trim();
-    if (groom || bride) title = (groom + " & " + bride).trim() + " | دعوة زفاف";
+    const henna = (d.cardType === "henna");
+    const showGroom = henna ? ((d.show||{}).groom !== false) : true;
+    const label = henna ? "دعوة حنّة" : "دعوة زفاف";
+    const names = (showGroom && groom) ? (groom + " & " + bride).trim() : bride;
+    if (groom || bride) title = names + " | " + label; else title = label;
     const t = d.text || {};
     const bits = [];
     if (t.venueName) bits.push(t.venueName);
