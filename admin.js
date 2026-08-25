@@ -125,8 +125,9 @@ function loadSettings(){
   { const pv=$("couplePhotoPreview"); if(m.couplePhoto){pv.src=m.couplePhoto;pv.style.display="block";}else{pv.style.display="none";} $("couplePhotoStatus").textContent=""; }
   renderGalleryThumbs(); $("galleryStatus").textContent="";
   if(m.music){ $("musicPreview").src=m.music; $("musicPreview").style.display="block"; }
-  $("c_bg").value=col.bg||DEF_COLORS.bg;$("c_card").value=col.card||DEF_COLORS.card;$("c_gold").value=col.gold||DEF_COLORS.gold;
-  $("c_green").value=col.green||DEF_COLORS.green;$("c_ink").value=col.ink||DEF_COLORS.ink;$("c_muted").value=col.muted||DEF_COLORS.muted;
+  const _fix=v=>(v&&String(v).toUpperCase()==="#C68A93")?"#6E2C3B":v;
+  $("c_bg").value=col.bg||DEF_COLORS.bg;$("c_card").value=col.card||DEF_COLORS.card;$("c_gold").value=_fix(col.gold)||DEF_COLORS.gold;
+  $("c_green").value=col.green||DEF_COLORS.green;$("c_ink").value=col.ink||DEF_COLORS.ink;$("c_muted").value=_fix(col.muted)||DEF_COLORS.muted;
 
   // لا نعرض الروابط العشوائية (inv-xxxx) بالحقل حتى يقدر يكتب اسم من عنده
   $("f_slug").value=(INV.slug && !/^inv-/.test(INV.slug)) ? INV.slug : "";

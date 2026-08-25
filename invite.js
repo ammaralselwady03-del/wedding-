@@ -96,7 +96,10 @@ function rgb2hex(r,g,b){const t=x=>Math.max(0,Math.min(255,Math.round(x))).toStr
 function lighten(h,a){const[r,g,b]=hex2rgb(h);return rgb2hex(r+(255-r)*a,g+(255-g)*a,b+(255-b)*a);}
 function darken(h,a){const[r,g,b]=hex2rgb(h);return rgb2hex(r*(1-a),g*(1-a),b*(1-a));}
 function rgba(h,a){const[r,g,b]=hex2rgb(h);return`rgba(${r},${g},${b},${a})`;}
-function applyColors(c){const s=document.documentElement.style;s.setProperty("--bg",c.bg);s.setProperty("--bg-2",darken(c.bg,.06));s.setProperty("--card",c.card);s.setProperty("--gold",c.gold);s.setProperty("--gold-soft",lighten(c.gold,.28));s.setProperty("--green",c.green);s.setProperty("--ink",c.ink);s.setProperty("--muted",c.muted);s.setProperty("--line",rgba(c.gold,.35));}
+function applyColors(c){c=Object.assign({},c);
+  // استبدال اللون الوردي القديم بالعنابي تلقائياً (للدعوات المحفوظة قديماً)
+  for(const k in c){ if(typeof c[k]==="string" && c[k].toUpperCase()==="#C68A93") c[k]="#6E2C3B"; }
+  const s=document.documentElement.style;s.setProperty("--bg",c.bg);s.setProperty("--bg-2",darken(c.bg,.06));s.setProperty("--card",c.card);s.setProperty("--gold",c.gold);s.setProperty("--gold-soft",lighten(c.gold,.28));s.setProperty("--green",c.green);s.setProperty("--ink",c.ink);s.setProperty("--muted",c.muted);s.setProperty("--line",rgba(c.gold,.35));}
 
 function formatDateTime(iso){
   const[dp,tp="00:00"]=String(iso).split("T");
