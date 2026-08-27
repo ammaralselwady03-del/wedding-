@@ -11,7 +11,7 @@ const DEFAULTS={
   cardType:"wedding",
   hennaIntro:"",
   datetime:"2026-08-24T19:00:00",
-  show:{bismillah:true,verse:true,dividers:true,groom:true},
+  show:{bismillah:true,verse:true,dividers:true,groom:true,cardBox:false},
   bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
   verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾",
   text:{blessing:"",venueName:"",venueSub:"",notePhoto:"",noteKids:"",footer:""},
@@ -184,6 +184,7 @@ function renderAll(){
   mono.style.fontFamily=(lang==="ar")?'"Aref Ruqaa",serif':'"Cormorant Garamond",serif';
   { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); } }
   document.body.classList.toggle("henna-card",d.cardType==="henna");
+  { const ic=document.querySelector(".invite-card"); if(ic)ic.classList.toggle("boxed",(d.show||{}).cardBox===true); }
 
   txt("hint",(d.cardType==="henna")?((lang==="ar")?"المس الباب لفتح الدعوة":"Tap the door to open"):L.tapToOpen);
   document.title=(cp.groom||"")+" & "+(cp.bride||"");

@@ -126,6 +126,7 @@ function loadSettings(){
   $("f_show_bismillah").checked=(sh.bismillah!==false);
   $("f_show_verse").checked=(sh.verse!==false);
   $("f_show_dividers").checked=(sh.dividers!==false);
+  $("f_show_cardbox").checked=(sh.cardBox===true);
   $("f_hennaIntro").value=c.hennaIntro||"";
   $("f_show_groom").checked=(sh.groom!==false);
   applyCardTypeUI();
@@ -174,7 +175,7 @@ function collectData(){
     slugLocked:(INV&&INV.data&&INV.data.slugLocked)||false,
     cardType:CARD_TYPE,
     hennaIntro:$("f_hennaIntro").value,
-    show:{bismillah:$("f_show_bismillah").checked,verse:$("f_show_verse").checked,dividers:$("f_show_dividers").checked,groom:$("f_show_groom").checked},
+    show:{bismillah:$("f_show_bismillah").checked,verse:$("f_show_verse").checked,dividers:$("f_show_dividers").checked,groom:$("f_show_groom").checked,cardBox:$("f_show_cardbox").checked},
     bismillah:$("f_bismillah").value,
     verse:$("f_verse").value,
     text:{blessing:$("f_blessing").value,venueName:$("f_venueName").value,venueSub:$("f_venueSub").value,
