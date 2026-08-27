@@ -148,9 +148,11 @@ function buildRsvp(){
   $("rsvpSend").addEventListener("click",submitRsvp);
 }
 function renderRsvpLang(lang){
-  const L=LABELS[lang];
+  const L=LABELS[lang], henna=(CONFIG&&CONFIG.cardType==="henna");
   txt("rTitle",L.rTitle);txt("rLblName",L.rName);txt("rLblPhone",L.rPhone);txt("rLblQ",L.rQ);
-  txt("attYes",L.rYes);txt("attNo",L.rNo);txt("rLblCount",L.rCount);txt("rLblMsg",L.rMsg);txt("rsvpSend",L.rSend);
+  txt("attYes",L.rYes);txt("attNo",L.rNo);txt("rLblCount",L.rCount);
+  txt("rLblMsg",henna?((lang==="en")?"Message to the bride (optional)":"رسالة للعروس (اختياري)"):L.rMsg);
+  txt("rsvpSend",L.rSend);
 }
 async function submitRsvp(){
   const lang=(CONFIG.lang==="en")?"en":"ar", L=LABELS[lang], errBox=$("rsvpErr"), btn=$("rsvpSend");
@@ -196,7 +198,7 @@ function renderAll(){
   if(showB && d.bismillah){$("bismillah").textContent=d.bismillah;$("bismillah").style.display="block";}else{$("bismillah").style.display="none";}
   if(showV && d.verse){$("verse").textContent=d.verse;$("verse").style.display="block";}else{$("verse").style.display="none";}
 
-  txt("blessing",T.blessing||L.blessing);
+  txt("blessing",T.blessing|| (isHenna?((lang==="en")?"With love and joy, you're invited to share the henna celebration":"وبكل الحب والفرح تتشرّف بدعوتكم لمشاركتها فرحة الحنة"):L.blessing));
 
   txt("groom",cp.groom||"");txt("bride",cp.bride||"");
   // إخفاء العريس والخواتم لكرت الحنة عند الاختيار

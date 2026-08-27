@@ -119,6 +119,7 @@ function loadSettings(){
   $("f_brideRel").value=cp.brideRel||"";
   $("f_datetime").value=(c.datetime||"2026-08-24T19:00:00").slice(0,16);
   lockDateUI(!!c.dateLocked);
+  lockSlugUI(!!c.slugLocked);
   $("f_blessing").value=t.blessing||"";
   $("f_bismillah").value=(c.bismillah!==undefined)?c.bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
   $("f_verse").value=(c.verse!==undefined)?c.verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾";
@@ -155,6 +156,10 @@ function lockDateUI(locked){
   const el=$("f_datetime"); if(el){el.disabled=!!locked;el.readOnly=!!locked;}
   const note=$("dateLockNote"); if(note)note.style.display=locked?"block":"none";
 }
+function lockSlugUI(locked){
+  const el=$("f_slug"); if(el){el.disabled=!!locked;el.readOnly=!!locked;}
+  const note=$("slugLockNote"); if(note)note.style.display=locked?"block":"none";
+}
 function collectData(){
   return {
     lang:$("f_lang").value,
@@ -166,6 +171,7 @@ function collectData(){
     },
     datetime:($("f_datetime").value||"2026-08-24T19:00")+":00",
     dateLocked:(INV&&INV.data&&INV.data.dateLocked)||false,
+    slugLocked:(INV&&INV.data&&INV.data.slugLocked)||false,
     cardType:CARD_TYPE,
     hennaIntro:$("f_hennaIntro").value,
     show:{bismillah:$("f_show_bismillah").checked,verse:$("f_show_verse").checked,dividers:$("f_show_dividers").checked,groom:$("f_show_groom").checked},
@@ -330,6 +336,12 @@ $("saveBtn").addEventListener("click",async()=>{
     await sb.from("invitations").update({data:INV.data}).eq("id",INV.id);
     lockDateUI(true);
   }
+  // قفل اسم الرابط لو صار مخصّصاً (غير عشوائي)
+  if(!INV.data.slugLocked && INV.slug && !/^inv-/.test(INV.slug)){
+    INV.data.slugLocked=true;
+    await sb.from("invitations").update({data:INV.data}).eq("id",INV.id);
+    lockSlugUI(true);
+  }
   const shareLink=SITE_ROOT+"s/"+INV.slug;
   $("f_slug").value=(INV.slug && !/^inv-/.test(INV.slug)) ? INV.slug : "";
   $("designLink").value=shareLink;$("designLinkBox").style.display="block";
@@ -439,7 +451,7 @@ async function loadCodes(){
       <td>${wed}</td>
       <td>${left}</td>
       <td>${st}</td>
-      <td><button class="btn ghost del-code" data-code="${esc(c.code)}" style="padding:6px 14px">حذف</button></td>
+      <td style="white-space:nowrap">${c.used?`<button class="btn ghost unlock-slug" data-code="${esc(c.code)}" style="padding:6px 12px;margin-inline-end:6px">فتح الرابط</button>`:""}<button class="btn ghost del-code" data-code="${esc(c.code)}" style="padding:6px 14px">حذف</button></td>
     </tr>`;
   });
   tbl.innerHTML=rows;
@@ -452,5 +464,11 @@ async function loadCodes(){
     if(!confirm("إلغاء تاريخ العرس؟ رح يقدر العريس يدخل تاريخ جديد، وعدّاد انتهاء الكود يوقف لحينها."))return;
     await sb.rpc("admin_cancel_date",{p_code:b.dataset.code});
     loadCodes();
+  }));
+  tbl.querySelectorAll(".unlock-slug").forEach(b=>b.addEventListener("click",async()=>{
+    if(!confirm("فتح تعديل اسم الرابط لهذا العريس؟ رح يقدر يغيّر اسم رابط الدعوة من جديد."))return;
+    const {error}=await sb.rpc("admin_unlock_slug",{p_code:b.dataset.code});
+    if(error){alert("صار خطأ");console.error(error);return;}
+    alert("تم فتح تعديل الرابط لهذا العريس.");
   }));
 }
