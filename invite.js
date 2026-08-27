@@ -227,11 +227,11 @@ function renderAll(){
   if(_mapUrl){ _mb.textContent="📍 "+L.mapBtn; _mb.href=_mapUrl; _mb.style.display=""; }
   else { _mb.style.display="none"; _mb.removeAttribute("href"); }
   txt("notePhoto",T.notePhoto||L.notePhoto);txt("noteKids",T.noteKids||L.noteKids);
-  txt("countdownTitle",L.countdownTitle);
+  txt("countdownTitle",isHenna?((lang==="en")?"Counting down to the henna":"باقٍ على الحنة"):L.countdownTitle);
   txt("lblDays",L.lblDays);txt("lblHours",L.lblHours);txt("lblMins",L.lblMins);txt("lblSecs",L.lblSecs);
   txt("galleryTitle",L.galleryTitle);
   $("footer").innerHTML=(T.footer||L.footer).replace("❤",'<span class="heart">❤</span>');
-  curDone=L.done;
+  curDone=isHenna?((lang==="en")?"🎉 The henna has begun — congratulations":"🎉 بدأت الحنة — ألف مبروك"):L.done;
 
   renderMedia(d.media||{});
   renderRsvpLang(lang);
@@ -266,10 +266,12 @@ function buildSlider(grid,dots,n){
   grid.addEventListener("scroll",setDot,{passive:true});
   dotEls.forEach(d=>d.addEventListener("click",()=>grid.scrollTo({left:d.dataset.i*grid.clientWidth,behavior:"smooth"})));
   if(grid._auto)clearInterval(grid._auto);
-  if(n>1){grid._auto=setInterval(()=>{const nx=(cur()+1)%n;grid.scrollTo({left:nx*grid.clientWidth,behavior:"smooth"});},4500);}
-  const stop=()=>{if(grid._auto){clearInterval(grid._auto);grid._auto=null;}};
-  grid.addEventListener("pointerdown",stop,{passive:true});
-  // سحب بالماوس (الديسكتوب)؛ الموبايل بيستخدم السحب الأصلي
+  if(grid._resume)clearTimeout(grid._resume);
+  const startAuto=()=>{ if(n<=1)return; grid._auto=setInterval(()=>{const nx=(cur()+1)%n;grid.scrollTo({left:nx*grid.clientWidth,behavior:"smooth"});},4000); };
+  const pauseAuto=()=>{ if(grid._auto){clearInterval(grid._auto);grid._auto=null;} if(grid._resume)clearTimeout(grid._resume); grid._resume=setTimeout(startAuto,6000); };
+  ["pointerdown","touchstart","wheel"].forEach(ev=>grid.addEventListener(ev,pauseAuto,{passive:true}));
+  startAuto();
+  // سحب بالماوس (ديسكتوب)؛ الموبايل بيستخدم السحب الأصلي
   let down=false,sx=0,sl=0;
   grid.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse")return;down=true;sx=e.clientX;sl=grid.scrollLeft;grid.style.cursor="grabbing";});
   window.addEventListener("pointerup",()=>{down=false;grid.style.cursor="grab";});
