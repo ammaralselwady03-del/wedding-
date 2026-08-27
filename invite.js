@@ -183,6 +183,7 @@ function renderAll(){
   const mono=$("mono");mono.textContent=gi+" & "+bi;
   mono.style.fontFamily=(lang==="ar")?'"Aref Ruqaa",serif':'"Cormorant Garamond",serif';
   { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); } }
+  document.body.classList.toggle("henna-card",d.cardType==="henna");
 
   txt("hint",(d.cardType==="henna")?((lang==="ar")?"المس الباب لفتح الدعوة":"Tap the door to open"):L.tapToOpen);
   document.title=(cp.groom||"")+" & "+(cp.bride||"");
