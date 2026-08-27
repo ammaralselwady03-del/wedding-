@@ -15,7 +15,7 @@ const DEFAULTS={
   bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
   verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾",
   text:{blessing:"",venueName:"",venueSub:"",notePhoto:"",noteKids:"",footer:""},
-  media:{mapUrl:"",music:"",couplePhoto:"",gallery:[]},
+  media:{mapUrl:"",music:"",couplePhoto:"",gallery:[],video:""},
   colors:{bg:"#FBF3E7",card:"#F3E6D3",gold:"#B08C55",green:"#6E2C3B",ink:"#4A2E33",muted:"#6E2C3B"}
 };
 
@@ -23,7 +23,7 @@ const LABELS={
   ar:{tapToOpen:"المس الختم لفتح الدعوة",blessing:"وبكل الحب والفرح يتشرفان بدعوتكم لمشاركتهما فرحة الزفاف",
     willing:"﴿ وذلك بمشيئة الله تعالى ﴾",venueName:"اسم الصالة",venueSub:"",mapBtn:"الموقع على الخرائط",
     notePhoto:"نرجو عدم التصوير",noteKids:"نتمنى نوماً هنيئاً لأطفالكم",countdownTitle:"باقٍ على الفرح",
-    lblDays:"يوم",lblHours:"ساعة",lblMins:"دقيقة",lblSecs:"ثانية",galleryTitle:"لحظاتنا",
+    lblDays:"يوم",lblHours:"ساعة",lblMins:"دقيقة",lblSecs:"ثانية",galleryTitle:"لحظاتنا",videoTitle:"الفيديو",
     footer:"بحضوركم تكتمل فرحتنا ❤",done:"🎉 بدأ الفرح — ألف مبروك",
     rTitle:"تأكيد الحضور",rName:"الاسم",rPhone:"رقم الهاتف",rQ:"هل ستحضر؟",rYes:"نتشرف بالحضور",rNo:"نعتذر عن الحضور",
     rCount:"عدد الحاضرين",rMsg:"رسالة للعروسين (اختياري)",rSend:"إرسال التأكيد",rSending:"جارٍ الإرسال...",
@@ -32,7 +32,7 @@ const LABELS={
   en:{tapToOpen:"Tap the seal to open",blessing:"With love and joy, request the honour of your presence at their wedding",
     willing:"By the grace of God",venueName:"Venue name",venueSub:"",mapBtn:"Open in Maps",
     notePhoto:"Kindly no photography",noteKids:"We wish your little ones a restful night",countdownTitle:"Counting down to the joy",
-    lblDays:"Days",lblHours:"Hours",lblMins:"Minutes",lblSecs:"Seconds",galleryTitle:"Our Moments",
+    lblDays:"Days",lblHours:"Hours",lblMins:"Minutes",lblSecs:"Seconds",galleryTitle:"Our Moments",videoTitle:"Video",
     footer:"Your presence completes our joy ❤",done:"🎉 The celebration has begun — Congratulations",
     rTitle:"RSVP",rName:"Name",rPhone:"Phone number",rQ:"Will you attend?",rYes:"Joyfully accept",rNo:"Regretfully decline",
     rCount:"Number of guests",rMsg:"Message to the couple (optional)",rSend:"Send RSVP",rSending:"Sending...",
@@ -245,13 +245,35 @@ function renderMedia(m){
   const gs=$("gallerySection"),grid=$("gallery");
   if(Array.isArray(m.gallery)&&m.gallery.length){
     gs.style.display="block";
-    grid.innerHTML=m.gallery.map(s=>`<img src="${s}" alt="" loading="lazy">`).join("");
-    const lb=$("lightbox"),lbImg=$("lightboxImg");
-    grid.querySelectorAll("img").forEach(img=>img.addEventListener("click",()=>{lbImg.src=img.src;lb.classList.add("open");}));
-  }else{gs.style.display="none";grid.innerHTML="";}
+    grid.innerHTML=m.gallery.map(s=>`<img src="${s}" alt="" loading="lazy" draggable="false">`).join("");
+    buildSlider(grid,$("galleryDots"),m.gallery.length);
+  }else{gs.style.display="none";grid.innerHTML="";$("galleryDots").innerHTML="";}
+  // فيديو
+  txt("videoTitle",LABELS[(CONFIG.lang==="en")?"en":"ar"].videoTitle);
+  const vs=$("videoSection"),vid=$("cardVideo");
+  if(m.video){vs.style.display="block";vid.src=m.video;}else{vs.style.display="none";vid.removeAttribute("src");}
   const me=$("mapEmbed"); if(me){me.style.display="none";me.innerHTML="";}
   const mb=$("musicBtn");
   if(m.music){audio=$("audio");audio.src=m.music;audio.load();mb.style.display="flex";}else{mb.style.display="none";}
+}
+
+function buildSlider(grid,dots,n){
+  if(!dots)return;
+  dots.innerHTML=Array.from({length:n},(_,i)=>`<span data-i="${i}" class="${i===0?'on':''}"></span>`).join("");
+  const dotEls=[...dots.querySelectorAll("span")];
+  const cur=()=>Math.round(grid.scrollLeft/grid.clientWidth);
+  const setDot=()=>{const c=cur();dotEls.forEach((d,i)=>d.classList.toggle("on",i===c));};
+  grid.addEventListener("scroll",setDot,{passive:true});
+  dotEls.forEach(d=>d.addEventListener("click",()=>grid.scrollTo({left:d.dataset.i*grid.clientWidth,behavior:"smooth"})));
+  if(grid._auto)clearInterval(grid._auto);
+  if(n>1){grid._auto=setInterval(()=>{const nx=(cur()+1)%n;grid.scrollTo({left:nx*grid.clientWidth,behavior:"smooth"});},4500);}
+  const stop=()=>{if(grid._auto){clearInterval(grid._auto);grid._auto=null;}};
+  grid.addEventListener("pointerdown",stop,{passive:true});
+  // سحب بالماوس (الديسكتوب)؛ الموبايل بيستخدم السحب الأصلي
+  let down=false,sx=0,sl=0;
+  grid.addEventListener("pointerdown",e=>{if(e.pointerType!=="mouse")return;down=true;sx=e.clientX;sl=grid.scrollLeft;grid.style.cursor="grabbing";});
+  window.addEventListener("pointerup",()=>{down=false;grid.style.cursor="grab";});
+  grid.addEventListener("pointermove",e=>{if(!down||e.pointerType!=="mouse")return;grid.scrollLeft=sl-(e.clientX-sx);});
 }
 
 function startCountdown(iso){

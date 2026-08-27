@@ -93,9 +93,9 @@ body.henna-card
 .rule .l{height:1px;width:70px;background:linear-gradient(90deg,transparent,var(--gold))}
 .rule .l.r{background:linear-gradient(90deg,var(--gold),transparent)}
 .rule .d{width:8px;height:8px;transform:rotate(45deg);background:var(--gold)}
-.info-row{display:flex;gap:18px;justify-content:center;text-align:start;flex-wrap:wrap}
+.info-row{display:flex;gap:18px;justify-content:center;text-align:center;flex-wrap:wrap}
 .info-col{flex:1;min-width:180px}
-.info-head{display:flex;align-items:center;gap:8px;color:var(--green);font-weight:700;font-size:1.12rem;margin-bottom:8px;letter-spacing:.3px}
+.info-head{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--green);font-weight:700;font-size:1.12rem;margin-bottom:8px;letter-spacing:.3px}
 .info-col .sub{color:var(--muted);font-size:.98rem;line-height:1.9}
 .map-btn{display:inline-flex;align-items:center;gap:8px;margin-top:26px;background:var(--green);color:#F6F3EC;font-weight:600;font-size:.98rem;letter-spacing:1.2px;text-decoration:none;padding:13px 32px;border-radius:2px;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 22px rgba(44,74,59,.20)}
 .map-btn:hover{transform:translateY(-2px)}
@@ -112,16 +112,20 @@ body.henna-card
 .cd-done{grid-column:1/-1;text-align:center;font-family:"Aref Ruqaa",serif;color:var(--green);font-size:1.5rem;padding:16px}
 .couple-photo{width:min(230px,62vw);aspect-ratio:3/3.4;margin:0 auto 26px;border-radius:999px 999px 18px 18px;overflow:hidden;border:3px solid var(--gold)}
 .couple-photo img{width:100%;height:100%;object-fit:cover;display:block}
-.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-.gallery img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid var(--line);cursor:pointer;transition:transform .2s}
-.gallery img:hover{transform:scale(1.03)}
+.gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:16px;cursor:grab}
+.gallery::-webkit-scrollbar{display:none}
+.gallery img{flex:0 0 100%;width:100%;aspect-ratio:4/3;object-fit:cover;scroll-snap-align:center;border:1px solid var(--line);border-radius:16px;user-select:none;-webkit-user-drag:none}
+.gallery-dots{display:flex;gap:7px;justify-content:center;margin-top:12px}
+.gallery-dots span{width:8px;height:8px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
+.gallery-dots span.on{background:var(--gold);transform:scale(1.25)}
+.card-video{width:100%;border-radius:16px;border:1px solid var(--line);margin-top:4px;background:#000;display:block}
 .lightbox{position:fixed;inset:0;background:rgba(46,37,25,.92);display:none;align-items:center;justify-content:center;padding:24px;z-index:1300;cursor:zoom-out}
 .lightbox.open{display:flex}
 .lightbox img{max-width:100%;max-height:90vh;border-radius:14px}
 .footer{text-align:center;color:var(--muted);font-size:1rem;line-height:2;margin-top:42px}
 .footer .heart{color:var(--gold)}
 .rsvp-card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px 22px;max-width:520px;margin:0 auto}
-.rsvp-lbl{display:block;text-align:start;color:var(--green);font-weight:700;font-size:.98rem;margin:16px 2px 8px}
+.rsvp-lbl{display:block;text-align:center;color:var(--green);font-weight:700;font-size:.98rem;margin:16px 2px 8px}
 .rsvp-in{width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-family:inherit;font-size:1rem;color:var(--ink);outline:none}
 .rsvp-in:focus{border-color:var(--gold)}
 textarea.rsvp-in{resize:vertical}
@@ -209,6 +213,12 @@ textarea.rsvp-in{resize:vertical}
   <div class="block reveal d4" id="gallerySection" style="display:none">
     <h2 class="section-title" id="galleryTitle"></h2>
     <div class="gallery" id="gallery"></div>
+    <div class="gallery-dots" id="galleryDots"></div>
+  </div>
+
+  <div class="block reveal d4" id="videoSection" style="display:none">
+    <h2 class="section-title" id="videoTitle"></h2>
+    <video class="card-video" id="cardVideo" controls playsinline preload="metadata"></video>
   </div>
 
   <div class="block reveal d5" id="rsvpBlock"></div>
@@ -217,6 +227,6 @@ textarea.rsvp-in{resize:vertical}
 
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
-<script src="/invite.js?v=11"></script>
+<script src="/invite.js?v=12"></script>
 </body>
 </html>

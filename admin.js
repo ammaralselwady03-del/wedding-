@@ -134,7 +134,8 @@ function loadSettings(){
   $("f_venueName").value=t.venueName||"";$("f_venueSub").value=t.venueSub||"";
   $("f_mapUrl").value=m.mapUrl||"";
   $("f_notePhoto").value=t.notePhoto||"";$("f_noteKids").value=t.noteKids||"";
-  $("f_couplePhoto").value=m.couplePhoto||"";$("f_gallery").value=(m.gallery||[]).join("\n");$("f_music").value=m.music||"";
+  $("f_couplePhoto").value=m.couplePhoto||"";$("f_gallery").value=(m.gallery||[]).join("\n");$("f_music").value=m.music||"";$("f_video").value=m.video||"";
+  { const vp=$("videoPreview"); if(m.video){vp.src=m.video;vp.style.display="block";}else{vp.style.display="none";vp.removeAttribute("src");} $("videoStatus").textContent=""; }
   { const pv=$("couplePhotoPreview"); if(m.couplePhoto){pv.src=m.couplePhoto;pv.style.display="block";}else{pv.style.display="none";} $("couplePhotoStatus").textContent=""; }
   renderGalleryThumbs(); $("galleryStatus").textContent="";
   if(m.music){ $("musicPreview").src=m.music; $("musicPreview").style.display="block"; }
@@ -180,7 +181,7 @@ function collectData(){
     verse:$("f_verse").value,
     text:{blessing:$("f_blessing").value,venueName:$("f_venueName").value,venueSub:$("f_venueSub").value,
       notePhoto:$("f_notePhoto").value,noteKids:$("f_noteKids").value,footer:$("f_footer").value},
-    media:{mapUrl:$("f_mapUrl").value,couplePhoto:$("f_couplePhoto").value,music:$("f_music").value,
+    media:{mapUrl:$("f_mapUrl").value,couplePhoto:$("f_couplePhoto").value,music:$("f_music").value,video:$("f_video").value,
       gallery:$("f_gallery").value.split("\n").map(s=>s.trim()).filter(Boolean),
       shareImage:(INV&&INV.data&&INV.data.media&&INV.data.media.shareImage)||""},
     colors:{bg:$("c_bg").value,card:$("c_card").value,gold:$("c_gold").value,green:$("c_green").value,ink:$("c_ink").value,muted:$("c_muted").value}
@@ -268,6 +269,21 @@ $("f_music_file").addEventListener("change", async (e)=>{
   preview.src = data.publicUrl;
   preview.style.display = "block";
   pushPreview();
+});
+
+/* رفع فيديو من الجهاز */
+$("f_video_file").addEventListener("change", async (e)=>{
+  const file=e.target.files[0]; if(!file||!INV) return;
+  const status=$("videoStatus"); status.textContent="جارٍ رفع الفيديو... (قد يأخذ وقتاً حسب الحجم)";
+  const ext=(file.name.split(".").pop()||"mp4").toLowerCase();
+  const path=`${INV.id}-video-${Date.now()}.${ext}`;
+  const {error}=await sb.storage.from("share").upload(path,file,{upsert:true,contentType:file.type});
+  if(error){status.textContent="صار خطأ بالرفع، حاول مرة ثانية";console.error(error);return;}
+  const {data}=sb.storage.from("share").getPublicUrl(path);
+  $("f_video").value=data.publicUrl;
+  const vp=$("videoPreview"); vp.src=data.publicUrl; vp.style.display="block";
+  status.textContent="✓ تم رفع الفيديو";
+  pushPreview(); clearTimeout(saveTimer); saveTimer=setTimeout(autoSave,300);
 });
 
 /* رفع صورة العروسين من الجهاز */
