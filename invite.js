@@ -237,6 +237,7 @@ function renderAll(){
   renderRsvpLang(lang);
   startCountdown(d.datetime||DEFAULTS.datetime);
   insertFlorals();
+  { const cov=$("cover"); if(cov)cov.classList.remove("loading"); }
 }
 
 function renderMedia(m){
