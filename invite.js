@@ -284,7 +284,8 @@ function startCountdown(iso){
   const pad=n=>String(n).padStart(2,"0");
   function tick(){
     const diff=target-Date.now();
-    if(diff<=0){$("countdown").innerHTML=`<div class="cd-done">${curDone}</div>`;clearInterval(timer);return;}
+    if(diff<=0){$("countdown").innerHTML=`<div class="cd-done">${curDone}</div>`;const ct=$("countdownTitle");if(ct)ct.style.display="none";clearInterval(timer);return;}
+    { const ct=$("countdownTitle"); if(ct)ct.style.display=""; }
     $("days").textContent=Math.floor(diff/86400000);
     $("hours").textContent=pad(Math.floor((diff%86400000)/3600000));
     $("mins").textContent=pad(Math.floor((diff%3600000)/60000));
