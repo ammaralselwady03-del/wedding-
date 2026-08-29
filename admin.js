@@ -440,7 +440,6 @@ $("genCode").addEventListener("click",async()=>{
 });
 
 let ALL_CODES=[];
-{ const cs=document.getElementById("codeSearch"); if(cs)cs.addEventListener("input",()=>renderCodes()); }
 async function loadCodes(){
   try{ await sb.rpc("purge_expired"); }catch(e){}
   const {data,error}=await sb.rpc("admin_list_codes");
@@ -470,9 +469,7 @@ function renderCodes(){
       if(ms<=0){ left=`<span style="color:#9C4A3C;font-weight:700">منتهٍ</span>`; }
       else{ const days=Math.ceil(ms/86400000); const col=days<=3?"#9C4A3C":"var(--green)"; left=`<span style="color:${col};font-weight:700">${days} يوم</span>`; }
     }else if(c.used){ left=`<span style="color:var(--muted)">بانتظار التاريخ</span>`; }
-    const actions=c.used
-      ? `<button class="btn ghost unlock-slug" data-code="${esc(c.code)}" style="padding:6px 12px;margin-inline-end:6px">فتح الرابط</button><button class="btn danger del-account" data-code="${esc(c.code)}" data-user="${esc(c.username||'')}" style="padding:6px 14px">حذف الحساب</button>`
-      : `<button class="btn ghost del-code" data-code="${esc(c.code)}" style="padding:6px 14px">حذف</button>`;
+    const actions=`${c.used?`<button class="btn ghost unlock-slug" data-code="${esc(c.code)}" style="padding:6px 12px;margin-inline-end:6px">فتح الرابط</button>`:""}<button class="btn danger del-account" data-code="${esc(c.code)}" data-user="${esc(c.username||'')}" data-used="${c.used?1:0}" style="padding:6px 14px">حذف الحساب</button>`;
     rows+=`<tr>
       <td style="font-weight:700">${esc(c.code)}</td>
       <td>${typ}</td>
@@ -485,14 +482,12 @@ function renderCodes(){
     </tr>`;
   });
   tbl.innerHTML=rows;
-  tbl.querySelectorAll(".del-code").forEach(b=>b.addEventListener("click",async()=>{
-    if(!confirm("حذف الكود "+b.dataset.code+"؟"))return;
-    await sb.rpc("admin_delete_code",{p_code:b.dataset.code});
-    loadCodes();
-  }));
   tbl.querySelectorAll(".del-account").forEach(b=>b.addEventListener("click",async()=>{
-    const who=b.dataset.user?`"${b.dataset.user}"`:"هذا العريس";
-    if(!confirm(`حذف حساب ${who} نهائياً؟ رح تنمسح دعوته وكل ردود الحضور، وما بينفع تراجع.`))return;
+    const used=b.dataset.used==="1";
+    const msg=used
+      ? `حذف حساب ${b.dataset.user?`"${b.dataset.user}"`:"هذا العريس"} نهائياً؟ رح تنمسح دعوته وكل ردود الحضور، وما بينفع تراجع.`
+      : `حذف الكود ${b.dataset.code}؟`;
+    if(!confirm(msg))return;
     const {error}=await sb.rpc("admin_delete_account",{p_code:b.dataset.code});
     if(error){alert("صار خطأ بالحذف");console.error(error);return;}
     loadCodes();
