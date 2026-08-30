@@ -128,7 +128,7 @@ function loadSettings(){
   lockSlugUI(!!c.slugLocked);
   $("f_blessing").value=t.blessing||"";
   $("f_bismillah").value=(c.bismillah!==undefined)?c.bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ";
-  $("f_verse").value=(c.verse!==undefined)?c.verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾";
+  $("f_verse").value=(c.verse!==undefined)?c.verse:(CARD_TYPE==="graduation"?"﴿ يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ ﴾":"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾");
   $("f_show_bismillah").checked=(sh.bismillah!==false);
   $("f_show_verse").checked=(sh.verse!==false);
   $("f_show_dividers").checked=(sh.dividers!==false);
