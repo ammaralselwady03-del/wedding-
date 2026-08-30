@@ -184,7 +184,7 @@ function renderAll(){
   mono.style.fontFamily=(lang==="ar")?'"Aref Ruqaa",serif':'"Cormorant Garamond",serif';
   { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); } }
   document.body.classList.toggle("henna-card",d.cardType==="henna");
-  { const ic=document.querySelector(".invite-card"); if(ic)ic.classList.toggle("boxed",(d.show||{}).cardBox===true); }
+  { const ic=document.querySelector(".invite-card"); if(ic){ const cs=d.cardStyle || ((d.show||{}).cardBox?"1":"none"); ic.classList.toggle("boxed",cs==="1"); ic.classList.toggle("frame2",cs==="2"); } }
 
   txt("hint",(d.cardType==="henna")?((lang==="ar")?"المس الباب لفتح الدعوة":"Tap the door to open"):L.tapToOpen);
   document.title=(d.cardType==="graduation")?(cp.bride||""):(cp.groom||"")+" & "+(cp.bride||"");
