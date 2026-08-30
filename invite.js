@@ -148,10 +148,10 @@ function buildRsvp(){
   $("rsvpSend").addEventListener("click",submitRsvp);
 }
 function renderRsvpLang(lang){
-  const L=LABELS[lang], henna=(CONFIG&&CONFIG.cardType==="henna");
+  const L=LABELS[lang], henna=(CONFIG&&CONFIG.cardType==="henna"), grad=(CONFIG&&CONFIG.cardType==="graduation");
   txt("rTitle",L.rTitle);txt("rLblName",L.rName);txt("rLblPhone",L.rPhone);txt("rLblQ",L.rQ);
   txt("attYes",L.rYes);txt("attNo",L.rNo);txt("rLblCount",L.rCount);
-  txt("rLblMsg",henna?((lang==="en")?"Message to the bride (optional)":"رسالة للعروس (اختياري)"):L.rMsg);
+  txt("rLblMsg",henna?((lang==="en")?"Message to the bride (optional)":"رسالة للعروس (اختياري)"):grad?((lang==="en")?"Message to the graduate (optional)":"رسالة للخريج/ـة (اختياري)"):L.rMsg);
   txt("rsvpSend",L.rSend);
 }
 async function submitRsvp(){
@@ -180,17 +180,18 @@ function renderAll(){
   applyColors(d.colors||DEFAULTS.colors);
 
   const gi=(cp.groom||"").trim()[0]||"", bi=(cp.bride||"").trim()[0]||"";
-  const mono=$("mono");mono.textContent=gi+" & "+bi;
+  const mono=$("mono");mono.textContent=(d.cardType==="graduation")?bi:(gi+" & "+bi);
   mono.style.fontFamily=(lang==="ar")?'"Aref Ruqaa",serif':'"Cormorant Garamond",serif';
   { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); } }
   document.body.classList.toggle("henna-card",d.cardType==="henna");
   { const ic=document.querySelector(".invite-card"); if(ic)ic.classList.toggle("boxed",(d.show||{}).cardBox===true); }
 
   txt("hint",(d.cardType==="henna")?((lang==="ar")?"المس الباب لفتح الدعوة":"Tap the door to open"):L.tapToOpen);
-  document.title=(cp.groom||"")+" & "+(cp.bride||"");
+  document.title=(d.cardType==="graduation")?(cp.bride||""):(cp.groom||"")+" & "+(cp.bride||"");
 
   const isHenna=(d.cardType==="henna");
-  const showGroom=isHenna?((d.show||{}).groom!==false):true;
+  const isGrad=(d.cardType==="graduation");
+  const showGroom=isHenna?((d.show||{}).groom!==false):(isGrad?false:true);
 
   // جمل الحنة أعلى الكرت (بدل البسملة والآية)
   if(isHenna && (d.hennaIntro||"").trim()){$("hennaIntro").textContent=d.hennaIntro;$("hennaIntro").style.display="block";}
@@ -200,7 +201,7 @@ function renderAll(){
   if(showB && d.bismillah){$("bismillah").textContent=d.bismillah;$("bismillah").style.display="block";}else{$("bismillah").style.display="none";}
   if(showV && d.verse){$("verse").textContent=d.verse;$("verse").style.display="block";}else{$("verse").style.display="none";}
 
-  txt("blessing",T.blessing|| (isHenna?((lang==="en")?"With love and joy, you're invited to share the henna celebration":"وبكل الحب والفرح تتشرّف بدعوتكم لمشاركتها فرحة الحنة"):L.blessing));
+  txt("blessing",T.blessing|| (isHenna?((lang==="en")?"With love and joy, you're invited to share the henna celebration":"وبكل الحب والفرح تتشرّف بدعوتكم لمشاركتها فرحة الحنة"):isGrad?((lang==="en")?"With pride and joy, you're invited to share the graduation celebration":"وبكل الفخر والسرور تتشرّف العائلة بدعوتكم لمشاركتها فرحة حفل التخرج"):L.blessing));
 
   txt("groom",cp.groom||"");txt("bride",cp.bride||"");
   // إخفاء العريس والخواتم لكرت الحنة عند الاختيار
@@ -227,11 +228,12 @@ function renderAll(){
   if(_mapUrl){ _mb.textContent="📍 "+L.mapBtn; _mb.href=_mapUrl; _mb.style.display=""; }
   else { _mb.style.display="none"; _mb.removeAttribute("href"); }
   txt("notePhoto",T.notePhoto||L.notePhoto);txt("noteKids",T.noteKids||L.noteKids);
-  txt("countdownTitle",isHenna?((lang==="en")?"Counting down to the henna":"باقٍ على الحنة"):L.countdownTitle);
+  showEl("notesRow",(d.show||{}).notes!==false);
+  txt("countdownTitle",isHenna?((lang==="en")?"Counting down to the henna":"باقٍ على الحنة"):isGrad?((lang==="en")?"Counting down to the celebration":"باقٍ على الحفلة"):L.countdownTitle);
   txt("lblDays",L.lblDays);txt("lblHours",L.lblHours);txt("lblMins",L.lblMins);txt("lblSecs",L.lblSecs);
   txt("galleryTitle",L.galleryTitle);
   $("footer").innerHTML=(T.footer||L.footer).replace("❤",'<span class="heart">❤</span>');
-  curDone=isHenna?((lang==="en")?"🎉 The henna has begun — congratulations":"🎉 بدأت الحنة — ألف مبروك"):L.done;
+  curDone=isHenna?((lang==="en")?"🎉 The henna has begun — congratulations":"🎉 بدأت الحنة — ألف مبروك"):isGrad?((lang==="en")?"🎉 The celebration has begun — Congratulations":"🎉 بدأت الحفلة — ألف مبروك"):L.done;
 
   renderMedia(d.media||{});
   renderRsvpLang(lang);

@@ -20,8 +20,9 @@ module.exports = async (req, res) => {
     const groom = (c.groom || "").trim();
     const bride = (c.bride || "").trim();
     const henna = (d.cardType === "henna");
-    const showGroom = henna ? ((d.show||{}).groom !== false) : true;
-    const label = henna ? "دعوة حنّة" : "دعوة زفاف";
+    const grad = (d.cardType === "graduation");
+    const showGroom = henna ? ((d.show||{}).groom !== false) : (grad ? false : true);
+    const label = henna ? "دعوة حنّة" : (grad ? "دعوة حفلة تخرج" : "دعوة زفاف");
     const names = (showGroom && groom) ? (groom + " & " + bride).trim() : bride;
     if (groom || bride) title = names + " | " + label; else title = label;
     const t = d.text || {};
