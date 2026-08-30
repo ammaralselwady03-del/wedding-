@@ -64,7 +64,9 @@ body.lang-en .display{font-family:"Cormorant Garamond",serif;font-weight:600}
 
 .invite-card{background:transparent;border:0;border-radius:0;padding:14px 20px 26px;box-shadow:none;text-align:center}
 .invite-card.boxed{background:var(--card);border:1px solid var(--line);border-radius:170px 170px 22px 22px;padding:48px 26px 40px;box-shadow:0 20px 50px rgba(62,48,37,.14)}
-.invite-card.frame2{background:url("/frame2.png") center/100% 100% no-repeat;border:0;border-radius:0;box-shadow:none;padding:78px 52px 84px}
+.invite-card.frame2{position:relative;background:var(--card);border:1.5px solid var(--gold);border-radius:8px;padding:46px 30px;box-shadow:0 16px 40px rgba(62,48,37,.12)}
+.invite-card.frame2::before{content:"";position:absolute;inset:6px;border:1px solid var(--gold);border-radius:4px;opacity:.55;pointer-events:none}
+.invite-card.frame2::after{content:"";position:absolute;top:-1px;left:50%;transform:translateX(-50%);width:60px;height:14px;background:radial-gradient(circle at 50% 0,var(--gold) 0 3px,transparent 4px) 0 0/12px 14px repeat-x;opacity:.8}
 .frame{position:fixed;inset:12px;border:1px solid var(--line);border-radius:4px;pointer-events:none;z-index:2}
 .frame::before{content:"";position:absolute;inset:5px;border:1px solid var(--line);border-radius:2px;opacity:.6}
 .floral{margin:26px auto;text-align:center;color:var(--gold);line-height:0}
@@ -248,6 +250,6 @@ textarea.rsvp-in{resize:vertical}
 
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
-<script src="/invite.js?v=21"></script>
+<script src="/invite.js?v=22"></script>
 </body>
 </html>
