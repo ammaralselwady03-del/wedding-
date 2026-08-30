@@ -88,6 +88,7 @@ body.henna-card
 .couple .rel{color:var(--muted);font-size:.88rem;font-weight:500;font-style:italic}
 .couple .title{color:var(--green);font-size:.9rem;font-weight:700}
 .couple .name-txt{font-family:"Aref Ruqaa",serif;color:var(--ink);font-size:clamp(2rem,9vw,3rem);line-height:1.2;letter-spacing:.5px}
+.couple .family{font-family:"Aref Ruqaa",serif;color:var(--ink);font-size:clamp(2rem,9vw,3rem);line-height:1.2;letter-spacing:.5px;margin-bottom:2px}
 .rings{width:44px;height:26px;flex:0 0 auto;margin-bottom:10px;color:var(--gold)}
 .rings circle{fill:none;stroke:var(--gold);stroke-width:2}
 .willing{font-family:"Amiri",serif;color:var(--muted);font-size:1rem;margin-bottom:6px}
@@ -96,6 +97,13 @@ body.henna-card
 .rule .l.r{background:linear-gradient(90deg,var(--gold),transparent)}
 .rule .d{width:8px;height:8px;transform:rotate(45deg);background:var(--gold)}
 .info-row{display:flex;gap:18px;justify-content:center;text-align:center;flex-wrap:wrap}
+.event-info{display:flex;flex-direction:column;gap:14px;max-width:320px;margin:22px auto 0}
+.ev-item{display:flex;align-items:center;gap:14px;text-align:start}
+.ev-ic{flex:0 0 auto;width:40px;height:40px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--gold)}
+.ev-ic svg{width:20px;height:20px}
+.ev-l{color:var(--muted);font-size:.8rem;letter-spacing:.3px;margin-bottom:1px}
+.ev-v{color:var(--ink);font-size:1.08rem;font-weight:600;line-height:1.35}
+.ev-venue-name{color:var(--green);font-weight:700;font-size:1.05rem}
 .info-col{flex:1;min-width:180px}
 .info-head{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--green);font-weight:700;font-size:1.12rem;margin-bottom:8px;letter-spacing:.3px}
 .info-col .sub{color:var(--muted);font-size:.98rem;line-height:1.9}
@@ -171,6 +179,7 @@ textarea.rsvp-in{resize:vertical}
     <div class="blessing" id="blessing"></div>
     <div class="couple" id="coupleRow">
       <div class="person" id="groomPerson">
+        <span class="family display" id="groomFamily" style="display:none"></span>
         <span class="father" id="groomFather" style="display:none"></span>
         <span class="rel" id="groomRel" style="display:none"></span>
         <span class="title" id="groomTitle" style="display:none"></span>
@@ -178,6 +187,7 @@ textarea.rsvp-in{resize:vertical}
       </div>
       <svg class="rings" id="ringsSvg" viewBox="0 0 44 26"><circle cx="16" cy="13" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="28" cy="13" r="10" fill="none" stroke="currentColor" stroke-width="2"/></svg>
       <div class="person">
+        <span class="family display" id="brideFamily" style="display:none"></span>
         <span class="father" id="brideFather" style="display:none"></span>
         <span class="rel" id="brideRel" style="display:none"></span>
         <span class="title" id="brideTitle" style="display:none"></span>
@@ -185,14 +195,22 @@ textarea.rsvp-in{resize:vertical}
       </div>
     </div>
     <div class="willing" id="willing"></div>
-    <div class="info-row" id="infoRow">
-      <div class="info-col">
-        <div class="info-head"><span>📍</span><span id="venueName"></span></div>
-        <div class="sub" id="venueSub"></div>
+    <div class="event-info" id="infoRow">
+      <div class="ev-item">
+        <span class="ev-ic"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 9h18" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <div><div class="ev-l" id="evLblDay">اليوم</div><div class="ev-v" id="dayValue"></div></div>
       </div>
-      <div class="info-col">
-        <div class="info-head"><span>🗓️</span><span id="dayValue"></span></div>
-        <div class="sub"><span id="dateValue"></span><br><span id="timeValue"></span></div>
+      <div class="ev-item">
+        <span class="ev-ic"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="16" rx="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 9h18" stroke="currentColor" stroke-width="1.5"/><path d="M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="7" y="12.5" width="4" height="4" rx="1" fill="currentColor"/></svg></span>
+        <div><div class="ev-l" id="evLblDate">التاريخ</div><div class="ev-v" id="dateValue"></div></div>
+      </div>
+      <div class="ev-item">
+        <span class="ev-ic"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div><div class="ev-l" id="evLblTime">الساعة</div><div class="ev-v" id="timeValue"></div></div>
+      </div>
+      <div class="ev-item">
+        <span class="ev-ic"><svg viewBox="0 0 24 24" fill="none"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11Z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg></span>
+        <div><div class="ev-v ev-venue-name" id="venueName"></div><div class="ev-l" id="venueSub" style="font-size:.92rem"></div></div>
       </div>
     </div>
     <a class="map-btn" id="mapBtn" target="_blank" rel="noopener"></a>
@@ -229,6 +247,6 @@ textarea.rsvp-in{resize:vertical}
 
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
-<script src="/invite.js?v=18"></script>
+<script src="/invite.js?v=20"></script>
 </body>
 </html>

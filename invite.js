@@ -7,7 +7,7 @@ const EXPIRY="";
 
 const DEFAULTS={
   lang:"ar",
-  couple:{groomTitle:"",groom:"العريس",groomFatherTitle:"",groomFather:"",groomRel:"",brideTitle:"",bride:"العروس",brideFatherTitle:"",brideFather:"",brideRel:""},
+  couple:{groomTitle:"",groom:"العريس",groomFamily:"",groomFatherTitle:"",groomFather:"",groomRel:"",brideTitle:"",bride:"العروس",brideFamily:"",brideFatherTitle:"",brideFather:"",brideRel:""},
   cardType:"wedding",
   hennaIntro:"",
   datetime:"2026-08-24T19:00:00",
@@ -214,6 +214,8 @@ function renderAll(){
   txt("brideFather",bf);showEl("brideFather",!!bf);
   txt("groomRel",(cp.groomRel||"").trim());showEl("groomRel",showGroom && !!(cp.groomRel||"").trim());
   txt("brideRel",(cp.brideRel||"").trim());showEl("brideRel",!!(cp.brideRel||"").trim());
+  txt("groomFamily",(cp.groomFamily||"").trim());showEl("groomFamily",showGroom && !!(cp.groomFamily||"").trim());
+  txt("brideFamily",(cp.brideFamily||"").trim());showEl("brideFamily",!!(cp.brideFamily||"").trim());
 
   txt("willing",L.willing);
   txt("venueName",T.venueName||L.venueName);
@@ -221,6 +223,7 @@ function renderAll(){
 
   const DT=formatDateTime(d.datetime||DEFAULTS.datetime);
   txt("dayValue",DT[lang].day);txt("dateValue",DT[lang].date);txt("timeValue",DT[lang].time);
+  txt("evLblDay",lang==="en"?"Day":"اليوم");txt("evLblDate",lang==="en"?"Date":"التاريخ");txt("evLblTime",lang==="en"?"Time":"الساعة");
 
   let _mapUrl=((d.media&&d.media.mapUrl)||"").trim();
   if(_mapUrl && !/^https?:\/\//i.test(_mapUrl)) _mapUrl="https://"+_mapUrl;
