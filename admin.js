@@ -235,7 +235,6 @@ function applyPalette(p){
   pushPreview(); clearTimeout(saveTimer); saveTimer=setTimeout(autoSave,200);
 }
 $("resetColors").addEventListener("click",()=>applyPalette(DEF_COLORS));
-$("oliveColors").addEventListener("click",()=>applyPalette({bg:"#42452C",card:"#4C4F35",gold:"#C9A24B",green:"#3E7C77",ink:"#F3EFE2",muted:"#C9BFA8"}));
 
 /* توليد الرابط من الأسماء */
 function slugify(s){return String(s||"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
