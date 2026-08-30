@@ -228,6 +228,15 @@ $("design").addEventListener("input",()=>{
 });
 $("design").addEventListener("change",()=>{clearTimeout(saveTimer);saveTimer=setTimeout(autoSave,300);});
 
+/* ألوان جاهزة */
+function applyPalette(p){
+  $("c_bg").value=p.bg;$("c_card").value=p.card;$("c_gold").value=p.gold;
+  $("c_green").value=p.green;$("c_ink").value=p.ink;$("c_muted").value=p.muted;
+  pushPreview(); clearTimeout(saveTimer); saveTimer=setTimeout(autoSave,200);
+}
+$("resetColors").addEventListener("click",()=>applyPalette(DEF_COLORS));
+$("oliveColors").addEventListener("click",()=>applyPalette({bg:"#42452C",card:"#4C4F35",gold:"#C9A24B",green:"#3E7C77",ink:"#F3EFE2",muted:"#C9BFA8"}));
+
 /* توليد الرابط من الأسماء */
 function slugify(s){return String(s||"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
 function randSlug(){return "inv-"+Math.random().toString(36).slice(2,8);}
