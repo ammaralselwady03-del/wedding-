@@ -149,12 +149,13 @@ function buildRsvp(){
 }
 function renderRsvpLang(lang){
   const L=LABELS[lang], henna=(CONFIG&&CONFIG.cardType==="henna"), grad=(CONFIG&&CONFIG.cardType==="graduation"), gb=(CONFIG&&CONFIG.cardType==="gradbook");
-  txt("rTitle",gb?((lang==="en")?"Leave your message":"سجّل تهنئتك للخريج/ـة"):L.rTitle);
+  const gradW=(CONFIG&&CONFIG.gender==="f")?"الخريجة":"الخريج";
+  txt("rTitle",gb?((lang==="en")?"Leave your message":("سجّل تهنئتك لـ"+gradW)):L.rTitle);
   txt("rLblName",L.rName);
   txt("rLblPhone",gb?((lang==="en")?"Phone (optional)":"رقم الهاتف (اختياري)"):L.rPhone);
   txt("rLblQ",L.rQ);
   txt("attYes",L.rYes);txt("attNo",L.rNo);txt("rLblCount",L.rCount);
-  txt("rLblMsg",henna?((lang==="en")?"Message to the bride (optional)":"رسالة للعروس (اختياري)"):(grad||gb)?((lang==="en")?"Message to the graduate":"رسالة للخريج/ـة"):L.rMsg);
+  txt("rLblMsg",henna?((lang==="en")?"Message to the bride (optional)":"رسالة للعروس (اختياري)"):(grad||gb)?((lang==="en")?"Message to the graduate":("رسالة لـ"+gradW)):L.rMsg);
   txt("rsvpSend",gb?((lang==="en")?"Send":"إرسال"):L.rSend);
   // دفتر التخرج: إخفاء سؤال الحضور والعدد
   const q=$("rLblQ"), ar=$("attYes")?$("attYes").closest(".att-row"):null, cr=$("countRow");
@@ -217,7 +218,7 @@ function renderAll(){
 
   txt("blessing",T.blessing|| (isHenna?((lang==="en")?"With love and joy, you're invited to share the henna celebration":"وبكل الحب والفرح تتشرّف بدعوتكم لمشاركتها فرحة الحنة"):isGrad?((lang==="en")?"With pride and joy, you're invited to share the graduation celebration":"وبكل الفخر والسرور تتشرّف العائلة بدعوتكم لمشاركتها فرحة حفل التخرج"):isGradbook?((lang==="en")?"With pride, we share this graduation milestone":"بكل فخر واعتزاز نشارككم هذا الإنجاز"):L.blessing));
 
-  { let _bride=(cp.bride||"").trim(); if(isGradbook && (!_bride || _bride==="العروس")) _bride="خريج/ة"; txt("bride",_bride); }
+  { const gw=(d.gender==="f")?"خريجة":"خريج"; let _bride=(cp.bride||"").trim(); if(single && (!_bride || _bride==="العروس")) _bride=gw; txt("bride",_bride); }
   txt("groom",cp.groom||"");
   // إخفاء العريس والخواتم لكرت الحنة عند الاختيار
   showEl("groomPerson",showGroom);
@@ -380,17 +381,24 @@ function enableSaveImage(){
   btn.addEventListener("click",async()=>{
     const cover=$("cover");if(cover)cover.style.display="none";
     document.body.classList.remove("locked");
-    const card=document.querySelector(".invite-card");card.style.opacity="1";card.style.transform="none";
     if(typeof htmlToImage==="undefined"){alert("جارٍ التحميل، انتظر ثانية وحاول");return;}
     btn.textContent="جارٍ الحفظ...";
+    const wrap=document.querySelector(".wrap");
+    const card=document.querySelector(".invite-card");card.style.opacity="1";card.style.transform="none";
+    // إخفاء الأقسام اللي ما بدنا إياها بالصورة
+    const hideIds=["countdownBlock","gallerySection","videoSection","rsvpBlock","footer"];
+    const hidden=[]; hideIds.forEach(id=>{const el=$(id); if(el){hidden.push([el,el.style.display]); el.style.display="none";}});
+    btn.style.display="none";
     const gold=(getComputedStyle(document.documentElement).getPropertyValue("--gold")||"#B08C55").trim();
     card.querySelectorAll(".rings circle").forEach(c=>{c.style.fill="none";c.style.stroke=gold;c.style.strokeWidth="2";});
     const florals=[...card.querySelectorAll(".floral")];
     const origHTML=florals.map(f=>f.innerHTML);
     florals.forEach(f=>{f.style.color=gold;f.innerHTML=f.innerHTML.replace(/currentColor/g,gold);});
     try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
-    try{const bg=getComputedStyle(document.body).backgroundColor;const dataUrl=await htmlToImage.toPng(card,{pixelRatio:2,backgroundColor:bg,cacheBust:true});const a=document.createElement("a");a.download="wedding-card.png";a.href=dataUrl;a.click();}catch(e){console.error(e);alert("تعذّر حفظ الصورة");}
+    try{const bg=getComputedStyle(document.body).backgroundColor;const dataUrl=await htmlToImage.toPng(wrap,{pixelRatio:2,backgroundColor:bg,cacheBust:true});const a=document.createElement("a");a.download="card.png";a.href=dataUrl;a.click();}catch(e){console.error(e);alert("تعذّر حفظ الصورة");}
     florals.forEach((f,i)=>{f.innerHTML=origHTML[i];f.style.color="";});
+    hidden.forEach(([el,d])=>el.style.display=d);
+    btn.style.display="";
     btn.textContent="⬇ حفظ صورة الكرت";
   });
 }

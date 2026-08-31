@@ -82,6 +82,14 @@ async function loadResponses(){
   const {data,error}=await sb.from("rsvp").select("*").eq("invitation_id",INV.id).order("created_at",{ascending:false});
   if(error){$("summary").textContent="تعذّر تحميل الردود";console.error(error);return;}
   RESP=data||[];
+  const gb=(CARD_TYPE==="gradbook");
+  if(gb){
+    $("summary").innerHTML=`عدد التهاني: <b>${RESP.length}</b>`;
+    let rows=`<tr><th>الاسم</th><th>الهاتف</th><th>الرسالة</th></tr>`;
+    RESP.forEach(r=>{rows+=`<tr><td>${esc(r.name)}</td><td>${esc(r.phone||"—")}</td><td class="msg">${esc(r.message||"")}</td></tr>`;});
+    $("tbl").innerHTML=rows;
+    return;
+  }
   const coming=RESP.filter(r=>r.attending), guests=coming.reduce((s,r)=>s+(r.guests_count||0),0);
   $("summary").innerHTML=`عدد الردود: <b>${RESP.length}</b> &nbsp;•&nbsp; حاضرون: <b>${coming.length}</b> &nbsp;•&nbsp; إجمالي الأشخاص: <b>${guests}</b>`;
   let rows=`<tr><th>الاسم</th><th>الهاتف</th><th>الحضور</th><th>العدد</th><th>الرسالة</th></tr>`;
@@ -91,10 +99,19 @@ async function loadResponses(){
 $("dlResp").addEventListener("click",()=>{
   if(!RESP.length){alert("لا توجد ردود بعد");return;}
   const e2=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
-  const coming=RESP.filter(r=>r.attending), guests=coming.reduce((s,r)=>s+(r.guests_count||0),0);
-  const cp=(INV.data&&INV.data.couple)||{}, names=(cp.groom||"")+" و "+(cp.bride||"");
-  let rows="";RESP.forEach((r,i)=>{rows+=`<tr><td>${i+1}</td><td>${e2(r.name)}</td><td style="direction:ltr">${e2(r.phone)}</td><td>${r.attending?"حاضر":"معتذر"}</td><td>${r.attending?(r.guests_count||1):"—"}</td><td>${e2(r.message||"")}</td></tr>`;});
-  const html=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>ردود الحضور</title><style>*{font-family:"Segoe UI",Tahoma,sans-serif}body{padding:28px;color:#3E3025}h1{color:#2E4A3A;text-align:center;margin:0 0 6px}.sub{text-align:center;color:#8A785F;margin-bottom:18px}.sum{background:#F3EAD9;border:1px solid #D9BC85;border-radius:10px;padding:12px;text-align:center;margin-bottom:16px}.sum b{color:#2E4A3A;font-size:1.2rem}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{border:1px solid #D9BC85;padding:8px 10px;text-align:start}th{background:#2E4A3A;color:#F3EAD9}tr:nth-child(even){background:#FAF5EC}.noprint{text-align:center;margin-bottom:16px}button{background:#2E4A3A;color:#fff;border:0;border-radius:50px;padding:10px 22px;font-size:1rem;cursor:pointer}@media print{.noprint{display:none}}</style></head><body><div class="noprint"><button onclick="window.print()">🖨️ طباعة / حفظ PDF</button></div><h1>ردود الحضور</h1>${names.trim()!=="و"?`<div class="sub">${e2(names)}</div>`:""}<div class="sum">عدد الردود: <b>${RESP.length}</b> &nbsp;•&nbsp; حاضرون: <b>${coming.length}</b> &nbsp;•&nbsp; إجمالي الأشخاص: <b>${guests}</b></div><table><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحضور</th><th>العدد</th><th>الرسالة</th></tr>${rows}</table></body></html>`;
+  const gb=(CARD_TYPE==="gradbook");
+  const cp=(INV.data&&INV.data.couple)||{}, names=gb?(cp.bride||""):((cp.groom||"")+" و "+(cp.bride||""));
+  const styleBlock=`<style>*{font-family:"Segoe UI",Tahoma,sans-serif}body{padding:28px;color:#3E3025}h1{color:#2E4A3A;text-align:center;margin:0 0 6px}.sub{text-align:center;color:#8A785F;margin-bottom:18px}.sum{background:#F3EAD9;border:1px solid #D9BC85;border-radius:10px;padding:12px;text-align:center;margin-bottom:16px}.sum b{color:#2E4A3A;font-size:1.2rem}table{width:100%;border-collapse:collapse;font-size:.9rem}th,td{border:1px solid #D9BC85;padding:8px 10px;text-align:start}th{background:#2E4A3A;color:#F3EAD9}tr:nth-child(even){background:#FAF5EC}.noprint{text-align:center;margin-bottom:16px}button{background:#2E4A3A;color:#fff;border:0;border-radius:50px;padding:10px 22px;font-size:1rem;cursor:pointer}@media print{.noprint{display:none}}</style>`;
+  let html;
+  if(gb){
+    let rows="";RESP.forEach((r,i)=>{rows+=`<tr><td>${i+1}</td><td>${e2(r.name)}</td><td style="direction:ltr">${e2(r.phone||"—")}</td><td>${e2(r.message||"")}</td></tr>`;});
+    const gw=((INV.data&&INV.data.gender)==="f")?"الخريجة":"الخريج";
+    html=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>التهاني</title>${styleBlock}</head><body><div class="noprint"><button onclick="window.print()">🖨️ طباعة / حفظ PDF</button></div><h1>تهاني ${gw}</h1>${names?`<div class="sub">${e2(names)}</div>`:""}<div class="sum">عدد التهاني: <b>${RESP.length}</b></div><table><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الرسالة</th></tr>${rows}</table></body></html>`;
+  }else{
+    const coming=RESP.filter(r=>r.attending), guests=coming.reduce((s,r)=>s+(r.guests_count||0),0);
+    let rows="";RESP.forEach((r,i)=>{rows+=`<tr><td>${i+1}</td><td>${e2(r.name)}</td><td style="direction:ltr">${e2(r.phone)}</td><td>${r.attending?"حاضر":"معتذر"}</td><td>${r.attending?(r.guests_count||1):"—"}</td><td>${e2(r.message||"")}</td></tr>`;});
+    html=`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>ردود الحضور</title>${styleBlock}</head><body><div class="noprint"><button onclick="window.print()">🖨️ طباعة / حفظ PDF</button></div><h1>ردود الحضور</h1>${names.trim()!=="و"?`<div class="sub">${e2(names)}</div>`:""}<div class="sum">عدد الردود: <b>${RESP.length}</b> &nbsp;•&nbsp; حاضرون: <b>${coming.length}</b> &nbsp;•&nbsp; إجمالي الأشخاص: <b>${guests}</b></div><table><tr><th>#</th><th>الاسم</th><th>الهاتف</th><th>الحضور</th><th>العدد</th><th>الرسالة</th></tr>${rows}</table></body></html>`;
+  }
   const w=window.open("","_blank");w.document.write(html);w.document.close();w.focus();setTimeout(()=>{try{w.print();}catch(e){}},500);
 });
 
@@ -109,7 +126,9 @@ function applyCardTypeUI(){
   const hi=$("hennaIntroWrap"); if(hi)hi.style.display=henna?"":"none";
   const sg=$("showGroomWrap"); if(sg)sg.style.display=henna?"":"none";
   const gfw=$("groomFieldsWrap"); if(gfw)gfw.style.display=single?"none":"";
-  const cst=$("coupleSectionTitle"); if(cst)cst.textContent=single?"بيانات الخريج/ـة":"العريس والعروس";
+  const genw=$("genderWrap"); if(genw)genw.style.display=single?"":"none";
+  const gword=($("f_gender")&&$("f_gender").value==="f")?"الخريجة":"الخريج";
+  const cst=$("coupleSectionTitle"); if(cst)cst.textContent=single?("بيانات "+gword):"العريس والعروس";
   const bnl=$("brideNameLbl"); if(bnl)bnl.textContent=single?"الاسم (اللقب + الاسم)":"العروس (اللقب + الاسم)";
   // دفتر التخرج: بدون أب/قرابة، وبدون موعد/مكان/ملاحظات
   const bfrw=$("brideFatherRelWrap"); if(bfrw)bfrw.style.display=gb?"none":"";
@@ -124,7 +143,7 @@ function applyCardTypeUI(){
   if(dtLabel&&dtLabel.tagName==="LABEL")dtLabel.textContent=henna?"تاريخ ووقت الحنة":(grad?"تاريخ ووقت الحفلة":"تاريخ ووقت العرس");
   // تسمية صورة الخريج
   const cpLbl=$("f_couplePhoto_file")?$("f_couplePhoto_file").previousElementSibling:null;
-  if(cpLbl&&cpLbl.tagName==="LABEL")cpLbl.textContent=gb?"صورة الخريج/ـة (تظهر كبيرة أعلى الكرت)":"صورة العروسين (اختر صورة من جهازك) — اتركها فارغة لإخفائها";
+  if(cpLbl&&cpLbl.tagName==="LABEL")cpLbl.textContent=gb?("صورة "+gword+" (تظهر كبيرة أعلى الكرت)"):"صورة العروسين (اختر صورة من جهازك) — اتركها فارغة لإخفائها";
 }
 function loadSettings(){
   const c=INV.data||{}, cp=c.couple||{}, t=c.text||{}, m=c.media||{}, col=c.colors||{}, sh=c.show||{};
@@ -149,6 +168,7 @@ function loadSettings(){
   $("f_card_style").value=c.cardStyle || (sh.cardBox===true?"1":"none");
   $("f_hennaIntro").value=c.hennaIntro||"";
   $("f_show_groom").checked=(sh.groom!==false);
+  $("f_gender").value=c.gender||"m";
   applyCardTypeUI();
   $("f_show_notes").checked=(sh.notes!==undefined)?(sh.notes===true):(CARD_TYPE!=="graduation");
   $("f_footer").value=t.footer||"";
@@ -196,6 +216,7 @@ function collectData(){
     dateLocked:(INV&&INV.data&&INV.data.dateLocked)||false,
     slugLocked:(INV&&INV.data&&INV.data.slugLocked)||false,
     cardType:CARD_TYPE,
+    gender:$("f_gender").value,
     hennaIntro:$("f_hennaIntro").value,
     cardStyle:$("f_card_style").value,
     show:{bismillah:$("f_show_bismillah").checked,verse:$("f_show_verse").checked,dividers:$("f_show_dividers").checked,groom:$("f_show_groom").checked,cardBox:($("f_card_style").value==="1"),notes:$("f_show_notes").checked},
@@ -250,6 +271,7 @@ function applyPalette(p){
   pushPreview(); clearTimeout(saveTimer); saveTimer=setTimeout(autoSave,200);
 }
 $("resetColors").addEventListener("click",()=>applyPalette(DEF_COLORS));
+$("f_gender").addEventListener("change",applyCardTypeUI);
 
 /* توليد الرابط من الأسماء */
 function slugify(s){return String(s||"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");}
