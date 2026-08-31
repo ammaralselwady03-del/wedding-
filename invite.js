@@ -148,27 +148,35 @@ function buildRsvp(){
   $("rsvpSend").addEventListener("click",submitRsvp);
 }
 function renderRsvpLang(lang){
-  const L=LABELS[lang], henna=(CONFIG&&CONFIG.cardType==="henna"), grad=(CONFIG&&CONFIG.cardType==="graduation");
-  txt("rTitle",L.rTitle);txt("rLblName",L.rName);txt("rLblPhone",L.rPhone);txt("rLblQ",L.rQ);
+  const L=LABELS[lang], henna=(CONFIG&&CONFIG.cardType==="henna"), grad=(CONFIG&&CONFIG.cardType==="graduation"), gb=(CONFIG&&CONFIG.cardType==="gradbook");
+  txt("rTitle",gb?((lang==="en")?"Leave your message":"سجّل تهنئتك للخريج/ـة"):L.rTitle);
+  txt("rLblName",L.rName);
+  txt("rLblPhone",gb?((lang==="en")?"Phone (optional)":"رقم الهاتف (اختياري)"):L.rPhone);
+  txt("rLblQ",L.rQ);
   txt("attYes",L.rYes);txt("attNo",L.rNo);txt("rLblCount",L.rCount);
-  txt("rLblMsg",henna?((lang==="en")?"Message to the bride (optional)":"رسالة للعروس (اختياري)"):grad?((lang==="en")?"Message to the graduate (optional)":"رسالة للخريج/ـة (اختياري)"):L.rMsg);
-  txt("rsvpSend",L.rSend);
+  txt("rLblMsg",henna?((lang==="en")?"Message to the bride (optional)":"رسالة للعروس (اختياري)"):(grad||gb)?((lang==="en")?"Message to the graduate":"رسالة للخريج/ـة"):L.rMsg);
+  txt("rsvpSend",gb?((lang==="en")?"Send":"إرسال"):L.rSend);
+  // دفتر التخرج: إخفاء سؤال الحضور والعدد
+  const q=$("rLblQ"), ar=$("attYes")?$("attYes").closest(".att-row"):null, cr=$("countRow");
+  [q,ar,cr].forEach(el=>{if(el)el.style.display=gb?"none":"";});
 }
 async function submitRsvp(){
   const lang=(CONFIG.lang==="en")?"en":"ar", L=LABELS[lang], errBox=$("rsvpErr"), btn=$("rsvpSend");
+  const gb=(CONFIG.cardType==="gradbook");
   const name=$("rsvpName").value.trim(), phone=$("rsvpPhone").value.trim(), message=$("rsvpMsg").value.trim();
   errBox.textContent="";
   if(!name){errBox.textContent=L.rErrName;return;}
-  if(!phone){errBox.textContent=L.rErrPhone;return;}
-  if(attending===null){errBox.textContent=L.rErrAtt;return;}
-  const guests_count=attending?Math.max(1,parseInt($("rsvpCount").value||"1",10)):0;
+  if(!gb && !phone){errBox.textContent=L.rErrPhone;return;}
+  if(!gb && attending===null){errBox.textContent=L.rErrAtt;return;}
+  const guests_count=(!gb && attending)?Math.max(1,parseInt($("rsvpCount").value||"1",10)):0;
+  const att=gb?null:attending;
   if(!INVITATION_ID){errBox.textContent=L.rErrSend;return;}
   btn.disabled=true;btn.textContent=L.rSending;
-  const {error}=await sb.from("rsvp").insert({invitation_id:INVITATION_ID,name,phone,attending,guests_count,message});
-  btn.disabled=false;btn.textContent=L.rSend;
+  const {error}=await sb.from("rsvp").insert({invitation_id:INVITATION_ID,name,phone,attending:att,guests_count,message});
+  btn.disabled=false;btn.textContent=gb?((lang==="en")?"Send":"إرسال"):L.rSend;
   if(error){errBox.textContent=L.rErrSend;console.error(error);return;}
   $("rsvpForm").style.display="none";
-  const done=$("rsvpDone");done.style.display="block";done.textContent=attending?L.rThanks:L.rThanksNo;
+  const done=$("rsvpDone");done.style.display="block";done.textContent=gb?((lang==="en")?"Thank you 🎓":"شكراً لتهنئتك 🎓"):(attending?L.rThanks:L.rThanksNo);
 }
 
 /* ===== عرض المحتوى (يتكرر في المعاينة) ===== */
@@ -200,13 +208,17 @@ function renderAll(){
   if(isHenna && (d.hennaIntro||"").trim()){$("hennaIntro").textContent=d.hennaIntro;$("hennaIntro").style.display="block";}
   else{$("hennaIntro").style.display="none";}
 
-  const showB=!isHenna && (d.show||{}).bismillah!==false, showV=!isHenna && (d.show||{}).verse!==false;
+  const showB=!isHenna && !isGradbook && (d.show||{}).bismillah!==false, showV=!isHenna && (d.show||{}).verse!==false;
   if(showB && d.bismillah){$("bismillah").textContent=d.bismillah;$("bismillah").style.display="block";}else{$("bismillah").style.display="none";}
-  if(showV && d.verse){$("verse").textContent=d.verse;$("verse").style.display="block";}else{$("verse").style.display="none";}
+  const GRAD_VERSE="﴿ يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ ﴾";
+  let _verse=d.verse;
+  if((isGrad||isGradbook) && (!_verse || _verse===DEFAULTS.verse)) _verse=GRAD_VERSE;
+  if(showV && _verse){$("verse").textContent=_verse;$("verse").style.display="block";}else{$("verse").style.display="none";}
 
   txt("blessing",T.blessing|| (isHenna?((lang==="en")?"With love and joy, you're invited to share the henna celebration":"وبكل الحب والفرح تتشرّف بدعوتكم لمشاركتها فرحة الحنة"):isGrad?((lang==="en")?"With pride and joy, you're invited to share the graduation celebration":"وبكل الفخر والسرور تتشرّف العائلة بدعوتكم لمشاركتها فرحة حفل التخرج"):isGradbook?((lang==="en")?"With pride, we share this graduation milestone":"بكل فخر واعتزاز نشارككم هذا الإنجاز"):L.blessing));
 
-  txt("groom",cp.groom||"");txt("bride",cp.bride||"");
+  { let _bride=(cp.bride||"").trim(); if(isGradbook && (!_bride || _bride==="العروس")) _bride="خريج/ة"; txt("bride",_bride); }
+  txt("groom",cp.groom||"");
   // إخفاء العريس والخواتم لكرت الحنة عند الاختيار
   showEl("groomPerson",showGroom);
   { const r=$("ringsSvg"); if(r)r.style.display=showGroom?"":"none"; }
@@ -224,7 +236,7 @@ function renderAll(){
   { const cb=$("countdownBlock"); if(cb)cb.style.display=isGradbook?"none":""; }
   { const cph=$("couplePhoto"); if(cph)cph.classList.toggle("big",isGradbook); }
 
-  txt("willing",L.willing);
+  txt("willing",L.willing);showEl("willing",!isGradbook);
   txt("venueName",T.venueName||L.venueName);
   $("venueSub").innerHTML=(T.venueSub||L.venueSub||"").replace(/\n/g,"<br>");
 
