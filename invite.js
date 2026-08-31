@@ -385,9 +385,9 @@ function enableSaveImage(){
     btn.textContent="جارٍ الحفظ...";
     const wrap=document.querySelector(".wrap");
     const card=document.querySelector(".invite-card");card.style.opacity="1";card.style.transform="none";
-    // إخفاء الأقسام اللي ما بدنا إياها بالصورة
-    const hideIds=["countdownBlock","gallerySection","videoSection","rsvpBlock","footer"];
-    const hidden=[]; hideIds.forEach(id=>{const el=$(id); if(el){hidden.push([el,el.style.display]); el.style.display="none";}});
+    // افصل الأقسام اللي ما بدنا إياها (وصورها الخارجية) من الصفحة مؤقتاً
+    const detach=["countdownBlock","gallerySection","videoSection","rsvpBlock","footer"].map(id=>$(id)).filter(Boolean);
+    const phs=detach.map(el=>{const p=document.createComment("x");el.parentNode.replaceChild(p,el);return [p,el];});
     btn.style.display="none";
     const gold=(getComputedStyle(document.documentElement).getPropertyValue("--gold")||"#B08C55").trim();
     card.querySelectorAll(".rings circle").forEach(c=>{c.style.fill="none";c.style.stroke=gold;c.style.strokeWidth="2";});
@@ -397,7 +397,7 @@ function enableSaveImage(){
     try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
     try{const bg=getComputedStyle(document.body).backgroundColor;const dataUrl=await htmlToImage.toPng(wrap,{pixelRatio:2,backgroundColor:bg,cacheBust:true});const a=document.createElement("a");a.download="card.png";a.href=dataUrl;a.click();}catch(e){console.error(e);alert("تعذّر حفظ الصورة");}
     florals.forEach((f,i)=>{f.innerHTML=origHTML[i];f.style.color="";});
-    hidden.forEach(([el,d])=>el.style.display=d);
+    phs.forEach(([p,el])=>{if(p.parentNode)p.parentNode.replaceChild(el,p);});
     btn.style.display="";
     btn.textContent="⬇ حفظ صورة الكرت";
   });
