@@ -186,12 +186,15 @@ function renderAll(){
   document.body.classList.toggle("henna-card",d.cardType==="henna");
   { const ic=document.querySelector(".invite-card"); if(ic){ const cs=d.cardStyle || ((d.show||{}).cardBox?"1":"none"); ic.classList.toggle("boxed",cs==="1"); ic.classList.toggle("frame2",cs==="2"); } }
 
-  txt("hint",(d.cardType==="henna")?((lang==="ar")?"المس الباب لفتح الدعوة":"Tap the door to open"):L.tapToOpen);
-  document.title=(d.cardType==="graduation")?(cp.bride||""):(cp.groom||"")+" & "+(cp.bride||"");
+  txt("hint",(d.cardType==="henna")?((lang==="ar")?"المس الباب لفتح الدعوة":"Tap the door to open"):(d.cardType==="gradbook")?((lang==="ar")?"المس الطاقية لفتح الدفتر":"Tap the cap to open"):L.tapToOpen);
+  document.title=(d.cardType==="graduation"||d.cardType==="gradbook")?(cp.bride||""):(cp.groom||"")+" & "+(cp.bride||"");
 
   const isHenna=(d.cardType==="henna");
   const isGrad=(d.cardType==="graduation");
-  const showGroom=isHenna?((d.show||{}).groom!==false):(isGrad?false:true);
+  const isGradbook=(d.cardType==="gradbook");
+  const single=isGrad||isGradbook;
+  const showGroom=isHenna?((d.show||{}).groom!==false):(single?false:true);
+  { const cov=$("cover"); if(cov)cov.classList.toggle("gradbook",isGradbook); }
 
   // جمل الحنة أعلى الكرت (بدل البسملة والآية)
   if(isHenna && (d.hennaIntro||"").trim()){$("hennaIntro").textContent=d.hennaIntro;$("hennaIntro").style.display="block";}
@@ -201,7 +204,7 @@ function renderAll(){
   if(showB && d.bismillah){$("bismillah").textContent=d.bismillah;$("bismillah").style.display="block";}else{$("bismillah").style.display="none";}
   if(showV && d.verse){$("verse").textContent=d.verse;$("verse").style.display="block";}else{$("verse").style.display="none";}
 
-  txt("blessing",T.blessing|| (isHenna?((lang==="en")?"With love and joy, you're invited to share the henna celebration":"وبكل الحب والفرح تتشرّف بدعوتكم لمشاركتها فرحة الحنة"):isGrad?((lang==="en")?"With pride and joy, you're invited to share the graduation celebration":"وبكل الفخر والسرور تتشرّف العائلة بدعوتكم لمشاركتها فرحة حفل التخرج"):L.blessing));
+  txt("blessing",T.blessing|| (isHenna?((lang==="en")?"With love and joy, you're invited to share the henna celebration":"وبكل الحب والفرح تتشرّف بدعوتكم لمشاركتها فرحة الحنة"):isGrad?((lang==="en")?"With pride and joy, you're invited to share the graduation celebration":"وبكل الفخر والسرور تتشرّف العائلة بدعوتكم لمشاركتها فرحة حفل التخرج"):isGradbook?((lang==="en")?"With pride, we share this graduation milestone":"بكل فخر واعتزاز نشارككم هذا الإنجاز"):L.blessing));
 
   txt("groom",cp.groom||"");txt("bride",cp.bride||"");
   // إخفاء العريس والخواتم لكرت الحنة عند الاختيار
@@ -211,11 +214,15 @@ function renderAll(){
   txt("brideTitle",cp.brideTitle||"");showEl("brideTitle",!!(cp.brideTitle||"").trim());
   const gf=joinTitle(cp.groomFatherTitle,cp.groomFather), bf=joinTitle(cp.brideFatherTitle,cp.brideFather);
   txt("groomFather",gf);showEl("groomFather",showGroom && !!gf);
-  txt("brideFather",bf);showEl("brideFather",!!bf);
+  txt("brideFather",bf);showEl("brideFather",!!bf && !isGradbook);
   txt("groomRel",(cp.groomRel||"").trim());showEl("groomRel",showGroom && !!(cp.groomRel||"").trim());
-  txt("brideRel",(cp.brideRel||"").trim());showEl("brideRel",!!(cp.brideRel||"").trim());
+  txt("brideRel",(cp.brideRel||"").trim());showEl("brideRel",!!(cp.brideRel||"").trim() && !isGradbook);
   txt("groomFamily",(cp.groomFamily||"").trim());showEl("groomFamily",showGroom && !!(cp.groomFamily||"").trim());
-  txt("brideFamily",(cp.brideFamily||"").trim());showEl("brideFamily",!!(cp.brideFamily||"").trim());
+  txt("brideFamily",(cp.brideFamily||"").trim());showEl("brideFamily",!!(cp.brideFamily||"").trim() && !isGradbook);
+  // دفتر التخرج: إخفاء الموعد/المكان والعدّاد، وصورة كبيرة
+  showEl("infoRow",!isGradbook);
+  { const cb=$("countdownBlock"); if(cb)cb.style.display=isGradbook?"none":""; }
+  { const cph=$("couplePhoto"); if(cph)cph.classList.toggle("big",isGradbook); }
 
   txt("willing",L.willing);
   txt("venueName",T.venueName||L.venueName);
@@ -231,7 +238,7 @@ function renderAll(){
   if(_mapUrl){ _mb.textContent="📍 "+L.mapBtn; _mb.href=_mapUrl; _mb.style.display=""; }
   else { _mb.style.display="none"; _mb.removeAttribute("href"); }
   txt("notePhoto",T.notePhoto||L.notePhoto);txt("noteKids",T.noteKids||L.noteKids);
-  showEl("notesRow",(d.show||{}).notes!==false);
+  showEl("notesRow",!isGradbook && (d.show||{}).notes!==false);
   txt("countdownTitle",isHenna?((lang==="en")?"Counting down to the henna":"باقٍ على الحنة"):isGrad?((lang==="en")?"Counting down to the celebration":"باقٍ على الحفلة"):L.countdownTitle);
   txt("lblDays",L.lblDays);txt("lblHours",L.lblHours);txt("lblMins",L.lblMins);txt("lblSecs",L.lblSecs);
   txt("galleryTitle",L.galleryTitle);

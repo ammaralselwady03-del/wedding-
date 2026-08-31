@@ -124,6 +124,13 @@ body.henna-card
 .cd-label{margin-top:8px;color:var(--muted);font-size:.85rem}
 .cd-done{grid-column:1/-1;text-align:center;font-family:"Aref Ruqaa",serif;color:var(--green);font-size:1.5rem;padding:16px}
 .couple-photo{width:min(230px,62vw);aspect-ratio:3/3.4;margin:0 auto 26px;border-radius:999px 999px 18px 18px;overflow:hidden;border:3px solid var(--gold)}
+.couple-photo.big{width:min(330px,84vw);aspect-ratio:3/3.6;border-radius:20px}
+.gradcap{display:none}
+.gradcap svg{width:100%;height:100%;filter:drop-shadow(0 8px 12px rgba(0,0,0,.4))}
+.cover.gradbook .seal{width:120px;height:110px;background:transparent;box-shadow:none;border-radius:0}
+.cover.gradbook .seal::before{display:none}
+.cover.gradbook .seal .mono,.cover.gradbook .knocker{display:none}
+.cover.gradbook .gradcap{display:block;width:100%;height:100%}
 .couple-photo img{width:100%;height:100%;object-fit:cover;display:block}
 .gallery{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-radius:16px;cursor:grab}
 .gallery::-webkit-scrollbar{display:none}
@@ -167,7 +174,7 @@ textarea.rsvp-in{resize:vertical}
   <div class="henna-band top"></div>
   <div class="henna-band bottom"></div>
   <div class="seam"></div>
-  <div class="seal" id="seal"><span class="mono" id="mono"></span><span class="knocker" id="knocker"><svg viewBox="0 0 120 150"><rect x="46" y="12" width="28" height="20" rx="5" fill="#C6A15B" stroke="#7a5a2a" stroke-width="1.5"/><path d="M40 32 L80 32 Q84 32 84 42 L84 78 Q84 104 60 108 Q36 104 36 78 L36 42 Q36 32 40 32 Z" fill="#E8CE96" stroke="#7a5a2a" stroke-width="2"/><path d="M48 40 V96 M60 38 V100 M72 40 V96" stroke="#7a5a2a" stroke-width="1.4" fill="none" opacity=".7"/><circle cx="60" cy="120" r="22" fill="none" stroke="#C6A15B" stroke-width="9"/><circle cx="60" cy="120" r="22" fill="none" stroke="#7a5a2a" stroke-width="1.5"/></svg></span></div>
+  <div class="seal" id="seal"><span class="mono" id="mono"></span><span class="knocker" id="knocker"><svg viewBox="0 0 120 150"><rect x="46" y="12" width="28" height="20" rx="5" fill="#C6A15B" stroke="#7a5a2a" stroke-width="1.5"/><path d="M40 32 L80 32 Q84 32 84 42 L84 78 Q84 104 60 108 Q36 104 36 78 L36 42 Q36 32 40 32 Z" fill="#E8CE96" stroke="#7a5a2a" stroke-width="2"/><path d="M48 40 V96 M60 38 V100 M72 40 V96" stroke="#7a5a2a" stroke-width="1.4" fill="none" opacity=".7"/><circle cx="60" cy="120" r="22" fill="none" stroke="#C6A15B" stroke-width="9"/><circle cx="60" cy="120" r="22" fill="none" stroke="#7a5a2a" stroke-width="1.5"/></svg></span><span class="gradcap" id="gradcap"><svg viewBox="0 0 140 122"><polygon points="70,18 132,46 70,74 8,46" fill="#33333d" stroke="#22222a" stroke-width="1.5"/><polygon points="70,18 132,46 70,56 8,46" fill="#4a4a57"/><path d="M42,57 Q70,74 98,57 L98,70 Q70,88 42,70 Z" fill="#2a2a32"/><circle cx="70" cy="46" r="5" fill="#C6A15B"/><path d="M70,46 C104,56 110,60 110,74" stroke="#C6A15B" stroke-width="2.5" fill="none"/><circle cx="110" cy="75" r="4.5" fill="#C6A15B"/><path d="M106,78 V94 M110,78 V96 M114,78 V94" stroke="#C6A15B" stroke-width="2" stroke-linecap="round"/></svg></span></div>
   <div class="hint" id="hint"></div>
 </div>
 
@@ -223,7 +230,7 @@ textarea.rsvp-in{resize:vertical}
     </div>
   </div>
 
-  <div class="block reveal d3">
+  <div class="block reveal d3" id="countdownBlock">
     <h2 class="section-title" id="countdownTitle"></h2>
     <div class="countdown" id="countdown">
       <div class="cd-box"><div class="cd-num" id="days">--</div><div class="cd-label" id="lblDays"></div></div>
@@ -250,6 +257,6 @@ textarea.rsvp-in{resize:vertical}
 
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
-<script src="/invite.js?v=22"></script>
+<script src="/invite.js?v=23"></script>
 </body>
 </html>

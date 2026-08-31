@@ -103,16 +103,27 @@ const DEF_COLORS={bg:"#FBF3E7",card:"#F3E6D3",gold:"#B08C55",green:"#6E2C3B",ink
 function applyCardTypeUI(){
   const henna=(CARD_TYPE==="henna");
   const grad=(CARD_TYPE==="graduation");
+  const gb=(CARD_TYPE==="gradbook");
+  const single=grad||gb; // نوع لشخص واحد
   const q=$("quranWrap"); if(q)q.style.display=henna?"none":"";
   const hi=$("hennaIntroWrap"); if(hi)hi.style.display=henna?"":"none";
   const sg=$("showGroomWrap"); if(sg)sg.style.display=henna?"":"none";
-  const gfw=$("groomFieldsWrap"); if(gfw)gfw.style.display=grad?"none":"";
-  const cst=$("coupleSectionTitle"); if(cst)cst.textContent=grad?"بيانات الخريج/ـة":"العريس والعروس";
-  const bnl=$("brideNameLbl"); if(bnl)bnl.textContent=grad?"الاسم (اللقب + الاسم)":"العروس (اللقب + الاسم)";
+  const gfw=$("groomFieldsWrap"); if(gfw)gfw.style.display=single?"none":"";
+  const cst=$("coupleSectionTitle"); if(cst)cst.textContent=single?"بيانات الخريج/ـة":"العريس والعروس";
+  const bnl=$("brideNameLbl"); if(bnl)bnl.textContent=single?"الاسم (اللقب + الاسم)":"العروس (اللقب + الاسم)";
+  // دفتر التخرج: بدون أب/قرابة، وبدون موعد/مكان/ملاحظات
+  const bfrw=$("brideFatherRelWrap"); if(bfrw)bfrw.style.display=gb?"none":"";
+  const famLbl=document.querySelector('label[for]'); // n/a
+  const dc=$("dateCard"); if(dc)dc.style.display=gb?"none":"";
+  const vc=$("venueCard"); if(vc)vc.style.display=gb?"none":"";
+  const nc=$("notesCard"); if(nc)nc.style.display=gb?"none":"";
   const bfl=$("brideFatherLbl"); if(bfl)bfl.textContent=grad?"اسم الأب (اللقب + الاسم) — يظهر فوق الاسم":"والد العروس (اللقب + الاسم) — يظهر فوق اسم العروس";
   const brl=$("brideRelLbl"); if(brl)brl.textContent=grad?"صلة القرابة (تظهر بين اسم الأب والاسم)":"صلة القرابة للعروس (تظهر بين اسم الأب واسم العروس)";
   const dtLabel=$("f_datetime")?$("f_datetime").previousElementSibling:null;
   if(dtLabel&&dtLabel.tagName==="LABEL")dtLabel.textContent=henna?"تاريخ ووقت الحنة":(grad?"تاريخ ووقت الحفلة":"تاريخ ووقت العرس");
+  // تسمية صورة الخريج
+  const cpLbl=$("f_couplePhoto_file")?$("f_couplePhoto_file").previousElementSibling:null;
+  if(cpLbl&&cpLbl.tagName==="LABEL")cpLbl.textContent=gb?"صورة الخريج/ـة (تظهر كبيرة أعلى الكرت)":"صورة العروسين (اختر صورة من جهازك) — اتركها فارغة لإخفائها";
 }
 function loadSettings(){
   const c=INV.data||{}, cp=c.couple||{}, t=c.text||{}, m=c.media||{}, col=c.colors||{}, sh=c.show||{};
@@ -395,10 +406,11 @@ async function generateShareImage(){
     const el=$("shareCard"); if(!el)return;
     const henna=(CARD_TYPE==="henna");
     const grad=(CARD_TYPE==="graduation");
-    const showGroom=henna?((d.show||{}).groom!==false):(grad?false:true);
+    const gb=(CARD_TYPE==="gradbook");
+    const showGroom=henna?((d.show||{}).groom!==false):((grad||gb)?false:true);
     $("shMono").textContent=(showGroom&&gi)?(gi+" & "+bi):bi;
     $("shNames").textContent=(showGroom?((c.groom||"")+" & "+(c.bride||"")):(c.bride||"")).trim();
-    const shType=document.getElementById("shType"); if(shType)shType.textContent=henna?"دعوة حنّة":(grad?"دعوة حفلة تخرج":"دعوة زفاف");
+    const shType=document.getElementById("shType"); if(shType)shType.textContent=henna?"دعوة حنّة":(grad?"دعوة حفلة تخرج":(gb?"دفتر تخرج":"دعوة زفاف"));
     if(typeof htmlToImage==="undefined")return;
     try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
     const blob=await htmlToImage.toBlob(el,{pixelRatio:1,width:1200,height:630,backgroundColor:"#FBF3E7",cacheBust:true});
@@ -454,7 +466,7 @@ $("genCode").addEventListener("click",async()=>{
   let code=randCode();
   const {data:ok,error}=await sb.rpc("admin_add_code",{p_code:code,p_days:days,p_type:type});
   if(error||!ok){$("genMsg").textContent="صار خطأ، حاول مرة ثانية";console.error(error);return;}
-  $("genMsg").textContent="كود جديد ("+(type==="henna"?"حنة":(type==="graduation"?"تخرج":"عرس"))+"): "+code+(days>0?` (ينتهي بعد ${days} يوم من التاريخ)`:" (بلا انتهاء)");
+  $("genMsg").textContent="كود جديد ("+(type==="henna"?"حنة":(type==="graduation"?"تخرج":(type==="gradbook"?"دفتر تخرج":"عرس")))+"): "+code+(days>0?` (ينتهي بعد ${days} يوم من التاريخ)`:" (بلا انتهاء)");
   loadCodes();
 });
 
@@ -474,7 +486,7 @@ function renderCodes(){
   if(!list.length){rows+=`<tr><td colspan="8" style="text-align:center;color:var(--muted)">لا يوجد نتائج</td></tr>`;}
   list.forEach(c=>{
     const st=c.used?`<span class="badge n">مستخدم</span>`:`<span class="badge y">متاح</span>`;
-    const typ=(c.card_type==="henna")?`<span class="badge y">حنة</span>`:(c.card_type==="graduation"?`<span class="badge y">تخرج</span>`:`<span class="badge n">عرس</span>`);
+    const typ=(c.card_type==="henna")?`<span class="badge y">حنة</span>`:(c.card_type==="graduation"?`<span class="badge y">تخرج</span>`:(c.card_type==="gradbook"?`<span class="badge y">دفتر تخرج</span>`:`<span class="badge n">عرس</span>`));
     const uname=c.username?esc(c.username):"—";
     const upass=c.userpass?esc(c.userpass):"—";
     let wed="—";

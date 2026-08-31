@@ -21,8 +21,9 @@ module.exports = async (req, res) => {
     const bride = (c.bride || "").trim();
     const henna = (d.cardType === "henna");
     const grad = (d.cardType === "graduation");
-    const showGroom = henna ? ((d.show||{}).groom !== false) : (grad ? false : true);
-    const label = henna ? "دعوة حنّة" : (grad ? "دعوة حفلة تخرج" : "دعوة زفاف");
+    const gb = (d.cardType === "gradbook");
+    const showGroom = henna ? ((d.show||{}).groom !== false) : ((grad||gb) ? false : true);
+    const label = henna ? "دعوة حنّة" : (grad ? "دعوة حفلة تخرج" : (gb ? "دفتر تخرج" : "دعوة زفاف"));
     const names = (showGroom && groom) ? (groom + " & " + bride).trim() : bride;
     if (groom || bride) title = names + " | " + label; else title = label;
     const t = d.text || {};
