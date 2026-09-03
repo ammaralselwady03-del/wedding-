@@ -271,6 +271,10 @@ function applyPalette(p){
   pushPreview(); clearTimeout(saveTimer); saveTimer=setTimeout(autoSave,200);
 }
 $("resetColors").addEventListener("click",()=>applyPalette(DEF_COLORS));
+const FLORAL_COLORS={bg:"#FDF6F3",card:"#FBEEE9",gold:"#C99AA0",green:"#7A4A52",ink:"#5A3D3F",muted:"#9A7A7A"};
+$("f_card_style").addEventListener("change",()=>{
+  if($("f_card_style").value==="floral"){ applyPalette(FLORAL_COLORS); }
+});
 $("f_gender").addEventListener("change",applyCardTypeUI);
 
 /* توليد الرابط من الأسماء */
