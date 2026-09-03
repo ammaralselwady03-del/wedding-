@@ -194,6 +194,7 @@ function renderAll(){
   { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); } }
   document.body.classList.toggle("henna-card",d.cardType==="henna");
   { const ic=document.querySelector(".invite-card"); if(ic){ const cs=d.cardStyle || ((d.show||{}).cardBox?"1":"none"); ic.classList.toggle("boxed",cs==="1"); ic.classList.toggle("frame2",cs==="2"); } }
+  document.body.classList.toggle("floral-card",(d.cardStyle==="floral"));
 
   txt("hint",(d.cardType==="henna")?((lang==="ar")?"المس الباب لفتح الدعوة":"Tap the door to open"):(d.cardType==="gradbook")?((lang==="ar")?"المس الطاقية لفتح الدفتر":"Tap the cap to open"):L.tapToOpen);
   document.title=(d.cardType==="graduation"||d.cardType==="gradbook")?(cp.bride||""):(cp.groom||"")+" & "+(cp.bride||"");

@@ -78,6 +78,20 @@ body.henna-card{background:#efe9e0;background-image:radial-gradient(120% 60% at 
 body.henna-card .henna-bg{display:block}
 body.henna-card .wrap{position:relative;z-index:1}
 body.henna-card .frame{display:none}
+/* تصميم الورد */
+.floral-bg{display:none;position:fixed;top:0;bottom:0;left:50%;width:100%;max-width:600px;z-index:0;background-image:url("/wedding-floral.png");background-size:100% auto;background-position:top center;background-repeat:no-repeat;background-color:#fff;transform:translateX(-50%) translateZ(0)}
+body.floral-card .floral-bg{display:block}
+body.floral-card{background:#fff}
+body.floral-card .wrap{position:relative;z-index:1}
+body.floral-card .frame{display:none}
+body.floral-card .invite-card{background:transparent!important;border:0!important;box-shadow:none!important;padding:0}
+/* منطقة علوية بمقاس الصورة: بسملة/آية فوق، أسماء ع جنبي السيلويت */
+body.floral-card .bismillah,body.floral-card .verse{max-width:64%;margin-inline:auto}
+body.floral-card #ringsSvg{visibility:hidden;width:16%}
+body.floral-card .couple{gap:0;margin:10px 0 14px}
+body.floral-card .couple .person{flex:1}
+body.floral-card .name-txt{font-size:clamp(1.6rem,7.5vw,2.6rem)}
+body.floral-card .invite-card>.bismillah{margin-top:12px}
 body.henna-card .invite-card.boxed{background:rgba(251,243,231,.78);backdrop-filter:blur(1px);max-width:78%;margin:0 auto;border-color:rgba(176,140,85,.4)}
 
 
@@ -179,6 +193,7 @@ textarea.rsvp-in{resize:vertical}
 </div>
 
 <div class="henna-bg"></div>
+<div class="floral-bg"></div>
 
 <div class="wrap">
   <div class="couple-photo reveal d1" id="couplePhoto" style="display:none"></div>
@@ -257,6 +272,6 @@ textarea.rsvp-in{resize:vertical}
 
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
-<script src="/invite.js?v=26"></script>
+<script src="/invite.js?v=27"></script>
 </body>
 </html>
