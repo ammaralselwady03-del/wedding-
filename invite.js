@@ -194,7 +194,6 @@ function renderAll(){
   { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); } }
   document.body.classList.toggle("henna-card",d.cardType==="henna");
   { const ic=document.querySelector(".invite-card"); if(ic){ const cs=d.cardStyle || ((d.show||{}).cardBox?"1":"none"); ic.classList.toggle("boxed",cs==="1"); ic.classList.toggle("frame2",cs==="2"); } }
-  document.body.classList.toggle("floral-card",(d.cardStyle==="floral"));
 
   txt("hint",(d.cardType==="henna")?((lang==="ar")?"المس الباب لفتح الدعوة":"Tap the door to open"):(d.cardType==="gradbook")?((lang==="ar")?"المس الطاقية لفتح الدفتر":"Tap the cap to open"):L.tapToOpen);
   document.title=(d.cardType==="graduation"||d.cardType==="gradbook")?(cp.bride||""):(cp.groom||"")+" & "+(cp.bride||"");
@@ -396,7 +395,12 @@ function enableSaveImage(){
     const origHTML=florals.map(f=>f.innerHTML);
     florals.forEach(f=>{f.style.color=gold;f.innerHTML=f.innerHTML.replace(/currentColor/g,gold);});
     try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
-    try{const bg=getComputedStyle(document.body).backgroundColor;const dataUrl=await htmlToImage.toPng(wrap,{pixelRatio:2,backgroundColor:bg,cacheBust:true});const a=document.createElement("a");a.download="card.png";a.href=dataUrl;a.click();}catch(e){console.error(e);alert("تعذّر حفظ الصورة");}
+    // مرّر صور Supabase عبر بروكسي نفس الدومين (حل مشكلة عدم ظهورها بالصورة)
+    const imgs=[...wrap.querySelectorAll("img")].filter(im=>/supabase\.co/.test(im.getAttribute("src")||""));
+    const swaps=imgs.map(im=>{const s=im.getAttribute("src");im.setAttribute("src","/api/img?u="+encodeURIComponent(s));im.setAttribute("crossorigin","anonymous");return [im,s];});
+    if(swaps.length){ await Promise.all(swaps.map(([im])=>im.complete&&im.naturalWidth?Promise.resolve():new Promise(r=>{im.onload=im.onerror=r;setTimeout(r,6000);}))); }
+    try{const bg=getComputedStyle(document.body).backgroundColor;const dataUrl=await htmlToImage.toPng(wrap,{pixelRatio:2,backgroundColor:bg,cacheBust:false});const a=document.createElement("a");a.download="card.png";a.href=dataUrl;a.click();}catch(e){console.error(e);alert("تعذّر حفظ الصورة");}
+    swaps.forEach(([im,s])=>{im.setAttribute("src",s);im.removeAttribute("crossorigin");});
     florals.forEach((f,i)=>{f.innerHTML=origHTML[i];f.style.color="";});
     phs.forEach(([p,el])=>{if(p.parentNode)p.parentNode.replaceChild(el,p);});
     btn.style.display="";

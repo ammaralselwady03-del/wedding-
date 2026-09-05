@@ -159,6 +159,11 @@ textarea.rsvp-in{resize:vertical}
 .rsvp-send:disabled{opacity:.6}
 .rsvp-done{text-align:center;font-family:"Aref Ruqaa",serif;color:var(--green);font-size:1.4rem;padding:22px 6px;line-height:1.7}
 @media (prefers-reduced-motion:reduce){.reveal{animation:none!important;opacity:1;transform:none}.flap,.seal{transition:none}}
+.company-footer{position:fixed;bottom:12px;inset-inline-end:12px;z-index:1400}
+.company-footer a{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:50px;padding:5px 12px 5px 8px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.12);backdrop-filter:blur(4px);transition:transform .2s}
+.company-footer a:hover{transform:translateY(-2px)}
+.company-footer-logo{width:22px;height:22px;flex:0 0 auto}
+.company-footer-powered{font-family:"Tajawal",sans-serif;font-size:.82rem;font-weight:700;color:#1A2D45;letter-spacing:.3px}
 </style>
 </head>
 <body class="locked">
@@ -258,6 +263,38 @@ textarea.rsvp-in{resize:vertical}
 
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
-<script src="/invite.js?v=29"></script>
+<!-- Company branding — floating micro-badge bottom right -->
+<div class="company-footer">
+  <a href="http://mastershipjo.com/" target="_blank" rel="noopener noreferrer">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="company-footer-logo" preserveAspectRatio="xMidYMid meet">
+      <g transform="translate(50, 50)">
+        <line x1="-32" y1="34" x2="-32" y2="-22" stroke="#1A2D45" stroke-width="7" stroke-linecap="round" />
+        <line x1="-32" y1="-22" x2="0" y2="10" stroke="#1A2D45" stroke-width="7" stroke-linecap="round" />
+        <line x1="32" y1="-22" x2="0" y2="10" stroke="#1A2D45" stroke-width="7" stroke-linecap="round" />
+        <line x1="32" y1="-22" x2="32" y2="34" stroke="#1A2D45" stroke-width="7" stroke-linecap="round" />
+        <line x1="-32" y1="34" x2="-32" y2="-22" stroke="#4A7299" stroke-width="3" stroke-linecap="round" />
+        <line x1="-32" y1="-22" x2="0" y2="10" stroke="#4A7299" stroke-width="3" stroke-linecap="round" />
+        <line x1="32" y1="-22" x2="0" y2="10" stroke="#4A7299" stroke-width="3" stroke-linecap="round" />
+        <line x1="32" y1="-22" x2="32" y2="34" stroke="#4A7299" stroke-width="3" stroke-linecap="round" />
+        <circle cx="-32" cy="34" r="6" fill="#0D1520" stroke="#253D58" stroke-width="1.5" />
+        <circle cx="-32" cy="34" r="2.5" fill="#253D58" />
+        <circle cx="32" cy="34" r="6" fill="#0D1520" stroke="#253D58" stroke-width="1.5" />
+        <circle cx="32" cy="34" r="2.5" fill="#253D58" />
+        <circle cx="-32" cy="-22" r="8" fill="#0D1520" stroke="#2B4A6A" stroke-width="1.5" />
+        <circle cx="-32" cy="-22" r="3.5" fill="#2B4A6A" />
+        <circle cx="32" cy="-22" r="8" fill="#0D1520" stroke="#2B4A6A" stroke-width="1.5" />
+        <circle cx="32" cy="-22" r="3.5" fill="#2B4A6A" />
+        <circle cx="0" cy="10" r="13" fill="#080F1C" stroke="#2B4A6A" stroke-width="1.5" />
+        <circle cx="0" cy="10" r="9" fill="#0D1828" stroke="#4A7299" stroke-width="1" />
+        <circle cx="0" cy="10" r="6" fill="#162535" stroke="#5B7FA6" stroke-width="1" />
+        <circle cx="0" cy="10" r="3.5" fill="#5B7FA6" />
+        <circle cx="0" cy="10" r="1.5" fill="#C8D8E8" />
+      </g>
+    </svg>
+    <span class="company-footer-powered">Mastership</span>
+  </a>
+</div>
+
+<script src="/invite.js?v=30"></script>
 </body>
 </html>
