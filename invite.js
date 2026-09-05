@@ -387,6 +387,7 @@ function enableSaveImage(){
     const card=document.querySelector(".invite-card");card.style.opacity="1";card.style.transform="none";
     // افصل الأقسام اللي ما بدنا إياها (وصورها الخارجية) من الصفحة مؤقتاً
     const detach=["countdownBlock","gallerySection","videoSection","rsvpBlock","footer"].map(id=>$(id)).filter(Boolean);
+    const cf=document.querySelector(".company-footer"); if(cf)detach.push(cf);
     const phs=detach.map(el=>{const p=document.createComment("x");el.parentNode.replaceChild(p,el);return [p,el];});
     btn.style.display="none";
     const gold=(getComputedStyle(document.documentElement).getPropertyValue("--gold")||"#B08C55").trim();
