@@ -348,7 +348,7 @@ function setupOnce(){
     document.body.classList.remove("locked");
     document.body.classList.add("opened");
     if(audio){audio.play().then(()=>{$("musicBtn").textContent="⏸";}).catch(()=>{});}
-    setTimeout(()=>{cover.style.display="none";},2400);
+    setTimeout(()=>{cover.style.display="none";},2900);
   }
   $("seal").addEventListener("click",openCover);
   { const te=$("triEmblem"); if(te)te.addEventListener("click",openCover); const tc=$("triCover"); if(tc)tc.addEventListener("click",openCover); }
