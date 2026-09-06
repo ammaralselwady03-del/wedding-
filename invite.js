@@ -9,6 +9,8 @@ const DEFAULTS={
   lang:"ar",
   couple:{groomTitle:"",groom:"العريس",groomFamily:"",groomFatherTitle:"",groomFather:"",groomRel:"",brideTitle:"",bride:"العروس",brideFamily:"",brideFatherTitle:"",brideFather:"",brideRel:""},
   cardType:"wedding",
+  coverStyle:"seal",
+  coverColor:"#6E2C3B",
   hennaIntro:"",
   datetime:"2026-08-24T19:00:00",
   show:{bismillah:true,verse:true,dividers:true,groom:true,cardBox:false},
@@ -191,7 +193,8 @@ function renderAll(){
   const gi=(cp.groom||"").trim()[0]||"", bi=(cp.bride||"").trim()[0]||"";
   const mono=$("mono");mono.textContent=(d.cardType==="graduation")?bi:(gi+" & "+bi);
   mono.style.fontFamily=(lang==="ar")?'"Aref Ruqaa",serif':'"Cormorant Garamond",serif';
-  { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); } }
+  { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); cov.classList.toggle("triangles",d.coverStyle==="triangles"); cov.style.setProperty("--cover",d.coverColor||"#6E2C3B"); } }
+  { const tm=$("triMono"); if(tm)tm.textContent=(gi&&bi)?(gi+" · "+bi):(bi||gi||""); }
   document.body.classList.toggle("henna-card",d.cardType==="henna");
   { const ic=document.querySelector(".invite-card"); if(ic){ const cs=d.cardStyle || ((d.show||{}).cardBox?"1":"none"); ic.classList.toggle("boxed",cs==="1"); ic.classList.toggle("frame2",cs==="2"); } }
 
@@ -339,14 +342,16 @@ function setupOnce(){
     else{audio.pause();$("musicBtn").textContent="♪";}
   });
   const cover=$("cover");
-  $("seal").addEventListener("click",()=>{
+  function openCover(){
     if(cover.classList.contains("open"))return;
     cover.classList.add("open");
     document.body.classList.remove("locked");
     document.body.classList.add("opened");
     if(audio){audio.play().then(()=>{$("musicBtn").textContent="⏸";}).catch(()=>{});}
-    setTimeout(()=>{cover.style.display="none";},1200);
-  });
+    setTimeout(()=>{cover.style.display="none";},1300);
+  }
+  $("seal").addEventListener("click",openCover);
+  { const te=$("triEmblem"); if(te)te.addEventListener("click",openCover); const tc=$("triCover"); if(tc)tc.addEventListener("click",openCover); }
 }
 function openCoverForPreview(){
   const cover=$("cover");cover.style.display="none";

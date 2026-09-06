@@ -166,6 +166,8 @@ function loadSettings(){
   $("f_show_verse").checked=(sh.verse!==false);
   $("f_show_dividers").checked=(sh.dividers!==false);
   $("f_card_style").value=c.cardStyle || (sh.cardBox===true?"1":"none");
+  $("f_cover_style").value=c.coverStyle||"seal";
+  $("f_cover_color").value=c.coverColor||"#6E2C3B";
   $("f_hennaIntro").value=c.hennaIntro||"";
   $("f_show_groom").checked=(sh.groom!==false);
   $("f_gender").value=c.gender||"m";
@@ -219,6 +221,8 @@ function collectData(){
     gender:$("f_gender").value,
     hennaIntro:$("f_hennaIntro").value,
     cardStyle:$("f_card_style").value,
+    coverStyle:$("f_cover_style").value,
+    coverColor:$("f_cover_color").value,
     show:{bismillah:$("f_show_bismillah").checked,verse:$("f_show_verse").checked,dividers:$("f_show_dividers").checked,groom:$("f_show_groom").checked,cardBox:($("f_card_style").value==="1"),notes:$("f_show_notes").checked},
     bismillah:$("f_bismillah").value,
     verse:$("f_verse").value,
