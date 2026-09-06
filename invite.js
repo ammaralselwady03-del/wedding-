@@ -348,15 +348,18 @@ function setupOnce(){
     document.body.classList.remove("locked");
     document.body.classList.add("opened");
     if(audio){audio.play().then(()=>{$("musicBtn").textContent="⏸";}).catch(()=>{});}
-    setTimeout(()=>{cover.style.display="none";},1300);
+    setTimeout(()=>{cover.style.display="none";},2400);
   }
   $("seal").addEventListener("click",openCover);
   { const te=$("triEmblem"); if(te)te.addEventListener("click",openCover); const tc=$("triCover"); if(tc)tc.addEventListener("click",openCover); }
 }
 function openCoverForPreview(){
-  const cover=$("cover");cover.style.display="none";
-  document.body.classList.remove("locked");
-  document.body.classList.add("opened");
+  const cover=$("cover");
+  if(!cover)return;
+  cover.style.display="";
+  cover.classList.remove("loading","open");
+  document.body.classList.add("locked");
+  document.body.classList.remove("opened");
 }
 function showExpired(){document.body.className="";document.body.innerHTML="";document.body.style.background="#fff";document.documentElement.style.background="#fff";}
 
