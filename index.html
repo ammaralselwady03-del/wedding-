@@ -189,6 +189,10 @@ body.henna-card
 .gallery-dots span{width:8px;height:8px;border-radius:50%;background:var(--line);cursor:pointer;transition:.2s}
 .gallery-dots span.on{background:var(--gold);transform:scale(1.25)}
 .card-video{width:100%;border-radius:16px;border:1px solid var(--line);margin-top:4px;background:#000;display:block}
+.agenda{max-width:420px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.agenda-item{display:flex;gap:14px;align-items:baseline;text-align:start;border-bottom:1px dashed var(--line);padding-bottom:10px}
+.agenda-time{flex:0 0 auto;min-width:72px;color:var(--green);font-weight:700;font-variant-numeric:tabular-nums}
+.agenda-txt{color:var(--ink);line-height:1.6}
 .lightbox{position:fixed;inset:0;background:rgba(46,37,25,.92);display:none;align-items:center;justify-content:center;padding:24px;z-index:1300;cursor:zoom-out}
 .lightbox.open{display:flex}
 .lightbox img{max-width:100%;max-height:90vh;border-radius:14px}
@@ -317,6 +321,11 @@ textarea.rsvp-in{resize:vertical}
     <video class="card-video" id="cardVideo" controls playsinline preload="metadata"></video>
   </div>
 
+  <div class="block reveal d4" id="agendaSection" style="display:none">
+    <h2 class="section-title">البرنامج</h2>
+    <div class="agenda" id="agenda"></div>
+  </div>
+
   <div class="block reveal d5" id="rsvpBlock"></div>
   <p class="footer reveal d6" id="footer"></p>
   <!-- Company branding -->
@@ -330,6 +339,6 @@ textarea.rsvp-in{resize:vertical}
 
 <div class="lightbox" id="lightbox"><img id="lightboxImg" alt=""></div>
 
-<script src="/invite.js?v=38"></script>
+<script src="/invite.js?v=39"></script>
 </body>
 </html>

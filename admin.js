@@ -121,27 +121,28 @@ function applyCardTypeUI(){
   const henna=(CARD_TYPE==="henna");
   const grad=(CARD_TYPE==="graduation");
   const gb=(CARD_TYPE==="gradbook");
-  const single=grad||gb; // نوع لشخص واحد
-  const q=$("quranWrap"); if(q)q.style.display=henna?"none":"";
+  const conf=(CARD_TYPE==="conference");
+  const single=grad||gb||conf; // نوع بعنوان واحد
+  const q=$("quranWrap"); if(q)q.style.display=(henna||conf)?"none":"";
   const hi=$("hennaIntroWrap"); if(hi)hi.style.display=henna?"":"none";
+  const ag=$("agendaWrap"); if(ag)ag.style.display=conf?"":"none";
   const sg=$("showGroomWrap"); if(sg)sg.style.display=henna?"":"none";
   const gfw=$("groomFieldsWrap"); if(gfw)gfw.style.display=single?"none":"";
-  const genw=$("genderWrap"); if(genw)genw.style.display=single?"":"none";
+  const genw=$("genderWrap"); if(genw)genw.style.display=(grad||gb)?"":"none";
   const gword=($("f_gender")&&$("f_gender").value==="f")?"الخريجة":"الخريج";
-  const cst=$("coupleSectionTitle"); if(cst)cst.textContent=single?("بيانات "+gword):"العريس والعروس";
-  const bnl=$("brideNameLbl"); if(bnl)bnl.textContent=single?"الاسم (اللقب + الاسم)":"العروس (اللقب + الاسم)";
-  // دفتر التخرج: بدون أب/قرابة، وبدون موعد/مكان/ملاحظات
-  const bfrw=$("brideFatherRelWrap"); if(bfrw)bfrw.style.display=gb?"none":"";
+  const cst=$("coupleSectionTitle"); if(cst)cst.textContent=conf?"بيانات المؤتمر":(single?("بيانات "+gword):"العريس والعروس");
+  const bnl=$("brideNameLbl"); if(bnl)bnl.textContent=conf?"عنوان المؤتمر / الاجتماع":(single?"الاسم (اللقب + الاسم)":"العروس (اللقب + الاسم)");
+  const bfrw=$("brideFatherRelWrap"); if(bfrw)bfrw.style.display=(gb||conf)?"none":"";
   const bfamw=$("brideFamilyWrap"); if(bfamw)bfamw.style.display=gb?"none":"";
-  const famLbl=document.querySelector('label[for]'); // n/a
+  const bfamLbl=$("brideFamilyWrap")?$("brideFamilyWrap").querySelector("label"):null;
+  if(bfamLbl)bfamLbl.textContent=conf?"الجهة المنظِّمة":"عائلة العروس (تظهر فوق الاسم بنفس الحجم)";
   const dc=$("dateCard"); if(dc)dc.style.display=gb?"none":"";
   const vc=$("venueCard"); if(vc)vc.style.display=gb?"none":"";
-  const nc=$("notesCard"); if(nc)nc.style.display=gb?"none":"";
+  const nc=$("notesCard"); if(nc)nc.style.display=(gb||conf)?"none":"";
   const bfl=$("brideFatherLbl"); if(bfl)bfl.textContent=grad?"اسم الأب (اللقب + الاسم) — يظهر فوق الاسم":"والد العروس (اللقب + الاسم) — يظهر فوق اسم العروس";
   const brl=$("brideRelLbl"); if(brl)brl.textContent=grad?"صلة القرابة (تظهر بين اسم الأب والاسم)":"صلة القرابة للعروس (تظهر بين اسم الأب واسم العروس)";
   const dtLabel=$("f_datetime")?$("f_datetime").previousElementSibling:null;
-  if(dtLabel&&dtLabel.tagName==="LABEL")dtLabel.textContent=henna?"تاريخ ووقت الحنة":(grad?"تاريخ ووقت الحفلة":"تاريخ ووقت العرس");
-  // تسمية صورة الخريج
+  if(dtLabel&&dtLabel.tagName==="LABEL")dtLabel.textContent=henna?"تاريخ ووقت الحنة":(grad?"تاريخ ووقت الحفلة":(conf?"موعد المؤتمر":"تاريخ ووقت العرس"));
   const cpLbl=$("f_couplePhoto_file")?$("f_couplePhoto_file").previousElementSibling:null;
   if(cpLbl&&cpLbl.tagName==="LABEL")cpLbl.textContent=gb?("صورة "+gword+" (تظهر كبيرة أعلى الكرت)"):"صورة العروسين (اختر صورة من جهازك) — اتركها فارغة لإخفائها";
 }
@@ -169,6 +170,7 @@ function loadSettings(){
   $("f_cover_style").value=c.coverStyle||"seal";
   $("f_cover_color").value=c.coverColor||"#6E2C3B";
   $("f_hennaIntro").value=c.hennaIntro||"";
+  $("f_agenda").value=c.agenda||"";
   $("f_show_groom").checked=(sh.groom!==false);
   $("f_gender").value=c.gender||"m";
   applyCardTypeUI();
@@ -183,8 +185,9 @@ function loadSettings(){
   renderGalleryThumbs(); $("galleryStatus").textContent="";
   if(m.music){ $("musicPreview").src=m.music; $("musicPreview").style.display="block"; }
   const _fix=v=>(v&&String(v).toUpperCase()==="#C68A93")?"#6E2C3B":v;
-  $("c_bg").value=col.bg||DEF_COLORS.bg;$("c_card").value=col.card||DEF_COLORS.card;$("c_gold").value=_fix(col.gold)||DEF_COLORS.gold;
-  $("c_green").value=col.green||DEF_COLORS.green;$("c_ink").value=col.ink||DEF_COLORS.ink;$("c_muted").value=_fix(col.muted)||DEF_COLORS.muted;
+  const _dc=(CARD_TYPE==="conference" && !col.bg)?{bg:"#F3F5F8",card:"#FFFFFF",gold:"#B7935A",green:"#1F3A5F",ink:"#2B3441",muted:"#6E7A8A"}:DEF_COLORS;
+  $("c_bg").value=col.bg||_dc.bg;$("c_card").value=col.card||_dc.card;$("c_gold").value=_fix(col.gold)||_dc.gold;
+  $("c_green").value=col.green||_dc.green;$("c_ink").value=col.ink||_dc.ink;$("c_muted").value=_fix(col.muted)||_dc.muted;
 
   // لا نعرض الروابط العشوائية (inv-xxxx) بالحقل حتى يقدر يكتب اسم من عنده
   $("f_slug").value=(INV.slug && !/^inv-/.test(INV.slug)) ? INV.slug : "";
@@ -220,6 +223,7 @@ function collectData(){
     cardType:CARD_TYPE,
     gender:$("f_gender").value,
     hennaIntro:$("f_hennaIntro").value,
+    agenda:$("f_agenda").value,
     cardStyle:$("f_card_style").value,
     coverStyle:$("f_cover_style").value,
     coverColor:$("f_cover_color").value,
@@ -493,7 +497,7 @@ $("genCode").addEventListener("click",async()=>{
   let code=randCode();
   const {data:ok,error}=await sb.rpc("admin_add_code",{p_code:code,p_days:days,p_type:type});
   if(error||!ok){$("genMsg").textContent="صار خطأ، حاول مرة ثانية";console.error(error);return;}
-  $("genMsg").textContent="كود جديد ("+(type==="henna"?"حنة":(type==="graduation"?"تخرج":(type==="gradbook"?"دفتر تخرج":"عرس")))+"): "+code+(days>0?` (ينتهي بعد ${days} يوم من التاريخ)`:" (بلا انتهاء)");
+  $("genMsg").textContent="كود جديد ("+(type==="henna"?"حنة":(type==="graduation"?"تخرج":(type==="gradbook"?"دفتر تخرج":(type==="conference"?"مؤتمر":"عرس"))))+"): "+code+(days>0?` (ينتهي بعد ${days} يوم من التاريخ)`:" (بلا انتهاء)");
   loadCodes();
 });
 
@@ -513,7 +517,7 @@ function renderCodes(){
   if(!list.length){rows+=`<tr><td colspan="8" style="text-align:center;color:var(--muted)">لا يوجد نتائج</td></tr>`;}
   list.forEach(c=>{
     const st=c.used?`<span class="badge n">مستخدم</span>`:`<span class="badge y">متاح</span>`;
-    const typ=(c.card_type==="henna")?`<span class="badge y">حنة</span>`:(c.card_type==="graduation"?`<span class="badge y">تخرج</span>`:(c.card_type==="gradbook"?`<span class="badge y">دفتر تخرج</span>`:`<span class="badge n">عرس</span>`));
+    const typ=(c.card_type==="henna")?`<span class="badge y">حنة</span>`:(c.card_type==="graduation"?`<span class="badge y">تخرج</span>`:(c.card_type==="gradbook"?`<span class="badge y">دفتر تخرج</span>`:(c.card_type==="conference"?`<span class="badge y">مؤتمر</span>`:`<span class="badge n">عرس</span>`)));
     const uname=c.username?esc(c.username):"—";
     const upass=c.userpass?esc(c.userpass):"—";
     let wed="—";

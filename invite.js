@@ -10,6 +10,7 @@ const DEFAULTS={
   couple:{groomTitle:"",groom:"العريس",groomFamily:"",groomFatherTitle:"",groomFather:"",groomRel:"",brideTitle:"",bride:"العروس",brideFamily:"",brideFatherTitle:"",brideFather:"",brideRel:""},
   cardType:"wedding",
   coverStyle:"seal",
+  agenda:"",
   coverColor:"#6E2C3B",
   hennaIntro:"",
   datetime:"2026-08-24T19:00:00",
@@ -204,7 +205,8 @@ function renderAll(){
   const isHenna=(d.cardType==="henna");
   const isGrad=(d.cardType==="graduation");
   const isGradbook=(d.cardType==="gradbook");
-  const single=isGrad||isGradbook;
+  const isConf=(d.cardType==="conference");
+  const single=isGrad||isGradbook||isConf;
   const showGroom=isHenna?((d.show||{}).groom!==false):(single?false:true);
   { const cov=$("cover"); if(cov)cov.classList.toggle("gradbook",isGradbook); }
 
@@ -212,16 +214,16 @@ function renderAll(){
   if(isHenna && (d.hennaIntro||"").trim()){$("hennaIntro").textContent=d.hennaIntro;$("hennaIntro").style.display="block";}
   else{$("hennaIntro").style.display="none";}
 
-  const showB=!isHenna && !isGradbook && (d.show||{}).bismillah!==false, showV=!isHenna && (d.show||{}).verse!==false;
+  const showB=!isHenna && !isGradbook && !isConf && (d.show||{}).bismillah!==false, showV=!isHenna && !isConf && (d.show||{}).verse!==false;
   if(showB && d.bismillah){$("bismillah").textContent=d.bismillah;$("bismillah").style.display="block";}else{$("bismillah").style.display="none";}
   const GRAD_VERSE="﴿ يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ ﴾";
   let _verse=d.verse;
   if((isGrad||isGradbook) && (!_verse || _verse===DEFAULTS.verse)) _verse=GRAD_VERSE;
   if(showV && _verse){$("verse").textContent=_verse;$("verse").style.display="block";}else{$("verse").style.display="none";}
 
-  txt("blessing",T.blessing|| (isHenna?((lang==="en")?"With love and joy, you're invited to share the henna celebration":"وبكل الحب والفرح تتشرّف بدعوتكم لمشاركتها فرحة الحنة"):isGrad?((lang==="en")?"With pride and joy, you're invited to share the graduation celebration":"وبكل الفخر والسرور تتشرّف العائلة بدعوتكم لمشاركتها فرحة حفل التخرج"):isGradbook?((lang==="en")?"With pride, we share this graduation milestone":"بكل فخر واعتزاز نشارككم هذا الإنجاز"):L.blessing));
+  txt("blessing",T.blessing|| (isHenna?((lang==="en")?"With love and joy, you're invited to share the henna celebration":"وبكل الحب والفرح تتشرّف بدعوتكم لمشاركتها فرحة الحنة"):isGrad?((lang==="en")?"With pride and joy, you're invited to share the graduation celebration":"وبكل الفخر والسرور تتشرّف العائلة بدعوتكم لمشاركتها فرحة حفل التخرج"):isGradbook?((lang==="en")?"With pride, we share this graduation milestone":"بكل فخر واعتزاز نشارككم هذا الإنجاز"):isConf?((lang==="en")?"You are cordially invited to attend":"يسرّنا دعوتكم لحضور"):L.blessing));
 
-  { const gw=(d.gender==="f")?"خريجة":"خريج"; let _bride=(cp.bride||"").trim(); if(single && (!_bride || _bride==="العروس")) _bride=gw; txt("bride",_bride); }
+  { const gw=(d.gender==="f")?"خريجة":"خريج"; let _bride=(cp.bride||"").trim(); if((isGrad||isGradbook) && (!_bride || _bride==="العروس")) _bride=gw; else if(isConf && _bride==="العروس") _bride=""; txt("bride",_bride); }
   txt("groom",cp.groom||"");
   // إخفاء العريس والخواتم لكرت الحنة عند الاختيار
   showEl("groomPerson",showGroom);
@@ -230,9 +232,9 @@ function renderAll(){
   txt("brideTitle",cp.brideTitle||"");showEl("brideTitle",!!(cp.brideTitle||"").trim());
   const gf=joinTitle(cp.groomFatherTitle,cp.groomFather), bf=joinTitle(cp.brideFatherTitle,cp.brideFather);
   txt("groomFather",gf);showEl("groomFather",showGroom && !!gf);
-  txt("brideFather",bf);showEl("brideFather",!!bf && !isGradbook);
+  txt("brideFather",bf);showEl("brideFather",!!bf && !isGradbook && !isConf);
   txt("groomRel",(cp.groomRel||"").trim());showEl("groomRel",showGroom && !!(cp.groomRel||"").trim());
-  txt("brideRel",(cp.brideRel||"").trim());showEl("brideRel",!!(cp.brideRel||"").trim() && !isGradbook);
+  txt("brideRel",(cp.brideRel||"").trim());showEl("brideRel",!!(cp.brideRel||"").trim() && !isGradbook && !isConf);
   txt("groomFamily",(cp.groomFamily||"").trim());showEl("groomFamily",showGroom && !!(cp.groomFamily||"").trim());
   txt("brideFamily",(cp.brideFamily||"").trim());showEl("brideFamily",!!(cp.brideFamily||"").trim() && !isGradbook);
   // دفتر التخرج: إخفاء الموعد/المكان والعدّاد، وصورة كبيرة
@@ -240,7 +242,7 @@ function renderAll(){
   { const cb=$("countdownBlock"); if(cb)cb.style.display=isGradbook?"none":""; }
   { const cph=$("couplePhoto"); if(cph)cph.classList.toggle("big",isGradbook); }
 
-  txt("willing",L.willing);showEl("willing",!isGradbook);
+  txt("willing",L.willing);showEl("willing",!isGradbook && !isConf);
   txt("venueName",T.venueName||L.venueName);
   $("venueSub").innerHTML=(T.venueSub||L.venueSub||"").replace(/\n/g,"<br>");
 
@@ -255,7 +257,7 @@ function renderAll(){
   else { _mb.style.display="none"; _mb.removeAttribute("href"); }
   txt("notePhoto",T.notePhoto||L.notePhoto);txt("noteKids",T.noteKids||L.noteKids);
   showEl("notesRow",!isGradbook && (d.show||{}).notes!==false);
-  txt("countdownTitle",isHenna?((lang==="en")?"Counting down to the henna":"باقٍ على الحنة"):isGrad?((lang==="en")?"Counting down to the celebration":"باقٍ على الحفلة"):L.countdownTitle);
+  txt("countdownTitle",isHenna?((lang==="en")?"Counting down to the henna":"باقٍ على الحنة"):isGrad?((lang==="en")?"Counting down to the celebration":"باقٍ على الحفلة"):isConf?((lang==="en")?"Counting down to the event":"باقٍ على المؤتمر"):L.countdownTitle);
   txt("lblDays",L.lblDays);txt("lblHours",L.lblHours);txt("lblMins",L.lblMins);txt("lblSecs",L.lblSecs);
   txt("galleryTitle",L.galleryTitle);
   $("footer").innerHTML=(T.footer||L.footer).replace("❤",'<span class="heart">❤</span>');
@@ -265,6 +267,14 @@ function renderAll(){
   renderRsvpLang(lang);
   startCountdown(d.datetime||DEFAULTS.datetime);
   insertFlorals();
+  // الأجندة (للمؤتمر)
+  { const asec=$("agendaSection"), abox=$("agenda");
+    const lines=(d.agenda||"").split("\n").map(s=>s.trim()).filter(Boolean);
+    if(isConf && lines.length){
+      abox.innerHTML=lines.map(l=>{const m=l.split(/\s*[—–\-]\s*/);const t=(m.length>1)?m.shift():"";const txt2=m.join(" - ");return `<div class="agenda-item"><span class="agenda-time">${t}</span><span class="agenda-txt">${txt2}</span></div>`;}).join("");
+      asec.style.display="block";
+    } else { asec.style.display="none"; abox.innerHTML=""; }
+  }
   { const cov=$("cover"); if(cov)cov.classList.remove("loading"); }
 }
 

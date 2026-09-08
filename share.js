@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
     const grad = (d.cardType === "graduation");
     const gb = (d.cardType === "gradbook");
     const showGroom = henna ? ((d.show||{}).groom !== false) : ((grad||gb) ? false : true);
-    const label = henna ? "دعوة حنّة" : (grad ? "دعوة حفلة تخرج" : (gb ? "دفتر تخرج" : "دعوة زفاف"));
+    const label = henna ? "دعوة حنّة" : (grad ? "دعوة حفلة تخرج" : (gb ? "دفتر تخرج" : (d.cardType==="conference" ? "دعوة مؤتمر" : "دعوة زفاف")));
     const names = (showGroom && groom) ? (groom + " & " + bride).trim() : bride;
     if (groom || bride) title = names + " | " + label; else title = label;
     const t = d.text || {};
