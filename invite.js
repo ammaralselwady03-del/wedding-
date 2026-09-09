@@ -198,8 +198,9 @@ function renderAll(){
   const gi=(cp.groom||"").trim()[0]||"", bi=(cp.bride||"").trim()[0]||"";
   const mono=$("mono");mono.textContent=(d.cardType==="graduation")?bi:(gi+" & "+bi);
   mono.style.fontFamily=(lang==="ar")?'"Aref Ruqaa",serif':'"Cormorant Garamond",serif';
-  { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); cov.classList.toggle("conf",isConf); cov.classList.toggle("triangles",!isConf && d.coverStyle==="triangles"); cov.style.setProperty("--cover",d.coverColor||"#6E2C3B"); } }
+  { const cov=$("cover"); if(cov){ const _conf=(d.cardType==="conference"); if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); cov.classList.toggle("conf",_conf); cov.classList.toggle("triangles",!_conf && d.coverStyle==="triangles"); cov.style.setProperty("--cover",d.coverColor||"#6E2C3B"); } }
   { const tm=$("triMono"); if(tm)tm.textContent=(gi&&bi)?(gi+" · "+bi):(bi||gi||""); }
+  { const co=$("confOrg"); if(co)co.textContent=isConf?((cp.brideFamily||"").trim()||(cp.bride||"").trim()||"الجهة المنظِّمة"):""; }
   document.body.classList.toggle("henna-card",d.cardType==="henna");
   { const ic=document.querySelector(".invite-card"); if(ic){ const cs=d.cardStyle || ((d.show||{}).cardBox?"1":"none"); ic.classList.toggle("boxed",cs==="1"); ic.classList.toggle("frame2",cs==="2"); } }
 
