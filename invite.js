@@ -13,7 +13,7 @@ const DEFAULTS={
   agenda:"",
   coverColor:"#6E2C3B",
   hennaIntro:"",
-  datetime:"2026-08-24T19:00:00",
+  datetime:(function(){const d=new Date();d.setSeconds(0,0);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,19);})(),
   show:{bismillah:true,verse:true,dividers:true,groom:true,cardBox:false},
   bismillah:"بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
   verse:"﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ﴾",
@@ -161,18 +161,22 @@ function renderRsvpLang(lang){
   txt("rLblMsg",henna?((lang==="en")?"Message to the bride (optional)":"رسالة للعروس (اختياري)"):(grad||gb)?((lang==="en")?"Message to the graduate":("رسالة لـ"+gradW)):L.rMsg);
   txt("rsvpSend",gb?((lang==="en")?"Send":"إرسال"):L.rSend);
   // دفتر التخرج: إخفاء سؤال الحضور والعدد
-  const q=$("rLblQ"), ar=$("attYes")?$("attYes").closest(".att-row"):null, cr=$("countRow");
-  [q,ar,cr].forEach(el=>{if(el)el.style.display=gb?"none":"";});
+  const conf=(CONFIG&&CONFIG.cardType==="conference");
+  const q=$("rLblQ"), ar=$("attYes")?$("attYes").closest(".att-row"):null, cr=$("countRow"), msgLbl=$("rLblMsg"), msg=$("rsvpMsg");
+  [q,ar].forEach(el=>{if(el)el.style.display=gb?"none":"";});
+  if(cr)cr.style.display=(gb||conf)?"none":"";
+  [msgLbl,msg].forEach(el=>{if(el)el.style.display=conf?"none":"";});
 }
 async function submitRsvp(){
   const lang=(CONFIG.lang==="en")?"en":"ar", L=LABELS[lang], errBox=$("rsvpErr"), btn=$("rsvpSend");
   const gb=(CONFIG.cardType==="gradbook");
-  const name=$("rsvpName").value.trim(), phone=$("rsvpPhone").value.trim(), message=$("rsvpMsg").value.trim();
+  const conf=(CONFIG.cardType==="conference");
+  const name=$("rsvpName").value.trim(), phone=$("rsvpPhone").value.trim(), message=conf?"":$("rsvpMsg").value.trim();
   errBox.textContent="";
   if(!name){errBox.textContent=L.rErrName;return;}
   if(!gb && !phone){errBox.textContent=L.rErrPhone;return;}
   if(!gb && attending===null){errBox.textContent=L.rErrAtt;return;}
-  const guests_count=(!gb && attending)?Math.max(1,parseInt($("rsvpCount").value||"1",10)):0;
+  const guests_count=(!gb && !conf && attending)?Math.max(1,parseInt($("rsvpCount").value||"1",10)):0;
   const att=gb?null:attending;
   if(!INVITATION_ID){errBox.textContent=L.rErrSend;return;}
   btn.disabled=true;btn.textContent=L.rSending;
@@ -194,7 +198,7 @@ function renderAll(){
   const gi=(cp.groom||"").trim()[0]||"", bi=(cp.bride||"").trim()[0]||"";
   const mono=$("mono");mono.textContent=(d.cardType==="graduation")?bi:(gi+" & "+bi);
   mono.style.fontFamily=(lang==="ar")?'"Aref Ruqaa",serif':'"Cormorant Garamond",serif';
-  { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); cov.classList.toggle("triangles",d.coverStyle==="triangles"); cov.style.setProperty("--cover",d.coverColor||"#6E2C3B"); } }
+  { const cov=$("cover"); if(cov){ if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); cov.classList.toggle("conf",isConf); cov.classList.toggle("triangles",!isConf && d.coverStyle==="triangles"); cov.style.setProperty("--cover",d.coverColor||"#6E2C3B"); } }
   { const tm=$("triMono"); if(tm)tm.textContent=(gi&&bi)?(gi+" · "+bi):(bi||gi||""); }
   document.body.classList.toggle("henna-card",d.cardType==="henna");
   { const ic=document.querySelector(".invite-card"); if(ic){ const cs=d.cardStyle || ((d.show||{}).cardBox?"1":"none"); ic.classList.toggle("boxed",cs==="1"); ic.classList.toggle("frame2",cs==="2"); } }
@@ -229,7 +233,7 @@ function renderAll(){
   showEl("groomPerson",showGroom);
   { const r=$("ringsSvg"); if(r)r.style.display=showGroom?"":"none"; }
   txt("groomTitle",cp.groomTitle||"");showEl("groomTitle",showGroom && !!(cp.groomTitle||"").trim());
-  txt("brideTitle",cp.brideTitle||"");showEl("brideTitle",!!(cp.brideTitle||"").trim());
+  txt("brideTitle",cp.brideTitle||"");showEl("brideTitle",!isConf && !!(cp.brideTitle||"").trim());
   const gf=joinTitle(cp.groomFatherTitle,cp.groomFather), bf=joinTitle(cp.brideFatherTitle,cp.brideFather);
   txt("groomFather",gf);showEl("groomFather",showGroom && !!gf);
   txt("brideFather",bf);showEl("brideFather",!!bf && !isGradbook && !isConf);

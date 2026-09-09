@@ -155,7 +155,7 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
     <div class="card">
       <h2>اسم الرابط</h2>
       <label>اسم رابط الدعوة (إنجليزي)</label>
-      <input id="f_slug" placeholder="ahmad-jumana" style="direction:ltr;text-align:left">
+      <input id="f_slug" style="direction:ltr;text-align:left">
       <div class="err" id="slugErr"></div>
       <p class="hint" id="slugLockNote" style="display:none;color:#9C4A3C">📌 اسم الرابط مثبّت ولا يمكن تعديله. لتغييره تواصل مع مزوّد الخدمة.</p>
       <p class="hint">أحرف إنجليزية صغيرة وأرقام وشرطة (-) فقط، مثل <b>ahmad-jumana</b>. اتركه فارغاً ليتولّد رابط تلقائي.</p>
@@ -172,7 +172,7 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
         <label>العريس (اللقب + الاسم)</label>
         <div class="title-name"><input id="f_groomTitle"><input id="f_groom"></div>
         <label>عائلة العريس (تظهر فوق الاسم بنفس الحجم)</label>
-        <input id="f_groomFamily" placeholder="عائلة ...">
+        <input id="f_groomFamily">
         <label>والد العريس (اللقب + الاسم) — يظهر فوق اسم العريس</label>
         <div class="title-name"><input id="f_groomFatherTitle"><input id="f_groomFather"></div>
         <label>صلة القرابة للعريس (تظهر بين اسم الأب واسم العريس)</label>
@@ -180,17 +180,17 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
       </div>
 
       <label style="margin-top:18px" id="brideNameLbl">العروس (اللقب + الاسم)</label>
-      <div class="title-name"><input id="f_brideTitle"><input id="f_bride"></div>
+      <div class="title-name" id="brideTitleName"><input id="f_brideTitle"><input id="f_bride"></div>
       <div id="brideFamilyWrap">
         <label>عائلة العروس (تظهر فوق الاسم بنفس الحجم)</label>
-        <input id="f_brideFamily" placeholder="عائلة ...">
+        <input id="f_brideFamily">
       </div>      <div id="brideFatherRelWrap">
         <label id="brideFatherLbl">والد العروس (اللقب + الاسم) — يظهر فوق اسم العروس</label>
         <div class="title-name"><input id="f_brideFatherTitle"><input id="f_brideFather"></div>
         <label id="brideRelLbl">صلة القرابة للعروس (تظهر بين اسم الأب واسم العروس)</label>
         <input id="f_brideRel">
       </div>
-      <p class="hint">اللقب اختياري (السيد/الدكتور/الأستاذ...). اترك أي حقل فارغاً لإخفائه.</p>
+      <p class="hint" id="titleHint">اللقب اختياري (السيد/الدكتور/الأستاذ...). اترك أي حقل فارغاً لإخفائه.</p>
     </div>
 
     <div class="card" id="dateCard">
@@ -211,7 +211,7 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
       </div>
       <div id="agendaWrap" style="display:none">
         <label style="margin-top:14px">الأجندة / البرنامج (سطر لكل بند: الوقت — البند)</label>
-        <textarea id="f_agenda" rows="4" placeholder="٩:٠٠ — الافتتاح والتسجيل&#10;٩:٣٠ — الجلسة الأولى&#10;١١:٠٠ — استراحة"></textarea>
+        <textarea id="f_agenda" rows="4"></textarea>
       </div>
       <div id="quranWrap">
         <label class="chk" style="margin-top:14px"><input type="checkbox" id="f_show_bismillah"> إظهار البسملة</label>
@@ -227,12 +227,12 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
 
     <div class="card" id="venueCard">
       <h2>المكان</h2>
-      <label>اسم الصالة</label>
+      <label id="venueNameLbl">اسم الصالة</label>
       <input id="f_venueName">
       <label>تفاصيل المكان (كل سطر يظهر منفصلاً)</label>
       <textarea id="f_venueSub" rows="2"></textarea>
       <label>رابط الموقع على خرائط جوجل</label>
-      <input id="f_mapUrl" placeholder="https://maps.google.com/...">
+      <input id="f_mapUrl">
     </div>
 
     <div class="card" id="notesCard">
@@ -278,13 +278,14 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
         <option value="none">بدون شكل (على الخلفية مباشرة)</option>
         <option value="1">إظهار الإطار المقوّس</option>
       </select>
+      <div id="coverStyleWrap">
       <label>غلاف الفتح (الختم)</label>
       <select id="f_cover_style" style="margin-bottom:10px">
         <option value="seal">ختم شمعي (كلاسيكي)</option>
         <option value="triangles">مثلثات بنقوش تُضيء</option>
       </select>
       <label>لون الغلاف (لتصميم المثلثات)</label>
-      <input id="f_cover_color" type="color" style="margin-bottom:6px">
+      <input id="f_cover_color" type="color" style="margin-bottom:6px"></div>
       <label class="chk" style="margin-bottom:12px"><input type="checkbox" id="f_show_dividers"> إظهار الفواصل الزخرفية بين الأقسام</label>
       <div class="row3">
         <div><label>الخلفية</label><input id="c_bg" type="color"></div>
@@ -373,6 +374,6 @@ td.msg{white-space:normal;min-width:180px;color:var(--muted)}
   </div>
   <div id="shType" style="font-family:'Amiri',serif;font-size:52px;color:#6E2C3B">دعوة زفاف</div>
 </div>
-<script src="admin.js?v=40"></script>
+<script src="admin.js?v=41"></script>
 </body>
 </html>

@@ -144,6 +144,12 @@ function applyCardTypeUI(){
   const dtLabel=$("f_datetime")?$("f_datetime").previousElementSibling:null;
   if(dtLabel&&dtLabel.tagName==="LABEL")dtLabel.textContent=henna?"تاريخ ووقت الحنة":(grad?"تاريخ ووقت الحفلة":(conf?"موعد المؤتمر":"تاريخ ووقت العرس"));
   const cpLbl=$("f_couplePhoto_file")?$("f_couplePhoto_file").previousElementSibling:null;
+  // المؤتمر: بدون مربع لقب، بدون تلميح اللقب، إخفاء خيار الغلاف، وتغيير تسمية المكان
+  const btn=$("f_brideTitle"); if(btn)btn.style.display=conf?"none":"";
+  const btname=$("brideTitleName"); if(btname)btname.style.gridTemplateColumns=conf?"1fr":"";
+  const th=$("titleHint"); if(th)th.style.display=conf?"none":"";
+  const csw=$("coverStyleWrap"); if(csw)csw.style.display=conf?"none":"";
+  const vnl=$("venueNameLbl"); if(vnl)vnl.textContent=conf?"مكان الانعقاد":"اسم الصالة";
   if(cpLbl&&cpLbl.tagName==="LABEL")cpLbl.textContent=gb?("صورة "+gword+" (تظهر كبيرة أعلى الكرت)"):"صورة العروسين (اختر صورة من جهازك) — اتركها فارغة لإخفائها";
 }
 function loadSettings(){
@@ -157,7 +163,7 @@ function loadSettings(){
   $("f_brideFamily").value=cp.brideFamily||"";
   $("f_brideFatherTitle").value=cp.brideFatherTitle||"";$("f_brideFather").value=cp.brideFather||"";
   $("f_brideRel").value=cp.brideRel||"";
-  $("f_datetime").value=(c.datetime||"2026-08-24T19:00:00").slice(0,16);
+  $("f_datetime").value=(c.datetime? c.datetime.slice(0,16) : (function(){const d=new Date();d.setSeconds(0,0);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);})());
   lockDateUI(!!c.dateLocked);
   lockSlugUI(!!c.slugLocked);
   $("f_blessing").value=t.blessing||"";
