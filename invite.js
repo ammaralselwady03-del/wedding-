@@ -202,6 +202,7 @@ function renderAll(){
   { const tm=$("triMono"); if(tm)tm.textContent=(gi&&bi)?(gi+" · "+bi):(bi||gi||""); }
   { const co=$("confOrg"); if(co)co.textContent=(d.cardType==="conference")?((cp.brideFamily||"").trim()||(cp.bride||"").trim()||"الجهة المنظِّمة"):""; }
   document.body.classList.toggle("henna-card",d.cardType==="henna");
+  document.body.classList.toggle("conf-card",d.cardType==="conference");
   { const ic=document.querySelector(".invite-card"); if(ic){ const cs=d.cardStyle || ((d.show||{}).cardBox?"1":"none"); ic.classList.toggle("boxed",cs==="1"); ic.classList.toggle("frame2",cs==="2"); } }
 
   txt("hint",(d.cardType==="henna")?((lang==="ar")?"المس الباب لفتح الدعوة":"Tap the door to open"):(d.cardType==="gradbook")?((lang==="ar")?"المس الطاقية لفتح الدفتر":"Tap the cap to open"):L.tapToOpen);
