@@ -267,7 +267,7 @@ function renderAll(){
   txt("lblDays",L.lblDays);txt("lblHours",L.lblHours);txt("lblMins",L.lblMins);txt("lblSecs",L.lblSecs);
   txt("galleryTitle",L.galleryTitle);
   $("footer").innerHTML=(T.footer||L.footer).replace("❤",'<span class="heart">❤</span>');
-  curDone=isHenna?((lang==="en")?"🎉 The henna has begun — congratulations":"🎉 بدأت الحنة — ألف مبروك"):isGrad?((lang==="en")?"🎉 The celebration has begun — Congratulations":"🎉 بدأت الحفلة — ألف مبروك"):L.done;
+  curDone=isHenna?((lang==="en")?"🎉 The henna has begun":"🎉 بدأت الحنة — ألف مبروك"):isGrad?((lang==="en")?"🎉 The celebration has begun":"🎉 بدأت الحفلة — ألف مبروك"):isConf?((lang==="en")?"🔔 The event has started":"🔔 بدأ الحدث — نتشرّف بحضوركم"):L.done;
 
   renderMedia(d.media||{});
   renderRsvpLang(lang);
