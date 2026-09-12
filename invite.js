@@ -200,7 +200,7 @@ function renderAll(){
   mono.style.fontFamily=(lang==="ar")?'"Aref Ruqaa",serif':'"Cormorant Garamond",serif';
   { const cov=$("cover"); if(cov){ const _conf=(d.cardType==="conference"); if(d.cardType==="henna")cov.classList.add("henna"); else cov.classList.remove("henna"); cov.classList.toggle("conf",_conf); cov.classList.toggle("triangles",!_conf && d.coverStyle==="triangles"); cov.style.setProperty("--cover",d.coverColor||"#6E2C3B"); } }
   { const tm=$("triMono"); if(tm)tm.textContent=(gi&&bi)?(gi+" · "+bi):(bi||gi||""); }
-  { const co=$("confOrg"); if(co)co.textContent=(d.cardType==="conference")?((cp.brideFamily||"").trim()||(cp.bride||"").trim()||"الجهة المنظِّمة"):""; }
+  { const co=$("confOrg"); if(co){ const _org=(cp.brideFamily||"").trim(), _t=(cp.bride||"").trim(); co.textContent=(d.cardType==="conference")?(_org||(_t&&_t!=="العروس"?_t:"الجهة المنظِّمة")):""; } }
   document.body.classList.toggle("henna-card",d.cardType==="henna");
   document.body.classList.toggle("conf-card",d.cardType==="conference");
   { const ic=document.querySelector(".invite-card"); if(ic){ const cs=d.cardStyle || ((d.show||{}).cardBox?"1":"none"); ic.classList.toggle("boxed",cs==="1"); ic.classList.toggle("frame2",cs==="2"); } }
