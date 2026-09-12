@@ -266,7 +266,8 @@ function renderAll(){
   txt("countdownTitle",isHenna?((lang==="en")?"Counting down to the henna":"باقٍ على الحنة"):isGrad?((lang==="en")?"Counting down to the celebration":"باقٍ على الحفلة"):isConf?((lang==="en")?"Counting down to the event":"باقٍ على المؤتمر"):L.countdownTitle);
   txt("lblDays",L.lblDays);txt("lblHours",L.lblHours);txt("lblMins",L.lblMins);txt("lblSecs",L.lblSecs);
   txt("galleryTitle",L.galleryTitle);
-  $("footer").innerHTML=(T.footer||L.footer).replace("❤",'<span class="heart">❤</span>');
+  { const _footer=T.footer || (isConf?((lang==="en")?"We look forward to your presence":"نتشرّف بحضوركم ومشاركتكم"):isGradbook?((lang==="en")?"Thank you for celebrating with us":"شكراً لمشاركتكم فرحتنا"):L.footer);
+    $("footer").innerHTML=_footer.replace("❤",'<span class="heart">❤</span>'); }
   curDone=isHenna?((lang==="en")?"🎉 The henna has begun":"🎉 بدأت الحنة — ألف مبروك"):isGrad?((lang==="en")?"🎉 The celebration has begun":"🎉 بدأت الحفلة — ألف مبروك"):isConf?((lang==="en")?"🔔 The event has started":"🔔 بدأ الحدث — نتشرّف بحضوركم"):L.done;
 
   renderMedia(d.media||{});
